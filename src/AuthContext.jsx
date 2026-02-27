@@ -38,12 +38,19 @@ export function AuthProvider({ children }) {
     setLoading(false)
   }
 
-  async function signInWithEmail(email) {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin,
-      }
+  async function signInWithEmail(email, password) {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    return { error }
+  }
+
+  async function signUpWithEmail(email, password) {
+    const { error } = await supabase.auth.signUp({ email, password })
+    return { error }
+  }
+
+  async function resetPassword(email) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/reset-password',
     })
     return { error }
   }
@@ -55,7 +62,7 @@ export function AuthProvider({ children }) {
   const isAdmin = profile?.role === 'admin'
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, isAdmin, signInWithEmail, signOut, fetchProfile }}>
+    <AuthContext.Provider value={{ session, profile, loading, isAdmin, signInWithEmail, signUpWithEmail, resetPassword, signOut, fetchProfile }}>
       {children}
     </AuthContext.Provider>
   )
