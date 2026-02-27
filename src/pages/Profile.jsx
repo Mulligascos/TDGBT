@@ -25,17 +25,25 @@ export default function Profile() {
 
   async function handleSave() {
     setSaving(true)
-    const { error } = await supabase.from('member_profiles').update({
-      full_name: form.full_name,
-      phone: form.phone,
+    const payload = {
+      full_name: form.full_name || null,
       division: form.division,
-      bio: form.bio,
-      emergency_contact: form.emergency_contact,
-      pdga_number: form.pdga_number,
-    }).eq('id', session.user.id)
+    }
+    // Only include optional fields if they have values or are being explicitly cleared
+    if (form.phone !== undefined) payload.phone = form.phone || null
+    if (form.bio !== undefined) payload.bio = form.bio || null
+    if (form.emergency_contact !== undefined) payload.emergency_contact = form.emergency_contact || null
+    if (form.pdga_number !== undefined) payload.pdga_number = form.pdga_number || null
+
+    const { error } = await supabase.from('member_profiles').update(payload).eq('id', session.user.id)
     setSaving(false)
-    if (error) addToast(error.message, 'error')
-    else { addToast('Profile saved!', 'success'); fetchProfile(session.user.id) }
+    if (error) {
+      console.error('Profile save error:', error)
+      addToast(error.message, 'error')
+    } else {
+      addToast('Profile saved!', 'success')
+      fetchProfile(session.user.id)
+    }
   }
 
   async function handlePhotoUpload(e) {
@@ -119,7 +127,7 @@ export default function Profile() {
                   <input className="form-input" value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Your full name" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Phone</label>
+                  <label className="form-label">Phone <span style={{fontWeight:400,opacity:.6}}>(optional)</span></label>
                   <input className="form-input" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+64 21 000 0000" />
                 </div>
               </div>
