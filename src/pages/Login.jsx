@@ -3,21 +3,59 @@ import { useAuth } from '../AuthContext.jsx'
 import './Login.css'
 
 export default function Login() {
-  const { signInWithEmail } = useAuth()
+  const { signInWithEmail, signUpWithEmail, resetPassword } = useAuth()
+  const [mode, setMode] = useState('login') // login | signup | forgot
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
-  async function handleSubmit(e) {
+  function reset() {
+    setError('')
+    setSuccess('')
+    setPassword('')
+    setConfirmPassword('')
+  }
+
+  function switchMode(m) {
+    reset()
+    setMode(m)
+  }
+
+  async function handleLogin(e) {
     e.preventDefault()
-    if (!email.trim()) return
+    if (!email || !password) return setError('Please enter your email and password')
     setLoading(true)
     setError('')
-    const { error } = await signInWithEmail(email.trim().toLowerCase())
+    const { error } = await signInWithEmail(email.trim().toLowerCase(), password)
+    setLoading(false)
+    if (error) setError(error.message === 'Invalid login credentials' ? 'Incorrect email or password' : error.message)
+  }
+
+  async function handleSignUp(e) {
+    e.preventDefault()
+    if (!email || !password) return setError('Please fill in all fields')
+    if (password.length < 8) return setError('Password must be at least 8 characters')
+    if (password !== confirmPassword) return setError('Passwords do not match')
+    setLoading(true)
+    setError('')
+    const { error } = await signUpWithEmail(email.trim().toLowerCase(), password)
     setLoading(false)
     if (error) setError(error.message)
-    else setSent(true)
+    else setSuccess('Account created! You can now sign in.')
+  }
+
+  async function handleForgot(e) {
+    e.preventDefault()
+    if (!email) return setError('Please enter your email address')
+    setLoading(true)
+    setError('')
+    const { error } = await resetPassword(email.trim().toLowerCase())
+    setLoading(false)
+    if (error) setError(error.message)
+    else setSuccess('Password reset email sent — check your inbox.')
   }
 
   return (
@@ -34,45 +72,87 @@ export default function Login() {
           <div className="login-portal">MEMBER PORTAL</div>
         </div>
 
-        {sent ? (
-          <div className="login-sent">
-            <div className="sent-icon">📬</div>
-            <h2 className="sent-title">Check your email</h2>
-            <p className="sent-body">
-              We've sent a magic link to <strong>{email}</strong>.<br />
-              Click the link to sign in — no password needed.
-            </p>
-            <button className="btn btn-secondary" style={{ marginTop: 16 }} onClick={() => setSent(false)}>
-              Use a different email
-            </button>
-          </div>
-        ) : (
+        {mode === 'login' && (
           <>
             <h1 className="login-title">Welcome back</h1>
-            <p className="login-subtitle">Enter your email and we'll send you a sign-in link.</p>
-
-            <form onSubmit={handleSubmit} className="login-form">
+            <p className="login-subtitle">Sign in to your member account</p>
+            <form onSubmit={handleLogin} className="login-form">
               <div className="form-group">
                 <label className="form-label">Email address</label>
-                <input
-                  className="form-input"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  autoFocus
-                  required
-                />
+                <input className="form-input" type="email" placeholder="you@example.com"
+                  value={email} onChange={e => setEmail(e.target.value)} autoFocus required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <input className="form-input" type="password" placeholder="Your password"
+                  value={password} onChange={e => setPassword(e.target.value)} required />
               </div>
               {error && <div className="login-error">{error}</div>}
+              {success && <div className="login-success">{success}</div>}
               <button className="btn btn-primary login-btn" type="submit" disabled={loading}>
-                {loading ? <><div className="spinner" style={{width:14,height:14}} /> Sending...</> : '✉️ Send magic link'}
+                {loading ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Signing in...</> : 'Sign in'}
               </button>
             </form>
+            <div className="login-links">
+              <button className="login-link" onClick={() => switchMode('forgot')}>Forgot password?</button>
+              <span className="login-link-sep">·</span>
+              <button className="login-link" onClick={() => switchMode('signup')}>Create account</button>
+            </div>
+          </>
+        )}
 
-            <p className="login-note">
-              Not a member yet? Contact your club admin to get access.
-            </p>
+        {mode === 'signup' && (
+          <>
+            <h1 className="login-title">Create account</h1>
+            <p className="login-subtitle">Join the club member portal</p>
+            <form onSubmit={handleSignUp} className="login-form">
+              <div className="form-group">
+                <label className="form-label">Email address</label>
+                <input className="form-input" type="email" placeholder="you@example.com"
+                  value={email} onChange={e => setEmail(e.target.value)} autoFocus required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <input className="form-input" type="password" placeholder="At least 8 characters"
+                  value={password} onChange={e => setPassword(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Confirm password</label>
+                <input className="form-input" type="password" placeholder="Repeat your password"
+                  value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+              </div>
+              {error && <div className="login-error">{error}</div>}
+              {success && <div className="login-success">{success}</div>}
+              <button className="btn btn-primary login-btn" type="submit" disabled={loading}>
+                {loading ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Creating account...</> : 'Create account'}
+              </button>
+            </form>
+            <div className="login-links">
+              <span style={{ color: 'var(--text-dim)', fontSize: 13 }}>Already have an account?</span>
+              <button className="login-link" onClick={() => switchMode('login')}>Sign in</button>
+            </div>
+          </>
+        )}
+
+        {mode === 'forgot' && (
+          <>
+            <h1 className="login-title">Reset password</h1>
+            <p className="login-subtitle">We'll send you a link to reset your password</p>
+            <form onSubmit={handleForgot} className="login-form">
+              <div className="form-group">
+                <label className="form-label">Email address</label>
+                <input className="form-input" type="email" placeholder="you@example.com"
+                  value={email} onChange={e => setEmail(e.target.value)} autoFocus required />
+              </div>
+              {error && <div className="login-error">{error}</div>}
+              {success && <div className="login-success">{success}</div>}
+              <button className="btn btn-primary login-btn" type="submit" disabled={loading}>
+                {loading ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Sending...</> : 'Send reset link'}
+              </button>
+            </form>
+            <div className="login-links">
+              <button className="login-link" onClick={() => switchMode('login')}>← Back to sign in</button>
+            </div>
           </>
         )}
       </div>
