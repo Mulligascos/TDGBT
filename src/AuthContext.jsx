@@ -43,8 +43,15 @@ export function AuthProvider({ children }) {
     return { error }
   }
 
-  async function signUpWithEmail(email, password) {
-    const { error } = await supabase.auth.signUp({ email, password })
+  async function inviteMember(email) {
+    // Uses Supabase admin invite - sends an email with a link to set their password
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin,
+        shouldCreateUser: true,
+      }
+    })
     return { error }
   }
 
@@ -62,7 +69,7 @@ export function AuthProvider({ children }) {
   const isAdmin = profile?.role === 'admin'
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, isAdmin, signInWithEmail, signUpWithEmail, resetPassword, signOut, fetchProfile }}>
+    <AuthContext.Provider value={{ session, profile, loading, isAdmin, signInWithEmail, inviteMember, resetPassword, signOut, fetchProfile }}>
       {children}
     </AuthContext.Provider>
   )
