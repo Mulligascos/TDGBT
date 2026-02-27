@@ -1,0 +1,41 @@
+.rounds-list { display: flex; flex-direction: column; gap: 14px; }
+.round-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+.round-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.round-course { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
+.round-date { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
+.round-players { font-size: 13px; color: var(--text-muted); }
+.round-scores { display: flex; flex-direction: column; gap: 6px; }
+.score-row { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: var(--radius); }
+.score-row.score-me { background: var(--accent-dim); }
+.score-pos { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); width: 18px; }
+.score-name { flex: 1; font-size: 14px; font-weight: 500; }
+.score-val { font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
+.score-par { font-size: 12px; font-weight: 400; }
+.under { color: var(--accent); }
+.over { color: var(--danger); }
+.even { color: var(--text-muted); }
+.round-notes { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); }
+
+/* Scorecard */
+.scorecard-modal { max-width: 760px !important; max-height: 90vh; overflow-y: auto; }
+.sc-setup { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.scorecard-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+.scorecard-table { width: 100%; border-collapse: collapse; }
+.scorecard-table th, .scorecard-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: center; }
+.scorecard-table thead th { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); background: var(--surface2); }
+.sc-hole, .sc-hole-num { width: 44px; font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
+.sc-par { width: 56px; }
+.sc-player { min-width: 80px; }
+.sc-player-head { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; }
+.sc-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 0 2px; }
+.sc-remove:hover { color: var(--danger); }
+.sc-input { width: 50px; padding: 5px; text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 14px; font-family: var(--font-mono); }
+.sc-input:focus { outline: none; border-color: var(--accent); }
+.sc-score.birdie { background: rgba(74,222,128,.2); color: var(--accent); border-color: var(--accent); }
+.sc-score.eagle { background: rgba(250,204,21,.2); color: var(--accent2); border-color: var(--accent2); }
+.sc-score.par { background: var(--surface3); }
+.sc-score.bogey { background: rgba(251,146,60,.15); color: var(--accent3); }
+.sc-score.double { background: rgba(248,113,113,.15); color: var(--danger); }
+.sc-total-row td { font-family: var(--font-mono); font-weight: 700; font-size: 14px; background: var(--surface2); border-top: 2px solid var(--border2); }
+.sc-total { font-size: 15px; }
+.sc-to-par { font-size: 11px; color: var(--text-muted); font-weight: 400; }
