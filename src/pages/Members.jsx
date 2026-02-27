@@ -5,7 +5,11 @@ import { useToast, ToastContainer } from '../hooks/useToast.jsx'
 import './Members.css'
 
 export default function Members() {
-  const { isAdmin, session } = useAuth()
+  const { isAdmin, session, inviteMember } = useAuth()
+  const [showInvite, setShowInvite] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteFullName, setInviteFullName] = useState('')
+  const [inviting, setInviting] = useState(false)
   const { toasts, addToast } = useToast()
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -61,6 +65,9 @@ export default function Members() {
           <h1 className="page-title">MEMBERS</h1>
           <p className="page-subtitle">{members.filter(m => m.membership_status === 'Active').length} active · {members.length} total</p>
         </div>
+        {isAdmin && (
+          <button className="btn btn-primary" onClick={() => setShowInvite(true)}>+ Invite Member</button>
+        )}
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
@@ -161,6 +168,65 @@ export default function Members() {
           </div>
         </div>
       )}
+      {showInvite && (
+        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setShowInvite(false)}>
+          <div className="modal">
+            <h2 className="modal-title">INVITE MEMBER</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 20 }}>
+              An email will be sent to the new member with a link to set their password.
+            </p>
+            <div className="modal-fields">
+              <div className="form-group">
+                <label className="form-label">Full Name</label>
+                <input
+                  className="form-input"
+                  value={inviteFullName}
+                  onChange={e => setInviteFullName(e.target.value)}
+                  placeholder="Member's full name"
+                  autoFocus
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Email Address *</label>
+                <input
+                  className="form-input"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={e => setInviteEmail(e.target.value)}
+                  placeholder="member@example.com"
+                />
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => { setShowInvite(false); setInviteEmail(''); setInviteFullName('') }}>Cancel</button>
+              <button className="btn btn-primary" disabled={inviting} onClick={async () => {
+                if (!inviteEmail.trim()) return addToast('Email is required', 'error')
+                setInviting(true)
+                const { error } = await inviteMember(inviteEmail.trim().toLowerCase())
+                if (error) {
+                  addToast(error.message, 'error')
+                } else {
+                  // Pre-create the profile with their name if provided
+                  if (inviteFullName.trim()) {
+                    await supabase.from('member_profiles')
+                      .update({ full_name: inviteFullName.trim() })
+                      .eq('email', inviteEmail.trim().toLowerCase())
+                  }
+                  addToast(`Invite sent to ${inviteEmail}`, 'success')
+                  setShowInvite(false)
+                  setInviteEmail('')
+                  setInviteFullName('')
+                  fetchMembers()
+                }
+                setInviting(false)
+              }}>
+                {inviting ? 'Sending...' : '✉️ Send Invite'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ToastContainer toasts={toasts} />
     </div>
   )

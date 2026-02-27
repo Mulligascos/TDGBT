@@ -3,24 +3,18 @@ import { useAuth } from '../AuthContext.jsx'
 import './Login.css'
 
 export default function Login() {
-  const { signInWithEmail, signUpWithEmail, resetPassword } = useAuth()
-  const [mode, setMode] = useState('login') // login | signup | forgot
+  const { signInWithEmail, resetPassword } = useAuth()
+  const [mode, setMode] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  function reset() {
+  function switchMode(m) {
     setError('')
     setSuccess('')
     setPassword('')
-    setConfirmPassword('')
-  }
-
-  function switchMode(m) {
-    reset()
     setMode(m)
   }
 
@@ -34,19 +28,6 @@ export default function Login() {
     if (error) setError(error.message === 'Invalid login credentials' ? 'Incorrect email or password' : error.message)
   }
 
-  async function handleSignUp(e) {
-    e.preventDefault()
-    if (!email || !password) return setError('Please fill in all fields')
-    if (password.length < 8) return setError('Password must be at least 8 characters')
-    if (password !== confirmPassword) return setError('Passwords do not match')
-    setLoading(true)
-    setError('')
-    const { error } = await signUpWithEmail(email.trim().toLowerCase(), password)
-    setLoading(false)
-    if (error) setError(error.message)
-    else setSuccess('Account created! You can now sign in.')
-  }
-
   async function handleForgot(e) {
     e.preventDefault()
     if (!email) return setError('Please enter your email address')
@@ -55,7 +36,7 @@ export default function Login() {
     const { error } = await resetPassword(email.trim().toLowerCase())
     setLoading(false)
     if (error) setError(error.message)
-    else setSuccess('Password reset email sent — check your inbox.')
+    else setSuccess('Password reset link sent — check your inbox.')
   }
 
   return (
@@ -79,79 +60,74 @@ export default function Login() {
             <form onSubmit={handleLogin} className="login-form">
               <div className="form-group">
                 <label className="form-label">Email address</label>
-                <input className="form-input" type="email" placeholder="you@example.com"
-                  value={email} onChange={e => setEmail(e.target.value)} autoFocus required />
+                <input
+                  className="form-input"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  autoFocus
+                  required
+                />
               </div>
               <div className="form-group">
                 <label className="form-label">Password</label>
-                <input className="form-input" type="password" placeholder="Your password"
-                  value={password} onChange={e => setPassword(e.target.value)} required />
+                <input
+                  className="form-input"
+                  type="password"
+                  placeholder="Your password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
               </div>
               {error && <div className="login-error">{error}</div>}
-              {success && <div className="login-success">{success}</div>}
               <button className="btn btn-primary login-btn" type="submit" disabled={loading}>
-                {loading ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Signing in...</> : 'Sign in'}
+                {loading
+                  ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Signing in...</>
+                  : 'Sign in'}
               </button>
             </form>
             <div className="login-links">
-              <button className="login-link" onClick={() => switchMode('forgot')}>Forgot password?</button>
-              <span className="login-link-sep">·</span>
-              <button className="login-link" onClick={() => switchMode('signup')}>Create account</button>
-            </div>
-          </>
-        )}
-
-        {mode === 'signup' && (
-          <>
-            <h1 className="login-title">Create account</h1>
-            <p className="login-subtitle">Join the club member portal</p>
-            <form onSubmit={handleSignUp} className="login-form">
-              <div className="form-group">
-                <label className="form-label">Email address</label>
-                <input className="form-input" type="email" placeholder="you@example.com"
-                  value={email} onChange={e => setEmail(e.target.value)} autoFocus required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Password</label>
-                <input className="form-input" type="password" placeholder="At least 8 characters"
-                  value={password} onChange={e => setPassword(e.target.value)} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Confirm password</label>
-                <input className="form-input" type="password" placeholder="Repeat your password"
-                  value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
-              </div>
-              {error && <div className="login-error">{error}</div>}
-              {success && <div className="login-success">{success}</div>}
-              <button className="btn btn-primary login-btn" type="submit" disabled={loading}>
-                {loading ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Creating account...</> : 'Create account'}
+              <button className="login-link" onClick={() => switchMode('forgot')}>
+                Forgot password?
               </button>
-            </form>
-            <div className="login-links">
-              <span style={{ color: 'var(--text-dim)', fontSize: 13 }}>Already have an account?</span>
-              <button className="login-link" onClick={() => switchMode('login')}>Sign in</button>
             </div>
+            <p className="login-note">
+              Don't have an account? Contact your club admin to get access.
+            </p>
           </>
         )}
 
         {mode === 'forgot' && (
           <>
             <h1 className="login-title">Reset password</h1>
-            <p className="login-subtitle">We'll send you a link to reset your password</p>
+            <p className="login-subtitle">Enter your email and we'll send you a reset link</p>
             <form onSubmit={handleForgot} className="login-form">
               <div className="form-group">
                 <label className="form-label">Email address</label>
-                <input className="form-input" type="email" placeholder="you@example.com"
-                  value={email} onChange={e => setEmail(e.target.value)} autoFocus required />
+                <input
+                  className="form-input"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  autoFocus
+                  required
+                />
               </div>
               {error && <div className="login-error">{error}</div>}
               {success && <div className="login-success">{success}</div>}
               <button className="btn btn-primary login-btn" type="submit" disabled={loading}>
-                {loading ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Sending...</> : 'Send reset link'}
+                {loading
+                  ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Sending...</>
+                  : 'Send reset link'}
               </button>
             </form>
             <div className="login-links">
-              <button className="login-link" onClick={() => switchMode('login')}>← Back to sign in</button>
+              <button className="login-link" onClick={() => switchMode('login')}>
+                ← Back to sign in
+              </button>
             </div>
           </>
         )}
