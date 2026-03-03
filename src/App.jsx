@@ -1,95 +1,122 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom'
-import { AuthProvider, useAuth } from './AuthContext.jsx'
-import Login from './pages/Login.jsx'
-import Home from './pages/Home.jsx'
-import Profile from './pages/Profile.jsx'
-import Members from './pages/Members.jsx'
-import News from './pages/News.jsx'
-import Events from './pages/Events.jsx'
-import Scores from './pages/Scores.jsx'
-import BagTag from './pages/BagTag.jsx'
-import './App.css'
-
-function AppShell() {
-  const { session, profile, loading, isAdmin, signOut } = useAuth()
-  const location = useLocation()
-
-  if (loading) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: 16, background: '#080c0a', color: '#6b8f72', fontFamily: 'sans-serif' }}>
-      <div style={{ fontSize: 48 }}>🥏</div>
-      <div style={{ fontSize: 14, letterSpacing: 2 }}>LOADING...</div>
-    </div>
-  )
-
-  if (!session) return <Login />
-
-  const initials = profile?.full_name
-    ? profile.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-    : '?'
-
-  return (
-    <div className="app">
-      <header className="header">
-        <div className="header-inner">
-          <NavLink to="/" className="logo">
-            <span className="logo-icon">🥏</span>
-            <div>
-              <div className="logo-title">{profile?.club_name || 'DISC GOLF'}</div>
-              <div className="logo-sub">MEMBER PORTAL</div>
-            </div>
-          </NavLink>
-
-          <nav className="nav">
-            <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Home</NavLink>
-            <NavLink to="/news" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>News</NavLink>
-            <NavLink to="/events" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Events</NavLink>
-            <NavLink to="/scores" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Scores</NavLink>
-            <NavLink to="/bagtag" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Bag Tags</NavLink>
-            <NavLink to="/members" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Members</NavLink>
-          </nav>
-
-          <div className="header-right">
-            <NavLink to="/profile" className="profile-btn">
-              {profile?.photo_url
-                ? <img src={profile.photo_url} className="avatar avatar-sm" alt="" />
-                : <div className="avatar avatar-sm">{initials}</div>
-              }
-              <span className="profile-name">{profile?.full_name?.split(' ')[0] || 'Profile'}</span>
-              {isAdmin && <span className="admin-pip" title="Admin">★</span>}
-            </NavLink>
-            <button className="btn btn-secondary btn-sm signout-btn" onClick={signOut}>Sign out</button>
-          </div>
-        </div>
-      </header>
-
-      <main className="main">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/members" element={<Members />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/scores" element={<Scores />} />
-          <Route path="/bagtag" element={<BagTag />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </main>
-
-      <footer className="footer">
-        <span>{profile?.club_name || 'Disc Golf Club'}</span>
-        <span className="footer-sep">·</span>
-        <span>Member Portal</span>
-      </footer>
-    </div>
-  )
-}
+import React, { useState, useCallback } from 'react';
+import { useAuth } from './hooks/useAuth';
+import { useAppData } from './hooks/useAppData';
+import { haptic } from './utils';
+import { BottomNav } from './components/BottomNav';
+import { Toast } from './components/ui';
+import { LoginPage } from './pages/LoginPage';
+import { HomePage } from './pages/HomePage';
+import { MatchesPage } from './pages/MatchesPage';
+import { HistoryPage, CoursesPage, ProfilePage } from './pages/PlaceholderPages';
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [toast, setToast] = useState(null);
+
+  const {
+    currentUser, players, isLoadingPlayers,
+    loginError, setLoginError,
+    login, logout, updateUser, isAdmin,
+  } = useAuth();
+
+  const {
+    courses, tournaments, matches,
+    isLoading, loadData, activeTournament,
+  } = useAppData(currentUser);
+
+  const showToast = useCallback((message, type = 'success') => {
+    haptic(type === 'error' ? 'error' : 'success');
+    setToast({ message, type });
+  }, []);
+
+  const handleLogin = useCallback(async (name, pin) => {
+    const ok = await login(name, pin);
+    if (ok) showToast(`Welcome back, ${name.split(' ')[0]}!`);
+  }, [login, showToast]);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    setActiveTab('home');
+    showToast('Signed out', 'info');
+  }, [logout, showToast]);
+
+  const handleTabChange = useCallback((tab) => {
+    haptic('light');
+    setActiveTab(tab);
+  }, []);
+
+  // Not logged in
+  if (!currentUser) {
+    return (
+      <>
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        <LoginPage
+          players={players}
+          isLoadingPlayers={isLoadingPlayers}
+          onLogin={handleLogin}
+          loginError={loginError}
+        />
+      </>
+    );
+  }
+
+  // Shared props
+  const commonProps = {
+    currentUser,
+    isAdmin,
+    onNavigate: handleTabChange,
+  };
+
+  const pages = {
+    home: (
+      <HomePage
+        {...commonProps}
+        matches={matches}
+        tournaments={tournaments}
+        activeTournament={activeTournament}
+      />
+    ),
+    matches: (
+      <MatchesPage
+        {...commonProps}
+        matches={matches}
+        activeTournament={activeTournament}
+        courses={courses}
+      />
+    ),
+    history: <HistoryPage {...commonProps} matches={matches} />,
+    courses: <CoursesPage {...commonProps} courses={courses} />,
+    profile: (
+      <ProfilePage
+        {...commonProps}
+        onLogout={handleLogout}
+      />
+    ),
+  };
+
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppShell />
-      </BrowserRouter>
-    </AuthProvider>
-  )
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #071407; color: white; }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translate(-50%, -100%); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        button { font-family: "'DM Sans', sans-serif"; }
+        select option { background: #0d2b0d; }
+        input::placeholder { color: rgba(255,255,255,0.25); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+      `}</style>
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {pages[activeTab] || pages.home}
+
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+    </>
+  );
 }
