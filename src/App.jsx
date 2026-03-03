@@ -6,7 +6,7 @@ import { BottomNav } from './components/BottomNav';
 import { Toast } from './components/ui';
 import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
-import { MatchesPage } from './pages/MatchesPage';
+import { MatchesPage } from './pages/scoring/MatchesPage';
 import { HistoryPage, CoursesPage, ProfilePage } from './pages/PlaceholderPages';
 
 export default function App() {
