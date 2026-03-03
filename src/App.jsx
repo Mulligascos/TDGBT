@@ -14,7 +14,7 @@ export default function App() {
   const [toast, setToast] = useState(null);
 
   const {
-    currentUser, players, isLoadingPlayers,
+    currentUser, players: loginPlayers, isLoadingPlayers,
     loginError, setLoginError,
     login, logout, updateUser, isAdmin,
   } = useAuth();
@@ -51,7 +51,7 @@ export default function App() {
       <>
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         <LoginPage
-          players={players}
+          players={loginPlayers}
           isLoadingPlayers={isLoadingPlayers}
           onLogin={handleLogin}
           loginError={loginError}
