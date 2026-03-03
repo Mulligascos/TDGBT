@@ -1,0 +1,101 @@
+import React from 'react';
+import { BRAND } from '../utils';
+
+const tabs = [
+  { id: 'home',    label: 'Home',    icon: HomeIcon },
+  { id: 'matches', label: 'Matches', icon: DiscIcon },
+  { id: 'history', label: 'History', icon: HistoryIcon },
+  { id: 'courses', label: 'Courses', icon: CourseIcon },
+  { id: 'profile', label: 'Profile', icon: ProfileIcon },
+];
+
+function HomeIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      <polyline points="9,22 9,12 15,12 15,22"/>
+    </svg>
+  );
+}
+
+function DiscIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="3"/>
+      <line x1="12" y1="2" x2="12" y2="9"/>
+      <line x1="12" y1="15" x2="12" y2="22"/>
+    </svg>
+  );
+}
+
+function HistoryIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12,6 12,12 16,14"/>
+    </svg>
+  );
+}
+
+function CourseIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 17l4-8 4 4 4-6 4 10"/>
+      <line x1="3" y1="21" x2="21" y2="21"/>
+    </svg>
+  );
+}
+
+function ProfileIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  );
+}
+
+export const BottomNav = ({ activeTab, onTabChange }) => (
+  <nav style={{
+    position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+    background: 'rgba(10, 26, 10, 0.97)',
+    borderTop: '1px solid rgba(255,255,255,0.08)',
+    backdropFilter: 'blur(20px)',
+    paddingBottom: 'env(safe-area-inset-bottom)',
+  }}>
+    <div style={{
+      maxWidth: 520, margin: '0 auto',
+      display: 'flex', alignItems: 'stretch',
+    }}>
+      {tabs.map(({ id, label, icon: Icon }) => {
+        const active = activeTab === id;
+        return (
+          <button key={id} onClick={() => onTabChange(id)} style={{
+            flex: 1, display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            gap: 3, padding: '10px 4px',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: active ? BRAND.light : 'rgba(255,255,255,0.35)',
+            transition: 'color 0.2s ease',
+            position: 'relative',
+          }}>
+            {active && (
+              <div style={{
+                position: 'absolute', top: 0, left: '50%',
+                transform: 'translateX(-50%)',
+                width: 24, height: 2, borderRadius: 2,
+                backgroundColor: BRAND.light,
+              }} />
+            )}
+            <Icon active={active} />
+            <span style={{
+              fontSize: 10, fontWeight: active ? 700 : 500,
+              letterSpacing: 0.3, fontFamily: "'DM Sans', sans-serif",
+            }}>{label}</span>
+          </button>
+        );
+      })}
+    </div>
+  </nav>
+);
