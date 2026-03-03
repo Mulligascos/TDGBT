@@ -1,6 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 
+// Normalise DB column names → consistent app-wide field names
+export const normalisePlayer = (row) => ({
+  id: row.player_id,
+  name: row.player_name,
+  status: row.player_status,
+  division: row.player_division,
+  bagTag: row.bag_tag,
+  role: row.role || 'member',
+  pin: row.pin,
+  membershipNumber: row.membership_number,
+  createdAt: row.created_at,
+});
+
 export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -18,10 +31,13 @@ export const useAuth = () => {
       setIsLoadingPlayers(true);
       const { data, error } = await supabase
         .from('players')
-        .select('id, name, status')
-        .eq('status', 'Active')
-        .order('name');
-      if (!error && data) setPlayers(data);
+        .select('player_id, player_name, player_status')
+        .eq('player_status', 'Active')
+        .order('player_name');
+      if (!error && data) {
+        setPlayers(data.map(normalisePlayer));
+      }
+      if (error) console.error('Error loading players:', error);
       setIsLoadingPlayers(false);
     };
     fetchPlayers();
@@ -32,7 +48,7 @@ export const useAuth = () => {
     const { data, error } = await supabase
       .from('players')
       .select('*')
-      .eq('name', playerName)
+      .eq('player_name', playerName)
       .eq('pin', pin)
       .single();
 
@@ -41,8 +57,9 @@ export const useAuth = () => {
       return false;
     }
 
-    localStorage.setItem('tdg-user', JSON.stringify(data));
-    setCurrentUser(data);
+    const user = normalisePlayer(data);
+    localStorage.setItem('tdg-user', JSON.stringify(user));
+    setCurrentUser(user);
     return true;
   }, []);
 
