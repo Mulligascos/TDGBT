@@ -9,7 +9,7 @@ import { HomePage } from './pages/HomePage';
 import { MatchesPage } from './pages/matches/MatchesPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { CoursesPage } from './pages/PlaceholderPages';
+import { CoursesPage } from './pages/CoursesPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
