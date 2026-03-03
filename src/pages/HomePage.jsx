@@ -1,208 +1,386 @@
-import React from 'react';
-import { BRAND, formatName, formatDate, formatTime } from '../utils';
-import { Badge, EmptyState, SectionLabel } from '../components/ui';
+import React, { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../supabaseClient';
+import { BRAND, formatName, formatDate } from '../utils';
+import { Badge } from '../components/ui';
+import { vsParLabel, vsParColor, buildLeaderboard } from '../utils/strokeplay';
+import { Trophy, Disc, Clock, ChevronRight, Zap, Flag, BookOpen } from 'lucide-react';
 
-export const HomePage = ({ currentUser, matches, tournaments, activeTournament, onNavigate, isAdmin }) => {
-  const myMatches = matches.filter(m =>
-    m.player1?.id === currentUser.id || m.player2?.id === currentUser.id
+// ─── SECTION TITLE ────────────────────────────────────────────────────────────
+const SectionTitle = ({ children, action }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+      {children}
+    </div>
+    {action}
+  </div>
+);
+
+// ─── QUICK ACTION BUTTON ──────────────────────────────────────────────────────
+const QuickAction = ({ icon: Icon, label, sub, onClick, accent = false }) => (
+  <button onClick={onClick} style={{
+    background: accent ? `linear-gradient(135deg, ${BRAND.primary}60, ${BRAND.accent}40)` : 'rgba(255,255,255,0.05)',
+    border: `1px solid ${accent ? BRAND.light + '30' : 'rgba(255,255,255,0.08)'}`,
+    borderRadius: 14, padding: '14px 16px', cursor: 'pointer', textAlign: 'left',
+    fontFamily: "'DM Sans', sans-serif",
+  }}>
+    <Icon size={20} color={accent ? BRAND.light : 'rgba(255,255,255,0.5)'} style={{ marginBottom: 8 }} />
+    <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>{label}</div>
+    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{sub}</div>
+  </button>
+);
+
+// ─── TOP 3 LEADERBOARD ────────────────────────────────────────────────────────
+const Top3 = ({ entries, currentUserId, onViewAll }) => {
+  const medals = ['🥇', '🥈', '🥉'];
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
+      {entries.map((entry, i) => {
+        const isMe = entry.playerId === currentUserId;
+        return (
+          <div key={entry.playerId} style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '12px 16px',
+            background: isMe ? 'rgba(74,222,128,0.06)' : 'transparent',
+            borderBottom: i < entries.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+          }}>
+            <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{medals[i]}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: isMe ? 700 : 600, color: isMe ? BRAND.light : 'white' }}>
+                {formatName(entry.player?.name || 'Unknown')}
+                {isMe && <span style={{ fontSize: 11, color: BRAND.light, marginLeft: 6 }}>you</span>}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>
+                {entry.roundsPlayed} round{entry.roundsPlayed !== 1 ? 's' : ''}
+              </div>
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: vsParColor(entry.totalVsPar), fontFamily: "'Syne', sans-serif" }}>
+              {vsParLabel(entry.totalVsPar)}
+            </div>
+          </div>
+        );
+      })}
+      <button onClick={onViewAll} style={{
+        width: '100%', padding: '11px', background: 'rgba(255,255,255,0.03)',
+        border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)',
+        color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13, cursor: 'pointer',
+      }}>
+        Full standings →
+      </button>
+    </div>
   );
+};
 
-  const nextMatch = myMatches
-    .filter(m => m.status === 'scheduled')
-    .sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date))[0];
+// ─── MY RECENT SCORES ─────────────────────────────────────────────────────────
+const RecentScores = ({ scores, onViewAll }) => (
+  <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
+    {scores.map((s, i) => (
+      <div key={s.id} style={{
+        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+        borderBottom: i < scores.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+      }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+          background: s.vs_par < 0 ? 'rgba(74,222,128,0.12)' : s.vs_par === 0 ? 'rgba(251,191,36,0.12)' : 'rgba(248,113,113,0.08)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: vsParColor(s.vs_par), fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
+            {vsParLabel(s.vs_par)}
+          </div>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{s.total_strokes}</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {s.courseName || 'Unknown course'}
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{formatDate(s.roundDate)}</div>
+        </div>
+      </div>
+    ))}
+    <button onClick={onViewAll} style={{
+      width: '100%', padding: '11px', background: 'rgba(255,255,255,0.03)',
+      border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)',
+      color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif",
+      fontSize: 13, cursor: 'pointer',
+    }}>
+      Full history →
+    </button>
+  </div>
+);
 
-  const recentResults = myMatches
-    .filter(m => m.status === 'complete')
-    .sort((a, b) => new Date(b.scheduled_date) - new Date(a.scheduled_date))
-    .slice(0, 3);
+// ─── ANNOUNCEMENT CARD ────────────────────────────────────────────────────────
+const AnnouncementCard = ({ announcement }) => (
+  <div style={{
+    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 14, padding: '14px 16px', marginBottom: 8,
+  }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'white', flex: 1, paddingRight: 8 }}>{announcement.title}</div>
+      {announcement.pinned && (
+        <span style={{ fontSize: 10, background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24', borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap' }}>📌 Pinned</span>
+      )}
+    </div>
+    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{announcement.body}</div>
+    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>
+      {formatDate(announcement.created_at)}
+    </div>
+  </div>
+);
 
-  const formatVs = (match) => {
-    const opp = match.player1?.id === currentUser.id ? match.player2 : match.player1;
-    return opp?.name ? formatName(opp.name) : 'TBD';
-  };
+// ─── NO TOURNAMENT STATE ──────────────────────────────────────────────────────
+const NoTournamentBanner = ({ onScore }) => (
+  <div style={{
+    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 16, padding: '20px', marginBottom: 24, textAlign: 'center',
+  }}>
+    <div style={{ fontSize: 32, marginBottom: 8 }}>🥏</div>
+    <div style={{ fontSize: 16, fontWeight: 700, color: 'white', marginBottom: 4 }}>No active tournament</div>
+    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
+      Score a casual round to keep your game sharp
+    </div>
+    <button onClick={onScore} style={{
+      padding: '10px 24px', borderRadius: 12,
+      background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
+      border: '1px solid rgba(74,222,128,0.3)', color: 'white',
+      fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
+    }}>
+      Score a Round
+    </button>
+  </div>
+);
 
-  const didWin = (match) => match.winner_id === currentUser.id;
+// ─── MAIN HOME PAGE ───────────────────────────────────────────────────────────
+export const HomePage = ({ currentUser, tournaments, activeTournament, players, onNavigate, isAdmin }) => {
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [myRecentScores, setMyRecentScores] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [greeting, setGreeting] = useState('');
+
+  // Time-based greeting
+  useEffect(() => {
+    const h = new Date().getHours();
+    setGreeting(h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening');
+  }, []);
+
+  const loadHomeData = useCallback(async () => {
+    if (!currentUser) return;
+    setLoading(true);
+    try {
+      // Load in parallel
+      const queries = [
+        // My recent 3 scores with course info
+        supabase.from('round_scores')
+          .select('*, rounds!inner(course_id, scheduled_date, tournament_id, courses(name))')
+          .eq('player_id', currentUser.id)
+          .order('submitted_at', { ascending: false })
+          .limit(3),
+        // Announcements
+        supabase.from('announcements')
+          .select('*')
+          .order('pinned', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(3),
+      ];
+
+      // If active tournament, also load leaderboard data
+      if (activeTournament) {
+        queries.push(
+          supabase.from('round_scores')
+            .select('*, rounds!inner(tournament_id)')
+            .eq('rounds.tournament_id', activeTournament.id)
+        );
+      }
+
+      const results = await Promise.all(queries);
+      const [scoresResult, announcementsResult, leaderboardResult] = results;
+
+      // My recent scores
+      const myScores = (scoresResult.data || []).map(s => ({
+        ...s,
+        courseName: s.rounds?.courses?.name || 'Unknown course',
+        roundDate: s.rounds?.scheduled_date,
+      }));
+      setMyRecentScores(myScores);
+
+      // Announcements (graceful — table may not exist yet)
+      setAnnouncements(announcementsResult.data || []);
+
+      // Leaderboard top 3
+      if (activeTournament && leaderboardResult?.data) {
+        const lb = buildLeaderboard(leaderboardResult.data, players || [], activeTournament.count_rounds || 6);
+        setLeaderboard(lb.slice(0, 3));
+      }
+
+    } catch (err) {
+      console.error('Error loading home data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser, activeTournament, players]);
+
+  useEffect(() => { loadHomeData(); }, [loadHomeData]);
+
+  const divisionLabel = { Mixed: 'Mixed Open', Female: 'Female', Junior: 'Junior', Senior: 'Senior' };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
-      fontFamily: "'DM Sans', sans-serif",
-      color: 'white',
-      paddingBottom: 90,
-    }}>
+    <div style={pageStyle}>
+
       {/* Header */}
       <div style={{
-        background: `linear-gradient(160deg, ${BRAND.primary}cc, ${BRAND.accent}aa)`,
+        background: `linear-gradient(160deg, ${BRAND.primary}cc, ${BRAND.accent}88)`,
         padding: '52px 20px 28px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, marginBottom: 4 }}>
-            Welcome back
-          </p>
-          <h1 style={{
-            fontFamily: "'Syne', sans-serif",
-            fontSize: 28, fontWeight: 800,
-            color: 'white', margin: 0, letterSpacing: -0.5,
-          }}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{greeting}</div>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800, color: 'white', letterSpacing: -0.5, marginBottom: 10 }}>
             {formatName(currentUser.name)} 👋
-          </h1>
-          <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Badge
               label={currentUser.role === 'admin' ? 'Admin' : currentUser.role === 'committee' ? 'Committee' : 'Member'}
               color={currentUser.role === 'admin' ? '#fbbf24' : BRAND.light}
             />
-            <Badge label={currentUser.status} color={currentUser.status === 'Active' ? BRAND.light : '#f87171'} />
+            <Badge label={currentUser.status || 'Active'} color={BRAND.light} />
+            {currentUser.division && (
+              <Badge label={divisionLabel[currentUser.division] || currentUser.division} color="rgba(255,255,255,0.35)" />
+            )}
+            {currentUser.bagTag && (
+              <Badge label={`#${currentUser.bagTag}`} color={BRAND.light} />
+            )}
           </div>
         </div>
       </div>
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px 0' }}>
 
-        {/* Active tournament banner */}
-        {activeTournament && (
+        {/* ── ACTIVE TOURNAMENT BANNER ── */}
+        {activeTournament ? (
           <div style={{
-            background: `linear-gradient(135deg, ${BRAND.primary}40, ${BRAND.accent}20)`,
-            border: `1px solid ${BRAND.light}30`,
-            borderRadius: 16, padding: '14px 18px',
-            marginBottom: 24, display: 'flex',
-            alignItems: 'center', justifyContent: 'space-between',
+            background: `linear-gradient(135deg, ${BRAND.primary}50, ${BRAND.accent}30)`,
+            border: `1px solid ${BRAND.light}35`,
+            borderRadius: 18, padding: '18px', marginBottom: 24,
           }}>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>
-                Active Tournament
-              </div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>
-                {activeTournament.name}
-              </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
-                {formatDate(activeTournament.start_date)} – {formatDate(activeTournament.end_date)}
-              </div>
-            </div>
-            <button onClick={() => onNavigate('matches')} style={{
-              background: BRAND.light, color: BRAND.primary,
-              border: 'none', borderRadius: 10, padding: '8px 14px',
-              fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 700,
-              cursor: 'pointer', whiteSpace: 'nowrap',
-            }}>
-              View →
-            </button>
-          </div>
-        )}
-
-        {/* Next match */}
-        <div style={{ marginBottom: 28 }}>
-          <SectionLabel>Your Next Match</SectionLabel>
-          {nextMatch ? (
-            <div
-              onClick={() => onNavigate('matches')}
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 16, padding: '16px 18px',
-                cursor: 'pointer', transition: 'all 0.2s',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: 'white', marginBottom: 6 }}>
-                    vs {formatVs(nextMatch)}
-                  </div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
-                    📅 {formatDate(nextMatch.scheduled_date)}
-                    {nextMatch.scheduled_time && ` · ⏰ ${formatTime(nextMatch.scheduled_time)}`}
-                  </div>
-                  {nextMatch.course && (
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>
-                      📍 {nextMatch.course.name}
-                    </div>
-                  )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>
+                  🏆 Active Tournament
                 </div>
-                <Badge label="Scheduled" color="#fbbf24" />
+                <div style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+                  {activeTournament.name}
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>
+                  {formatDate(activeTournament.start_date)} – {formatDate(activeTournament.end_date)}
+                </div>
               </div>
+              <button onClick={() => onNavigate('matches')} style={{
+                background: BRAND.light, color: BRAND.primary,
+                border: 'none', borderRadius: 10, padding: '8px 16px',
+                fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              }}>
+                Rounds →
+              </button>
             </div>
-          ) : (
-            <EmptyState icon="🥏" title="No upcoming matches" subtitle="Check back after fixtures are scheduled" />
-          )}
+
+            {/* Top 3 inline leaderboard */}
+            {!loading && leaderboard.length > 0 && (
+              <>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+                  Standings
+                </div>
+                <Top3
+                  entries={leaderboard}
+                  currentUserId={currentUser.id}
+                  onViewAll={() => onNavigate('matches')}
+                />
+              </>
+            )}
+
+            {!loading && leaderboard.length === 0 && (
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '8px 0' }}>
+                No scores submitted yet — be the first!
+              </div>
+            )}
+          </div>
+        ) : (
+          <NoTournamentBanner onScore={() => onNavigate('matches')} />
+        )}
+
+        {/* ── QUICK ACTIONS ── */}
+        <div style={{ marginBottom: 28 }}>
+          <SectionTitle>Quick Actions</SectionTitle>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <QuickAction icon={Disc} label="Score a Round" sub="Stroke play" onClick={() => onNavigate('matches')} accent />
+            <QuickAction icon={Trophy} label="Leaderboard" sub="Tournament standings" onClick={() => onNavigate('matches')} />
+            <QuickAction icon={Clock} label="My History" sub="Past rounds" onClick={() => onNavigate('history')} />
+            <QuickAction icon={Flag} label="Courses" sub="Course info" onClick={() => onNavigate('courses')} />
+          </div>
         </div>
 
-        {/* Recent results */}
-        {recentResults.length > 0 && (
+        {/* ── MY RECENT SCORES ── */}
+        {myRecentScores.length > 0 && (
           <div style={{ marginBottom: 28 }}>
-            <SectionLabel>Recent Results</SectionLabel>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {recentResults.map(match => {
-                const won = didWin(match);
-                return (
-                  <div key={match.id} onClick={() => onNavigate('history')} style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${won ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)'}`,
-                    borderLeft: `3px solid ${won ? BRAND.light : '#f87171'}`,
-                    borderRadius: 12, padding: '12px 16px',
-                    cursor: 'pointer', display: 'flex',
-                    justifyContent: 'space-between', alignItems: 'center',
-                  }}>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>
-                        vs {formatVs(match)}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
-                        {formatDate(match.scheduled_date)}
-                      </div>
-                    </div>
-                    <Badge
-                      label={won ? 'Win' : match.winner_id ? 'Loss' : 'Tie'}
-                      color={won ? BRAND.light : match.winner_id ? '#f87171' : '#fbbf24'}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-            <button onClick={() => onNavigate('history')} style={{
-              width: '100%', marginTop: 10, padding: '10px',
-              background: 'transparent', border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 12, color: 'rgba(255,255,255,0.4)',
-              fontFamily: "'DM Sans', sans-serif", fontSize: 13,
-              cursor: 'pointer',
-            }}>
-              View full history →
-            </button>
+            <SectionTitle
+              action={
+                <button onClick={() => onNavigate('history')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 12, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
+                  See all
+                </button>
+              }
+            >
+              My Recent Scores
+            </SectionTitle>
+            <RecentScores scores={myRecentScores} onViewAll={() => onNavigate('history')} />
           </div>
         )}
 
-        {/* Quick actions */}
-        <div style={{ marginBottom: 28 }}>
-          <SectionLabel>Quick Actions</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {[
-              { label: '🥏 Start Match', sub: 'Match play', tab: 'matches' },
-              { label: '📋 Scorecard', sub: 'Stroke play', tab: 'matches' },
-              { label: '📊 Standings', sub: 'League table', tab: 'history' },
-              { label: '⛳ Courses', sub: 'Course info', tab: 'courses' },
-            ].map(({ label, sub, tab }) => (
-              <button key={label} onClick={() => onNavigate(tab)} style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 14, padding: '14px 16px',
-                cursor: 'pointer', textAlign: 'left',
-                transition: 'all 0.2s',
+        {/* No scores yet nudge */}
+        {!loading && myRecentScores.length === 0 && (
+          <div style={{ marginBottom: 28 }}>
+            <SectionTitle>My Recent Scores</SectionTitle>
+            <div style={{
+              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: 14, padding: '20px', textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>No rounds scored yet</div>
+              <button onClick={() => onNavigate('matches')} style={{
+                marginTop: 12, padding: '8px 20px', borderRadius: 10,
+                background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)',
+                color: BRAND.light, fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
               }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>{label}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{sub}</div>
+                Score your first round →
               </button>
-            ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ── ANNOUNCEMENTS ── */}
+        {announcements.length > 0 && (
+          <div style={{ marginBottom: 28 }}>
+            <SectionTitle>Club News</SectionTitle>
+            {announcements.map(a => <AnnouncementCard key={a.id} announcement={a} />)}
+          </div>
+        )}
 
       </div>
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-        @keyframes slideDown { from{opacity:0;transform:translate(-50%,-100%)} to{opacity:1;transform:translate(-50%,0)} }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
-        button { font-family: 'DM Sans', sans-serif; }
-      `}</style>
+      <GlobalStyles />
     </div>
   );
 };
+
+const pageStyle = {
+  minHeight: '100vh',
+  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+};
+
+const GlobalStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    button { font-family: 'DM Sans', sans-serif; }
+    button:active { transform: scale(0.97); }
+  `}</style>
+);
