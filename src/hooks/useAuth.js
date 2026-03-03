@@ -11,6 +11,10 @@ export const normalisePlayer = (row) => ({
   role: row.role || 'member',
   pin: row.pin,
   membershipNumber: row.membership_number,
+  email: row.email || '',
+  phone: row.phone || '',
+  pdgaNumber: row.pdga_number || '',
+  udiscUsername: row.udisc_username || '',
   createdAt: row.created_at,
 });
 
