@@ -152,7 +152,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
 };
 
 // ─── SCORECARD SUMMARY ────────────────────────────────────────────────────────
-const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting }) => {
+const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting, submitError }) => {
   const rows = players.map(p => {
     const playerScores = scores[p.id] || [];
     const adjusted = playerScores.map(s => s != null ? applyHandicap(s, p) : null);
@@ -250,6 +250,16 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting 
         </table>
       </div>
 
+      {submitError && (
+        <div style={{
+          background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)',
+          borderRadius: 12, padding: '12px 16px', marginBottom: 14,
+          fontSize: 13, color: '#f87171',
+        }}>
+          ⚠️ {submitError}
+        </div>
+      )}
+
       <button onClick={onSubmit} disabled={submitting} style={{
         width: '100%', padding: '16px', borderRadius: 14,
         background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
@@ -278,6 +288,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   const [view, setView] = useState('scoring'); // scoring | summary
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const par = pars[currentHole];
   const totalHoles = pars.length;
@@ -310,14 +321,36 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    setSubmitError('');
     try {
+      // Casual rounds have a fake id — create a real round row first
+      let realRoundId = round.id;
+      const isCasual = typeof round.id === 'string' && round.id.startsWith('casual-');
+
+      if (isCasual) {
+        const { data: newRound, error: roundErr } = await supabase
+          .from('rounds')
+          .insert({
+            tournament_id: null,
+            course_id: round.course_id,
+            scheduled_date: new Date().toISOString().split('T')[0],
+            total_holes: round.total_holes,
+            starting_hole: round.starting_hole,
+            status: 'complete',
+          })
+          .select()
+          .single();
+        if (roundErr) throw roundErr;
+        realRoundId = newRound.id;
+      }
+
       const rows = cardPlayers.map(p => {
         const playerScores = scores[p.id] || [];
         const adjusted = playerScores.map(s => s != null ? applyHandicap(s, p) : null);
         const total = adjusted.filter(s => s != null).reduce((a, b) => a + b, 0);
         const vp = calcVsPar(adjusted, pars);
         return {
-          round_id: round.id,
+          round_id: realRoundId,
           player_id: p.id,
           scores: playerScores,
           total_strokes: total,
@@ -327,18 +360,21 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
         };
       });
 
-      const { error } = await supabase.from('round_scores').upsert(rows, { onConflict: 'round_id,player_id' });
+      const { error } = await supabase
+        .from('round_scores')
+        .upsert(rows, { onConflict: 'round_id,player_id' });
       if (error) throw error;
 
-      // Mark round as active if still upcoming
-      if (round.status === 'upcoming') {
-        await supabase.from('rounds').update({ status: 'active' }).eq('id', round.id);
+      // Mark tournament round active if still upcoming
+      if (!isCasual && round.status === 'upcoming') {
+        await supabase.from('rounds').update({ status: 'active' }).eq('id', realRoundId);
       }
 
       haptic('success');
       onComplete?.();
     } catch (err) {
       console.error('Submit error:', err);
+      setSubmitError(err.message || 'Failed to save scorecard. Please try again.');
       setSubmitting(false);
     }
   };
@@ -349,7 +385,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
         <ScorecardSummary
           players={cardPlayers} scores={scores} pars={pars}
           onSubmit={handleSubmit} onBack={() => setView('scoring')}
-          submitting={submitting}
+          submitting={submitting} submitError={submitError}
         />
         <GlobalStyles />
       </div>
