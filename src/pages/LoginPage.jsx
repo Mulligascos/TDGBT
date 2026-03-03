@@ -160,7 +160,8 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
         @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+        button { font-family: 'DM Sans', sans-serif; }
         select option { background: #0d2b0d; }
       `}</style>
     </div>
