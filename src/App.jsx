@@ -73,9 +73,9 @@ export default function App() {
     home: (
       <HomePage
         {...commonProps}
-        matches={matches}
         tournaments={tournaments}
         activeTournament={activeTournament}
+        players={players}
       />
     ),
     matches: (
