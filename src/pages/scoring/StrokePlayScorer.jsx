@@ -283,17 +283,21 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   );
 
   const [cardPlayers, setCardPlayers] = useState([currentUser]);
-  const [scores, setScores] = useState({});  // { playerId: [s1, s2, ...] }
+  const [scores, setScores] = useState(() => ({
+    [currentUser.id]: pars.map(p => p),  // default every hole to par
+  }));
   const [currentHole, setCurrentHole] = useState(0); // 0-indexed
   const [view, setView] = useState('scoring'); // scoring | summary
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
+  const [visitedHoles, setVisitedHoles] = useState(new Set([0]));
+
   const par = pars[currentHole];
   const totalHoles = pars.length;
   const isLastHole = currentHole === totalHoles - 1;
-  const allScored = cardPlayers.every(p => (scores[p.id] || [])[currentHole] != null);
+  const allScored = true; // all holes default to par so always ready to advance
 
   const setScore = useCallback((playerId, holeIdx, val) => {
     setScores(prev => {
@@ -305,7 +309,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 
   const addPlayer = (player) => {
     setCardPlayers(prev => [...prev, player]);
-    setScores(prev => ({ ...prev, [player.id]: Array(totalHoles).fill(null) }));
+    setScores(prev => ({ ...prev, [player.id]: pars.map(p => p) }));  // default to par
   };
 
   const removePlayer = (playerId) => {
@@ -316,7 +320,9 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 
   const goToHole = (idx) => {
     haptic('light');
-    setCurrentHole(Math.max(0, Math.min(totalHoles - 1, idx)));
+    const next = Math.max(0, Math.min(totalHoles - 1, idx));
+    setCurrentHole(next);
+    setVisitedHoles(prev => new Set([...prev, next]));
   };
 
   const handleSubmit = async () => {
@@ -431,12 +437,12 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           {/* Hole progress dots */}
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {pars.map((_, i) => {
-              const hasAllScores = cardPlayers.every(p => (scores[p.id] || [])[i] != null);
+              const visited = visitedHoles.has(i);
               return (
                 <button key={i} onClick={() => goToHole(i)} style={{
                   width: 22, height: 6, borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0,
                   background: i === currentHole ? BRAND.light :
-                    hasAllScores ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)',
+                    visited ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)',
                   transform: i === currentHole ? 'scaleY(1.5)' : 'none',
                   transition: 'all 0.2s',
                 }} />
