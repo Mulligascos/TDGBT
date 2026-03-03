@@ -7,7 +7,8 @@ import { Toast } from './components/ui';
 import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
 import { MatchesPage } from './pages/matches/MatchesPage';
-import { HistoryPage, CoursesPage, ProfilePage } from './pages/PlaceholderPages';
+import { HistoryPage } from './pages/HistoryPage';
+import { CoursesPage, ProfilePage } from './pages/PlaceholderPages';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -87,7 +88,7 @@ export default function App() {
         onDataChanged={loadData}
       />
     ),
-    history: <HistoryPage {...commonProps} matches={matches} />,
+    history: <HistoryPage {...commonProps} matches={matches} players={players} />,
     courses: <CoursesPage {...commonProps} courses={courses} />,
     profile: (
       <ProfilePage
