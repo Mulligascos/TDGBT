@@ -80,7 +80,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
                   color: selectedName ? 'white' : 'rgba(255,255,255,0.3)',
                   fontSize: 15, fontFamily: "'DM Sans', sans-serif",
                   outline: 'none', appearance: 'none', cursor: 'pointer',
-                  boxSizing: 'border-box', width: '100%',
+                  boxSizing: 'border-box', 
                 }}
               >
                 <option value="" style={{ background: '#0d2b0d' }}>Choose your name...</option>
