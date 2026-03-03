@@ -1,83 +1,125 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../supabaseClient';
+import React, { useState, useCallback } from 'react';
+import { useAuth } from './hooks/useAuth';
+import { useAppData } from './hooks/useAppData';
+import { haptic } from './utils';
+import { BottomNav } from './components/BottomNav';
+import { Toast } from './components/ui';
+import { LoginPage } from './pages/LoginPage';
+import { HomePage } from './pages/HomePage';
+import { MatchesPage } from './pages/matches/MatchesPage';
+import { HistoryPage, CoursesPage, ProfilePage } from './pages/PlaceholderPages';
 
-// Normalise DB column names → consistent app-wide field names
-export const normalisePlayer = (row) => ({
-  id: row.player_id,
-  name: row.player_name,
-  status: row.player_status,
-  division: row.player_division,
-  bagTag: row.bag_tag,
-  role: row.role || 'member',
-  pin: row.pin,
-  membershipNumber: row.membership_number,
-  createdAt: row.created_at,
-});
+export default function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [toast, setToast] = useState(null);
 
-export const useAuth = () => {
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem('tdg-user');
-      return stored ? JSON.parse(stored) : null;
-    } catch { return null; }
-  });
-  const [players, setPlayers] = useState([]);
-  const [isLoadingPlayers, setIsLoadingPlayers] = useState(true);
-  const [loginError, setLoginError] = useState('');
-
-  // Load player list for login dropdown
-  useEffect(() => {
-    const fetchPlayers = async () => {
-      setIsLoadingPlayers(true);
-      const { data, error } = await supabase
-        .from('players')
-        .select('player_id, player_name, player_status')
-        .eq('player_status', 'Active')
-        .order('player_name');
-      if (!error && data) {
-        setPlayers(data.map(normalisePlayer));
-      }
-      if (error) console.error('Error loading players:', error);
-      setIsLoadingPlayers(false);
-    };
-    fetchPlayers();
-  }, []);
-
-  const login = useCallback(async (playerName, pin) => {
-    setLoginError('');
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('player_name', playerName)
-      .eq('pin', pin)
-      .single();
-
-    if (error || !data) {
-      setLoginError('Invalid name or PIN. Please try again.');
-      return false;
-    }
-
-    const user = normalisePlayer(data);
-    localStorage.setItem('tdg-user', JSON.stringify(user));
-    setCurrentUser(user);
-    return true;
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('tdg-user');
-    setCurrentUser(null);
-  }, []);
-
-  const updateUser = useCallback((updated) => {
-    localStorage.setItem('tdg-user', JSON.stringify(updated));
-    setCurrentUser(updated);
-  }, []);
-
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'committee';
-
-  return {
-    currentUser, players, isLoadingPlayers,
+  const {
+    currentUser, players: loginPlayers, isLoadingPlayers,
     loginError, setLoginError,
     login, logout, updateUser, isAdmin,
+  } = useAuth();
+
+  const {
+    courses, tournaments, matches, players,
+    isLoading, loadData, activeTournament,
+  } = useAppData(currentUser);
+
+  const showToast = useCallback((message, type = 'success') => {
+    haptic(type === 'error' ? 'error' : 'success');
+    setToast({ message, type });
+  }, []);
+
+  const handleLogin = useCallback(async (name, pin) => {
+    const ok = await login(name, pin);
+    if (ok) showToast(`Welcome back, ${name.split(' ')[0]}!`);
+  }, [login, showToast]);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    setActiveTab('home');
+    showToast('Signed out', 'info');
+  }, [logout, showToast]);
+
+  const handleTabChange = useCallback((tab) => {
+    haptic('light');
+    setActiveTab(tab);
+  }, []);
+
+  // Not logged in
+  if (!currentUser) {
+    return (
+      <>
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        <LoginPage
+          players={loginPlayers}
+          isLoadingPlayers={isLoadingPlayers}
+          onLogin={handleLogin}
+          loginError={loginError}
+        />
+      </>
+    );
+  }
+
+  // Shared props
+  const commonProps = {
+    currentUser,
+    isAdmin,
+    onNavigate: handleTabChange,
   };
-};
+
+  const pages = {
+    home: (
+      <HomePage
+        {...commonProps}
+        matches={matches}
+        tournaments={tournaments}
+        activeTournament={activeTournament}
+      />
+    ),
+    matches: (
+      <MatchesPage
+        {...commonProps}
+        matches={matches}
+        activeTournament={activeTournament}
+        courses={courses}
+        players={players}
+        tournaments={tournaments}
+        onDataChanged={loadData}
+      />
+    ),
+    history: <HistoryPage {...commonProps} matches={matches} />,
+    courses: <CoursesPage {...commonProps} courses={courses} />,
+    profile: (
+      <ProfilePage
+        {...commonProps}
+        onLogout={handleLogout}
+      />
+    ),
+  };
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #071407; color: white; }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translate(-50%, -100%); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        button { font-family: "'DM Sans', sans-serif"; }
+        select option { background: #0d2b0d; }
+        input::placeholder { color: rgba(255,255,255,0.25); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+      `}</style>
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {pages[activeTab] || pages.home}
+
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+    </>
+  );
+}
