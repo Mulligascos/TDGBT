@@ -20,7 +20,7 @@ export default function App() {
   } = useAuth();
 
   const {
-    courses, tournaments, matches,
+    courses, tournaments, matches, players,
     isLoading, loadData, activeTournament,
   } = useAppData(currentUser);
 
@@ -82,6 +82,9 @@ export default function App() {
         matches={matches}
         activeTournament={activeTournament}
         courses={courses}
+        players={players}
+        tournaments={tournaments}
+        onDataChanged={loadData}
       />
     ),
     history: <HistoryPage {...commonProps} matches={matches} />,
