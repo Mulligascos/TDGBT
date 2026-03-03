@@ -2,21 +2,6 @@ import React from 'react';
 import { BRAND, formatName } from '../utils';
 import { PageHeader, EmptyState, Badge } from '../components/ui';
 
-// ─── HISTORY PAGE ─────────────────────────────────────────────────────────────
-export const HistoryPage = ({ currentUser }) => (
-  <div style={pageStyle}>
-    <PageHeader title="History" subtitle="Past results & tournaments" />
-    <div style={bodyStyle}>
-      <EmptyState
-        icon="📋"
-        title="Coming in Session 5"
-        subtitle="Full match history, filters by player, opponent, tournament, venue and date"
-      />
-    </div>
-    <GlobalStyles />
-  </div>
-);
-
 // ─── COURSES PAGE ─────────────────────────────────────────────────────────────
 export const CoursesPage = ({ currentUser, courses }) => (
   <div style={pageStyle}>
