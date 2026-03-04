@@ -277,7 +277,7 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
 };
 
 // ─── BAG TAG CHALLENGE SCREEN ─────────────────────────────────────────────────
-const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId, onComplete }) => {
+const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId, onComplete, updateUser }) => {
   const [playoff, setPlayoff] = useState(false);
   const [playoffWinnerId, setPlayoffWinnerId] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -323,6 +323,15 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
         scoredPlayers,
         createdBy: currentUser.id,
       });
+      // Refresh currentUser so profile shows updated bag tag immediately
+      if (updateUser) {
+        const { data: fresh } = await supabase
+          .from('players')
+          .select('*')
+          .eq('player_id', currentUser.id)
+          .single();
+        if (fresh) updateUser({ ...currentUser, bagTag: fresh.bag_tag });
+      }
       onComplete?.();
     } catch (err) {
       setError(err.message);
@@ -469,7 +478,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
 
 
 // ─── MAIN SCORECARD PAGE ──────────────────────────────────────────────────────
-export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onComplete, onBack }) => {
+export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onComplete, onBack, updateUser }) => {
   const pars = parsToArray(
     typeof course.pars === 'string' ? JSON.parse(course.pars) : course.pars,
     round.starting_hole, round.total_holes
@@ -610,6 +619,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           roundId={savedRoundId}
           courseId={savedCourseId}
           onComplete={onComplete}
+          updateUser={updateUser}
         />
         <GlobalStyles />
       </div>
