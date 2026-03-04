@@ -137,15 +137,28 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
     ? (Array.isArray(score.scores) ? score.scores : JSON.parse(score.scores))
     : [];
 
+  // Recalculate vs_par from hole scores + course pars (more reliable than stored value)
+  const calcVsParFromHoles = (holes) => {
+    if (!holes.length || !pars.length) return null;
+    // Only count regulation holes (ignore playoff extras beyond pars.length)
+    const regulationHoles = holes.slice(0, pars.length);
+    const strokes = regulationHoles.reduce((a, b) => a + (b ?? 0), 0);
+    const par = totalPar(pars.slice(0, regulationHoles.length));
+    return strokes - par;
+  };
+
+  const myVsPar = calcVsParFromHoles(holeScores) ?? score.vs_par;
+
   // Other players in the same round
   const others = coPlayers
     .filter(s => s.player_id !== score.player_id)
     .map(s => {
       const p = allPlayers.find(p => p.id === s.player_id);
-      const holeScores = s.scores
+      const hs = s.scores
         ? (Array.isArray(s.scores) ? s.scores : JSON.parse(s.scores))
         : [];
-      return { name: p?.name || 'Unknown', vs_par: s.vs_par, total_strokes: s.total_strokes, holeScores };
+      const vp = calcVsParFromHoles(hs) ?? s.vs_par;
+      return { name: p?.name || 'Unknown', vs_par: vp, total_strokes: s.total_strokes, holeScores: hs };
     })
     .sort((a, b) => a.vs_par - b.vs_par);
 
@@ -163,17 +176,17 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
         {/* Score bubble */}
         <div style={{
           width: 52, height: 52, borderRadius: 14, flexShrink: 0,
-          background: score.vs_par < 0
-            ? 'rgba(74,222,128,0.12)' : score.vs_par === 0
+          background: myVsPar < 0
+            ? 'rgba(74,222,128,0.12)' : myVsPar === 0
             ? 'rgba(251,191,36,0.12)' : 'rgba(248,113,113,0.1)',
-          border: `1px solid ${vsParColor(score.vs_par)}30`,
+          border: `1px solid ${vsParColor(myVsPar)}30`,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         }}>
           <div style={{
-            fontSize: 18, fontWeight: 800, color: vsParColor(score.vs_par),
+            fontSize: 18, fontWeight: 800, color: vsParColor(myVsPar),
             fontFamily: "'Syne', sans-serif", lineHeight: 1,
           }}>
-            {vsParLabel(score.vs_par)}
+            {vsParLabel(myVsPar)}
           </div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
             {score.total_strokes}
