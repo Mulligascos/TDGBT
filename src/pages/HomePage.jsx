@@ -254,7 +254,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
               </div>
             </div>
             {isAdmin && (
-              <button onClick={() => onNavigate('matches')} style={{
+              <button onClick={() => onNavigate('admin')} style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 background: 'rgba(251,191,36,0.15)',
                 border: '1px solid rgba(251,191,36,0.35)',
