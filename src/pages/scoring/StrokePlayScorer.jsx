@@ -8,6 +8,39 @@ import {
 import { ChevronLeft, ChevronRight, Plus, Minus, Check, X, UserPlus, UserMinus, Tag } from 'lucide-react';
 import { resolveBagTagChallenge, persistBagTagChallenge } from '../../utils/bagTags';
 
+// ─── DRAFT PERSISTENCE ────────────────────────────────────────────────────────
+const DRAFT_KEY = (roundId, userId) => `tdg-draft-${roundId}-${userId}`;
+
+export const saveDraft = (roundId, userId, draft) => {
+  try {
+    localStorage.setItem(DRAFT_KEY(roundId, userId), JSON.stringify({
+      ...draft,
+      savedAt: new Date().toISOString(),
+    }));
+  } catch {}
+};
+
+export const loadDraft = (roundId, userId) => {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY(roundId, userId));
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+};
+
+export const clearDraft = (roundId, userId) => {
+  try { localStorage.removeItem(DRAFT_KEY(roundId, userId)); } catch {}
+};
+
+export const listDrafts = () => {
+  try {
+    return Object.keys(localStorage)
+      .filter(k => k.startsWith('tdg-draft-'))
+      .map(k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } })
+      .filter(Boolean)
+      .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+  } catch { return []; }
+};
+
 // ─── PLAYER SCORE ROW ─────────────────────────────────────────────────────────
 const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
   const adjusted = score != null ? applyHandicap(score, player) : null;
@@ -484,11 +517,18 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
     round.starting_hole, round.total_holes
   );
 
-  const [cardPlayers, setCardPlayers] = useState([currentUser]);
-  const [scores, setScores] = useState(() => ({
-    [currentUser.id]: pars.map(p => p),  // default every hole to par
-  }));
-  const [currentHole, setCurrentHole] = useState(0); // 0-indexed
+  // Restore from draft if one exists
+  const existingDraft = loadDraft(round.id, currentUser.id);
+
+  const [cardPlayers, setCardPlayers] = useState(() => {
+    if (existingDraft?.cardPlayers?.length) return existingDraft.cardPlayers;
+    return [currentUser];
+  });
+  const [scores, setScores] = useState(() => {
+    if (existingDraft?.scores) return existingDraft.scores;
+    return { [currentUser.id]: pars.map(p => p) };
+  });
+  const [currentHole, setCurrentHole] = useState(existingDraft?.currentHole ?? 0);
   const [view, setView] = useState('scoring'); // scoring | summary | challenge
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -496,8 +536,26 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   const [challengeResult, setChallengeResult] = useState(null);
   const [savedRoundId, setSavedRoundId] = useState(null);
   const [savedCourseId, setSavedCourseId] = useState(null);
+  const [resumedFromDraft] = useState(!!existingDraft);
 
-  const [visitedHoles, setVisitedHoles] = useState(new Set([0]));
+  const [visitedHoles, setVisitedHoles] = useState(() =>
+    existingDraft?.visitedHoles ? new Set(existingDraft.visitedHoles) : new Set([0])
+  );
+
+  // Auto-save draft on every change
+  const { useEffect: ue, useRef: ur } = React;
+  React.useEffect(() => {
+    saveDraft(round.id, currentUser.id, {
+      roundId: round.id,
+      userId: currentUser.id,
+      courseId: round.course_id,
+      courseName: course.name,
+      currentHole,
+      cardPlayers,
+      scores,
+      visitedHoles: [...visitedHoles],
+    });
+  }, [scores, currentHole, cardPlayers]);  // eslint-disable-line
 
   const par = pars[currentHole];
   const totalHoles = pars.length;
@@ -582,6 +640,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       }
 
       haptic('success');
+      clearDraft(round.id, currentUser.id);
 
       // ── Bag Tag Challenge Detection ──────────────────────────
       const scoredPlayers = cardPlayers.map(p => {
