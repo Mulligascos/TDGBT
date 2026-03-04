@@ -296,8 +296,8 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
 };
 
 // ─── MAIN MATCHES PAGE ────────────────────────────────────────────────────────
-export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, players, onDataChanged }) => {
-  const [activeTab, setActiveTab] = useState('rounds');
+export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, players, onDataChanged, initialTab }) => {
+  const [activeTab, setActiveTab] = useState(initialTab || 'rounds');
   const [rounds, setRounds] = useState([]);
   const [roundScores, setRoundScores] = useState([]);
   const [activeTournament, setActiveTournament] = useState(null);
