@@ -7,13 +7,13 @@ import { Toast } from './components/ui';
 import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
 import { MatchesPage } from './pages/matches/MatchesPage';
+import { AdminPanel } from './pages/matches/AdminPanel';
 import { HistoryPage } from './pages/HistoryPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { CoursesPage } from './pages/CoursesPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [matchesInitialTab, setMatchesInitialTab] = useState(null);
   const [toast, setToast] = useState(null);
 
   const {
@@ -45,13 +45,7 @@ export default function App() {
 
   const handleTabChange = useCallback((tab) => {
     haptic('light');
-    if (tab === 'admin') {
-      setMatchesInitialTab('admin');
-      setActiveTab('matches');
-    } else {
-      setMatchesInitialTab(null);
-      setActiveTab(tab);
-    }
+    setActiveTab(tab);
   }, []);
 
   // Not logged in
@@ -94,11 +88,21 @@ export default function App() {
         players={players}
         tournaments={tournaments}
         onDataChanged={loadData}
-        initialTab={matchesInitialTab}
       />
     ),
     history: <HistoryPage {...commonProps} matches={matches} players={players} />,
     courses: <CoursesPage {...commonProps} courses={courses} />,
+    admin: (
+      <AdminPanel
+        currentUser={currentUser}
+        tournaments={tournaments}
+        rounds={[]}
+        courses={courses}
+        players={players}
+        onDataChanged={loadData}
+        onBack={() => handleTabChange('home')}
+      />
+    ),
     profile: (
       <ProfilePage
         {...commonProps}
