@@ -11,6 +11,7 @@ import { AdminPanel } from './pages/matches/AdminPanel';
 import { HistoryPage } from './pages/HistoryPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { CoursesPage } from './pages/CoursesPage';
+import { BagTagsPage } from './pages/BagTagsPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -103,6 +104,12 @@ export default function App() {
         onDataChanged={loadData}
         onBack={() => handleTabChange('home')}
         pendingRequestsCount={pendingRequestsCount}
+      />
+    ),
+    bagtags: (
+      <BagTagsPage
+        currentUser={currentUser}
+        players={players}
       />
     ),
     profile: (
