@@ -64,7 +64,7 @@ export const useAppData = (currentUser) => {
   return {
     courses, tournaments, matches, players,
     isLoading, lastLoaded, loadData,
-    activeTournament,
+    activeTournament, pendingRequestsCount,
     setCourses, setTournaments, setMatches, setPlayers,
   };
 };
