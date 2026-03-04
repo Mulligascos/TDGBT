@@ -360,6 +360,147 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
   );
 };
 
+
+// ─── ACTIVITY CALENDAR ────────────────────────────────────────────────────────
+const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose }) => {
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth()); // 0-indexed
+
+  // Build a map of date string → { played: count, scheduled: bool, active: bool }
+  const dateMap = {};
+
+  playedRounds.forEach(round => {
+    const d = round.scheduled_date;
+    if (!d) return;
+    if (!dateMap[d]) dateMap[d] = { played: 0, scheduled: false, active: false };
+    dateMap[d].played += 1;
+  });
+
+  allScheduledRounds.forEach(round => {
+    const d = round.scheduled_date;
+    if (!d) return;
+    if (!dateMap[d]) dateMap[d] = { played: 0, scheduled: false, active: false };
+    if (round.status === 'upcoming') dateMap[d].scheduled = true;
+    if (round.status === 'active') dateMap[d].active = true;
+  });
+
+  const prevMonth = () => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
+    else setViewMonth(m => m - 1);
+  };
+  const nextMonth = () => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
+    else setViewMonth(m => m + 1);
+  };
+
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const todayStr = today.toISOString().split('T')[0];
+
+  // Build grid cells
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 18, padding: '18px 16px', marginBottom: 24,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <button onClick={prevMonth} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>‹</button>
+        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 800, color: 'white' }}>
+          {monthNames[viewMonth]} {viewYear}
+        </div>
+        <button onClick={nextMonth} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>›</button>
+      </div>
+
+      {/* Day headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
+        {dayNames.map(d => (
+          <div key={d} style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)', padding: '4px 0', textTransform: 'uppercase', letterSpacing: 0.5 }}>{d}</div>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
+        {cells.map((day, idx) => {
+          if (!day) return <div key={`empty-${idx}`} />;
+
+          const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const info = dateMap[dateStr];
+          const isToday = dateStr === todayStr;
+          const hasPlayed = info?.played > 0;
+          const isScheduled = info?.scheduled;
+          const isActive = info?.active;
+
+          return (
+            <div key={dateStr} style={{
+              position: 'relative',
+              height: 36, borderRadius: 8,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              background: hasPlayed
+                ? 'rgba(74,222,128,0.12)'
+                : isActive
+                ? 'rgba(74,222,128,0.06)'
+                : isScheduled
+                ? 'rgba(251,191,36,0.06)'
+                : 'transparent',
+              border: isToday
+                ? `1px solid ${BRAND.light}`
+                : isScheduled
+                ? '1px solid rgba(251,191,36,0.25)'
+                : isActive
+                ? '1px solid rgba(74,222,128,0.2)'
+                : '1px solid transparent',
+            }}>
+              <span style={{
+                fontSize: 12, fontWeight: isToday || hasPlayed ? 700 : 400,
+                color: hasPlayed ? '#4ade80' : isToday ? BRAND.light : isScheduled || isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
+                lineHeight: 1,
+              }}>
+                {day}
+              </span>
+              {hasPlayed && (
+                <span style={{
+                  fontSize: 9, fontWeight: 800, color: '#4ade80',
+                  lineHeight: 1, marginTop: 1,
+                }}>
+                  {info.played}
+                </span>
+              )}
+              {(isScheduled || isActive) && !hasPlayed && (
+                <span style={{ fontSize: 6, lineHeight: 1, marginTop: 1 }}>
+                  {isActive ? '🟢' : '🟡'}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', gap: 16, marginTop: 14, flexWrap: 'wrap' }}>
+        {[
+          { color: 'rgba(74,222,128,0.4)', label: 'Rounds played' },
+          { color: 'rgba(74,222,128,0.2)', label: 'Round active' },
+          { color: 'rgba(251,191,36,0.4)', label: 'Round scheduled' },
+        ].map(({ color, label }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: color }} />
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ─── MAIN HISTORY PAGE ────────────────────────────────────────────────────────
 export const HistoryPage = ({ currentUser, players }) => {
   const [myScores, setMyScores] = useState([]);
@@ -367,7 +508,9 @@ export const HistoryPage = ({ currentUser, players }) => {
   const [allRoundScores, setAllRoundScores] = useState([]);
   const [courses, setCourses] = useState([]);
   const [tournaments, setTournaments] = useState([]);
+  const [allScheduledRounds, setAllScheduledRounds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Filters
   const [playerFilter, setPlayerFilter] = useState('');
@@ -401,11 +544,13 @@ export const HistoryPage = ({ currentUser, players }) => {
         { data: allScoresData },
         { data: coursesData },
         { data: tournamentsData },
+        { data: scheduledRoundsData },
       ] = await Promise.all([
         supabase.from('rounds').select('*').in('id', roundIds),
         supabase.from('round_scores').select('*').in('round_id', roundIds),
         supabase.from('courses').select('*'),
         supabase.from('tournaments').select('*'),
+        supabase.from('rounds').select('id, scheduled_date, status, tournament_id').not('tournament_id', 'is', null),
       ]);
 
       setMyScores(myScoresData);
@@ -413,6 +558,7 @@ export const HistoryPage = ({ currentUser, players }) => {
       setAllRoundScores(allScoresData || []);
       setCourses(coursesData || []);
       setTournaments(tournamentsData || []);
+      setAllScheduledRounds(scheduledRoundsData || []);
     } catch (err) {
       console.error('Error loading history:', err);
     } finally {
@@ -466,8 +612,20 @@ export const HistoryPage = ({ currentUser, players }) => {
           <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
             My Rounds
           </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>
-            {formatName(currentUser.name)} · all completed rounds
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+              {formatName(currentUser.name)} · all completed rounds
+            </div>
+            <button onClick={() => setShowCalendar(c => !c)} style={{
+              padding: '6px 12px', borderRadius: 10, cursor: 'pointer',
+              background: showCalendar ? BRAND.primary + '40' : 'rgba(255,255,255,0.07)',
+              border: showCalendar ? `1px solid ${BRAND.light}50` : '1px solid rgba(255,255,255,0.1)',
+              color: showCalendar ? BRAND.light : 'rgba(255,255,255,0.5)',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}>
+              📅 {showCalendar ? 'Hide' : 'Calendar'}
+            </button>
           </div>
         </div>
       </div>
@@ -486,6 +644,15 @@ export const HistoryPage = ({ currentUser, players }) => {
           />
         ) : (
           <>
+            {/* Calendar */}
+            {showCalendar && (
+              <ActivityCalendar
+                myScores={myScores}
+                playedRounds={rounds}
+                allScheduledRounds={allScheduledRounds}
+              />
+            )}
+
             {/* Personal bests */}
             <PersonalBests myScores={myScores} />
 
