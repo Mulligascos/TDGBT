@@ -16,16 +16,16 @@ const SectionTitle = ({ children, action }) => (
 );
 
 // ─── QUICK ACTION BUTTON ──────────────────────────────────────────────────────
-const QuickAction = ({ icon: Icon, label, sub, onClick, accent = false }) => (
+const QuickAction = ({ icon: Icon, label, onClick, accent = false }) => (
   <button onClick={onClick} style={{
     background: accent ? `linear-gradient(135deg, ${BRAND.primary}60, ${BRAND.accent}40)` : 'rgba(255,255,255,0.05)',
     border: `1px solid ${accent ? BRAND.light + '30' : 'rgba(255,255,255,0.08)'}`,
-    borderRadius: 14, padding: '14px 16px', cursor: 'pointer', textAlign: 'left',
-    fontFamily: "'DM Sans', sans-serif",
+    borderRadius: 12, padding: '10px 6px', cursor: 'pointer', textAlign: 'center',
+    fontFamily: "'DM Sans', sans-serif", display: 'flex', flexDirection: 'column',
+    alignItems: 'center', gap: 5, flex: 1,
   }}>
-    <Icon size={20} color={accent ? BRAND.light : 'rgba(255,255,255,0.5)'} style={{ marginBottom: 8 }} />
-    <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>{label}</div>
-    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{sub}</div>
+    <Icon size={18} color={accent ? BRAND.light : 'rgba(255,255,255,0.5)'} />
+    <div style={{ fontSize: 11, fontWeight: 600, color: accent ? 'white' : 'rgba(255,255,255,0.6)', lineHeight: 1.2 }}>{label}</div>
   </button>
 );
 
@@ -130,21 +130,22 @@ const AnnouncementCard = ({ announcement }) => (
 // ─── NO TOURNAMENT STATE ──────────────────────────────────────────────────────
 const NoTournamentBanner = ({ onScore }) => (
   <div style={{
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 16, padding: '20px', marginBottom: 24, textAlign: 'center',
+    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: 12, padding: '12px 16px', marginBottom: 18,
+    display: 'flex', alignItems: 'center', gap: 12,
   }}>
-    <div style={{ fontSize: 32, marginBottom: 8 }}>🥏</div>
-    <div style={{ fontSize: 16, fontWeight: 700, color: 'white', marginBottom: 4 }}>No active tournament</div>
-    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
-      Score a casual round to keep your game sharp
+    <span style={{ fontSize: 22, flexShrink: 0 }}>🥏</span>
+    <div style={{ flex: 1 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>No active tournament</div>
+      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Play a casual round</div>
     </div>
     <button onClick={onScore} style={{
-      padding: '10px 24px', borderRadius: 12,
+      padding: '7px 14px', borderRadius: 9, flexShrink: 0,
       background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
       border: '1px solid rgba(74,222,128,0.3)', color: 'white',
-      fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
+      fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, cursor: 'pointer',
     }}>
-      Score a Round
+      Score →
     </button>
   </div>
 );
@@ -337,13 +338,12 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
         )}
 
         {/* ── QUICK ACTIONS ── */}
-        <div style={{ marginBottom: 28 }}>
-          <SectionTitle>Quick Actions</SectionTitle>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <QuickAction icon={Disc} label="Score a Round" sub="Stroke play" onClick={() => onNavigate('matches')} accent />
-            <QuickAction icon={Trophy} label="Leaderboard" sub="Tournament standings" onClick={() => onNavigate('matches')} />
-            <QuickAction icon={Clock} label="My History" sub="Past rounds" onClick={() => onNavigate('history')} />
-            <QuickAction icon={Flag} label="Courses" sub="Course info" onClick={() => onNavigate('courses')} />
+        <div style={{ marginBottom: 22 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <QuickAction icon={Disc} label="Score" onClick={() => onNavigate('matches')} accent />
+            <QuickAction icon={Trophy} label="Standings" onClick={() => onNavigate('matches')} />
+            <QuickAction icon={Clock} label="History" onClick={() => onNavigate('history')} />
+            <QuickAction icon={Flag} label="Courses" onClick={() => onNavigate('courses')} />
           </div>
         </div>
 
