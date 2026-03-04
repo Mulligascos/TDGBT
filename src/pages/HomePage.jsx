@@ -150,7 +150,7 @@ const NoTournamentBanner = ({ onScore }) => (
 );
 
 // ─── MAIN HOME PAGE ───────────────────────────────────────────────────────────
-export const HomePage = ({ currentUser, tournaments, activeTournament, players, onNavigate, isAdmin }) => {
+export const HomePage = ({ currentUser, tournaments, activeTournament, players, onNavigate, isAdmin, pendingRequestsCount = 0 }) => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [myRecentScores, setMyRecentScores] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -261,9 +261,21 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
                 borderRadius: 12, padding: '8px 14px',
                 color: '#fbbf24', cursor: 'pointer',
                 fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
-                flexShrink: 0, marginTop: 4,
+                flexShrink: 0, marginTop: 4, position: 'relative',
               }}>
                 <Settings size={15} /> Admin
+                {pendingRequestsCount > 0 && (
+                  <span style={{
+                    position: 'absolute', top: -6, right: -6,
+                    background: '#f87171', color: 'white',
+                    borderRadius: '50%', width: 18, height: 18,
+                    fontSize: 10, fontWeight: 800,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: '2px solid #071407',
+                  }}>
+                    {pendingRequestsCount}
+                  </span>
+                )}
               </button>
             )}
           </div>
