@@ -5,7 +5,8 @@ import {
   parsToArray, totalPar, calcVsPar, calcAdjustedStrokes,
   vsParLabel, vsParColor, isJunior, applyHandicap,
 } from '../../utils/strokeplay';
-import { ChevronLeft, ChevronRight, Plus, Minus, Check, X, UserPlus, UserMinus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Minus, Check, X, UserPlus, UserMinus, Tag } from 'lucide-react';
+import { resolveBagTagChallenge, persistBagTagChallenge } from '../../utils/bagTags';
 
 // ─── PLAYER SCORE ROW ─────────────────────────────────────────────────────────
 const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
@@ -275,6 +276,198 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
   );
 };
 
+// ─── BAG TAG CHALLENGE SCREEN ─────────────────────────────────────────────────
+const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId, supabase: sb, onComplete }) => {
+  const [playoff, setPlayoff] = useState(false);
+  const [playoffWinnerId, setPlayoffWinnerId] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const { eligible, winner, tied, lowestTag, swaps, isTie, scoredPlayers } = result;
+
+  // If tie was resolved via playoff, recalculate swaps with playoff winner
+  const effectiveWinner = isTie && playoffWinnerId
+    ? eligible.find(p => p.id === playoffWinnerId)
+    : winner;
+
+  const effectiveSwaps = isTie && effectiveWinner
+    ? (() => {
+        const sorted = [...eligible].sort((a, b) => a.bagTag - b.bagTag);
+        const sw = [];
+        if (effectiveWinner.bagTag !== lowestTag) {
+          const lowestHolder = sorted[0];
+          sw.push({ player: effectiveWinner, tagBefore: effectiveWinner.bagTag, tagAfter: lowestTag });
+          sw.push({ player: lowestHolder, tagBefore: lowestHolder.bagTag, tagAfter: effectiveWinner.bagTag });
+          eligible.forEach(p => {
+            if (p.id !== effectiveWinner.id && p.id !== lowestHolder.id)
+              sw.push({ player: p, tagBefore: p.bagTag, tagAfter: p.bagTag });
+          });
+        } else {
+          eligible.forEach(p => sw.push({ player: p, tagBefore: p.bagTag, tagAfter: p.bagTag }));
+        }
+        return sw;
+      })()
+    : swaps;
+
+  const hasSwap = effectiveSwaps.some(s => s.tagBefore !== s.tagAfter);
+
+  const handleConfirm = async () => {
+    if (isTie && !playoffWinnerId) { setError('Select a playoff winner first.'); return; }
+    setSaving(true);
+    try {
+      await persistBagTagChallenge(sb, {
+        roundId, courseId,
+        challengeDate: new Date().toISOString().split('T')[0],
+        swaps: effectiveSwaps,
+        winner: effectiveWinner,
+        scoredPlayers,
+        createdBy: currentUser.id,
+      });
+      onComplete?.();
+    } catch (err) {
+      setError(err.message);
+      setSaving(false);
+    }
+  };
+
+  const handleSkip = () => onComplete?.();
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #1a0a00 0%, #0a1f0a 60%, #071407 100%)', color: 'white', paddingBottom: 40 }}>
+      {/* Header */}
+      <div style={{ background: 'linear-gradient(135deg, #92400e, #d97706)', padding: '52px 20px 24px', borderBottom: '1px solid rgba(251,191,36,0.2)' }}>
+        <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>🏷️</div>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: 'white' }}>
+            Bag Tag Challenge!
+          </div>
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>
+            {eligible.length} tagged players · {course?.name}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px' }}>
+
+        {/* Scores summary */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Scores</div>
+          {scoredPlayers
+            .filter(p => eligible.find(e => e.id === p.id))
+            .sort((a, b) => a.vs_par - b.vs_par)
+            .map(p => {
+              const isWinner = effectiveWinner?.id === p.id;
+              const isTied = isTie && tied.find(t => t.id === p.id);
+              return (
+                <div key={p.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+                  background: isWinner ? 'rgba(251,191,36,0.1)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${isWinner ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: 14, marginBottom: 8,
+                }}>
+                  <div style={{ fontSize: 20, width: 28, textAlign: 'center' }}>
+                    {isWinner ? '🏆' : isTied ? '🤝' : ''}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{formatName(p.name)}</div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 3, alignItems: 'center' }}>
+                      <span style={{ fontSize: 11, color: '#fbbf24' }}>🏷️ #{p.bagTag}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{p.total_strokes} strokes</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: p.vs_par < 0 ? '#4ade80' : p.vs_par === 0 ? '#fbbf24' : '#f87171' }}>
+                    {p.vs_par === 0 ? 'E' : p.vs_par > 0 ? `+${p.vs_par}` : p.vs_par}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+
+        {/* Tie — pick playoff winner */}
+        {isTie && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
+              🤝 Tie — Select Playoff Winner
+            </div>
+            <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 14, padding: '14px', marginBottom: 10, fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              Tied players must play a sudden death playoff hole. Select the winner below.
+            </div>
+            {tied.map(p => (
+              <button key={p.id} onClick={() => setPlayoffWinnerId(p.id)} style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px',
+                background: playoffWinnerId === p.id ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${playoffWinnerId === p.id ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: 12, marginBottom: 8, cursor: 'pointer', textAlign: 'left',
+                fontFamily: "'DM Sans', sans-serif",
+              }}>
+                <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${playoffWinnerId === p.id ? '#fbbf24' : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {playoffWinnerId === p.id && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24' }} />}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>{formatName(p.name)}</div>
+                  <div style={{ fontSize: 11, color: '#fbbf24' }}>🏷️ #{p.bagTag}</div>
+                </div>
+                {playoffWinnerId === p.id && <Check size={16} color="#fbbf24" />}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Tag swap preview */}
+        {(effectiveWinner || (isTie && playoffWinnerId)) && effectiveSwaps.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
+              Tag Changes
+            </div>
+            {hasSwap ? (
+              effectiveSwaps.filter(s => s.tagBefore !== s.tagAfter).map(s => (
+                <div key={s.player.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'white', flex: 1 }}>{formatName(s.player.name)}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#f87171', fontFamily: "'Syne', sans-serif" }}>#{s.tagBefore}</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>→</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#4ade80', fontFamily: "'Syne', sans-serif" }}>#{s.tagAfter}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', padding: '8px 0' }}>
+                {effectiveWinner?.name ? formatName(effectiveWinner.name) : 'Winner'} already holds the lowest tag — no changes needed.
+              </div>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#f87171', marginBottom: 16 }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        <button onClick={handleConfirm} disabled={saving || (isTie && !playoffWinnerId)} style={{
+          width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10,
+          background: (isTie && !playoffWinnerId) ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg, #92400e, #d97706)',
+          border: '1px solid rgba(251,191,36,0.3)', color: 'white',
+          fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer',
+          opacity: saving ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        }}>
+          <Tag size={16} /> {saving ? 'Saving...' : hasSwap ? 'Confirm Tag Swap' : 'Confirm — No Swap'}
+        </button>
+
+        <button onClick={handleSkip} style={{
+          width: '100%', padding: '12px', borderRadius: 12,
+          background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
+          color: 'rgba(255,255,255,0.35)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
+        }}>
+          Skip — record scores only
+        </button>
+
+      </div>
+    </div>
+  );
+};
+
+
 // ─── MAIN SCORECARD PAGE ──────────────────────────────────────────────────────
 export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onComplete, onBack }) => {
   const pars = parsToArray(
@@ -287,10 +480,13 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
     [currentUser.id]: pars.map(p => p),  // default every hole to par
   }));
   const [currentHole, setCurrentHole] = useState(0); // 0-indexed
-  const [view, setView] = useState('scoring'); // scoring | summary
+  const [view, setView] = useState('scoring'); // scoring | summary | challenge
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [challengeResult, setChallengeResult] = useState(null);
+  const [savedRoundId, setSavedRoundId] = useState(null);
+  const [savedCourseId, setSavedCourseId] = useState(null);
 
   const [visitedHoles, setVisitedHoles] = useState(new Set([0]));
 
@@ -377,13 +573,49 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       }
 
       haptic('success');
-      onComplete?.();
+
+      // ── Bag Tag Challenge Detection ──────────────────────────
+      const scoredPlayers = cardPlayers.map(p => {
+        const playerScores = scores[p.id] || [];
+        const adjusted = playerScores.map(s => s != null ? applyHandicap(s, p) : null);
+        const total = adjusted.filter(s => s != null).reduce((a, b) => a + b, 0);
+        const vp = calcVsPar(adjusted, pars);
+        return { ...p, vs_par: vp, total_strokes: total };
+      });
+
+      const challenge = resolveBagTagChallenge(scoredPlayers);
+      if (challenge) {
+        setSavedRoundId(realRoundId);
+        setSavedCourseId(round.course_id);
+        setChallengeResult({ ...challenge, scoredPlayers });
+        setView('challenge');
+        setSubmitting(false);
+      } else {
+        onComplete?.();
+      }
     } catch (err) {
       console.error('Submit error:', err);
       setSubmitError(err.message || 'Failed to save scorecard. Please try again.');
       setSubmitting(false);
     }
   };
+
+  if (view === 'challenge' && challengeResult) {
+    return (
+      <div style={pageStyle}>
+        <BagTagChallengeScreen
+          result={challengeResult}
+          course={course}
+          currentUser={currentUser}
+          roundId={savedRoundId}
+          courseId={savedCourseId}
+          supabase={supabase}
+          onComplete={onComplete}
+        />
+        <GlobalStyles />
+      </div>
+    );
+  }
 
   if (view === 'summary') {
     return (
