@@ -4,7 +4,7 @@ import { BRAND } from '../utils';
 const tabs = [
   { id: 'home',    label: 'Home',    icon: HomeIcon },
   { id: 'matches', label: 'Matches', icon: DiscIcon },
-  { id: 'history', label: 'History', icon: HistoryIcon },
+  { id: 'bagtags', label: 'Tags',    icon: TagIcon },
   { id: 'courses', label: 'Courses', icon: CourseIcon },
   { id: 'profile', label: 'Profile', icon: ProfileIcon },
 ];
@@ -52,6 +52,15 @@ function ProfileIcon({ active }) {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
       <circle cx="12" cy="7" r="4"/>
+    </svg>
+  );
+}
+
+function TagIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+      <line x1="7" y1="7" x2="7.01" y2="7"/>
     </svg>
   );
 }
