@@ -13,6 +13,7 @@ import { CoursesPage } from './pages/CoursesPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
+  const [matchesInitialTab, setMatchesInitialTab] = useState(null);
   const [toast, setToast] = useState(null);
 
   const {
@@ -44,7 +45,13 @@ export default function App() {
 
   const handleTabChange = useCallback((tab) => {
     haptic('light');
-    setActiveTab(tab);
+    if (tab === 'admin') {
+      setMatchesInitialTab('admin');
+      setActiveTab('matches');
+    } else {
+      setMatchesInitialTab(null);
+      setActiveTab(tab);
+    }
   }, []);
 
   // Not logged in
@@ -87,6 +94,7 @@ export default function App() {
         players={players}
         tournaments={tournaments}
         onDataChanged={loadData}
+        initialTab={matchesInitialTab}
       />
     ),
     history: <HistoryPage {...commonProps} matches={matches} players={players} />,
