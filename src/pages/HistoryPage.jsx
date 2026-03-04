@@ -142,7 +142,10 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
     .filter(s => s.player_id !== score.player_id)
     .map(s => {
       const p = allPlayers.find(p => p.id === s.player_id);
-      return { name: p?.name || 'Unknown', vs_par: s.vs_par, total_strokes: s.total_strokes };
+      const holeScores = s.scores
+        ? (Array.isArray(s.scores) ? s.scores : JSON.parse(s.scores))
+        : [];
+      return { name: p?.name || 'Unknown', vs_par: s.vs_par, total_strokes: s.total_strokes, holeScores };
     })
     .sort((a, b) => a.vs_par - b.vs_par);
 
@@ -217,25 +220,31 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
             </div>
           )}
 
-          {/* Other players */}
+          {/* Other players — full scorecards */}
           {others.length > 0 && (
-            <div style={{ marginTop: 14 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-                Also played
-              </div>
+            <div style={{ marginTop: 16 }}>
               {others.map(o => (
                 <div key={o.name} style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '6px 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                  marginBottom: 14, paddingTop: 14,
+                  borderTop: '1px solid rgba(255,255,255,0.06)',
                 }}>
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{formatName(o.name)}</span>
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{o.total_strokes}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: vsParColor(o.vs_par), fontFamily: "'Syne', sans-serif" }}>
-                      {vsParLabel(o.vs_par)}
-                    </span>
+                  {/* Player header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                      {formatName(o.name)}
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>{o.total_strokes} strokes</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: vsParColor(o.vs_par), fontFamily: "'Syne', sans-serif" }}>
+                        {vsParLabel(o.vs_par)}
+                      </span>
+                    </div>
                   </div>
+                  {/* Hole grid */}
+                  {pars.length > 0 && o.holeScores.length > 0
+                    ? <HoleGrid scores={o.holeScores} pars={pars} />
+                    : <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', padding: '4px 0' }}>No hole data</div>
+                  }
                 </div>
               ))}
             </div>
