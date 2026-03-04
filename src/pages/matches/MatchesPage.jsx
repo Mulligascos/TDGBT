@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient';
 import { BRAND, formatName, formatDate } from '../../utils';
 import { Card, Badge, Button, SectionLabel, EmptyState, PageHeader } from '../../components/ui';
 import { StrokePlayScorer, listDrafts, clearDraft } from '../scoring/StrokePlayScorer';
+import { MatchPlayScorer, listMPDrafts, clearMPDraft } from '../scoring/MatchPlayScorer';
 import { AdminPanel } from './AdminPanel';
 import { vsParLabel, vsParColor, buildLeaderboard, parsToArray, totalPar } from '../../utils/strokeplay';
 import { Trophy, Calendar, Play, ChevronRight, Settings, ChevronLeft, AlertCircle } from 'lucide-react';
@@ -212,6 +213,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
   const [courseId, setCourseId] = useState(courses[0]?.id || '');
   const [totalHoles, setTotalHoles] = useState(18);
   const [startingHole, setStartingHole] = useState(1);
+  const [scoringFormat, setScoringFormat] = useState('strokeplay');
   const selectedCourse = courses.find(c => c.id === courseId);
 
   const handleStart = () => {
@@ -224,8 +226,9 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
       starting_hole: startingHole,
       status: 'active',
       tournament_id: null,
+      scoring_format: scoringFormat,
     };
-    onStart(casualRound, selectedCourse);
+    onStart(casualRound, selectedCourse, scoringFormat);
   };
 
   const selectStyle = {
@@ -281,6 +284,23 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
         </div>
       )}
 
+      <div style={{ marginBottom: 20 }}>
+        <label style={labelStyle}>Scoring Format</label>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {[['strokeplay', '📊 Stroke Play'], ['matchplay', '⚔️ Match Play']].map(([fmt, label]) => (
+            <button key={fmt} onClick={() => setScoringFormat(fmt)} style={{
+              flex: 1, padding: '12px 8px', borderRadius: 12, cursor: 'pointer',
+              background: scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.12)' : `rgba(74,222,128,0.12)`) : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.35)' : 'rgba(74,222,128,0.35)') : 'rgba(255,255,255,0.1)'}`,
+              color: scoringFormat === fmt ? 'white' : 'rgba(255,255,255,0.4)',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
+            }}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <button onClick={handleStart} disabled={!selectedCourse} style={{
         width: '100%', padding: '15px', borderRadius: 14,
         background: selectedCourse ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
@@ -289,7 +309,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
         cursor: selectedCourse ? 'pointer' : 'not-allowed',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
       }}>
-        <Play size={16} fill="currentColor" /> Start Scorecard
+        <Play size={16} fill="currentColor" /> {scoringFormat === 'matchplay' ? 'Start Match' : 'Start Scorecard'}
       </button>
     </div>
   );
@@ -304,9 +324,12 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
   const [loading, setLoading] = useState(true);
   const [scoringRound, setScoringRound] = useState(null);
   const [scoringCourse, setScoringCourse] = useState(null);
+  const [scoringFormat, setScoringFormat] = useState('strokeplay'); // strokeplay | matchplay
   const [savedDraft, setSavedDraft] = useState(() => {
-    const drafts = listDrafts();
-    return drafts.length > 0 ? drafts[0] : null;
+    const spDrafts = listDrafts().map(d => ({ ...d, scoringFormat: 'strokeplay' }));
+    const mpDrafts = listMPDrafts().map(d => ({ ...d, scoringFormat: 'matchplay' }));
+    const all = [...spDrafts, ...mpDrafts].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+    return all.length > 0 ? all[0] : null;
   });
   const [viewingRound, setViewingRound] = useState(null);
   const [showCasualPicker, setShowCasualPicker] = useState(false);
@@ -357,16 +380,23 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
 
   const handleResumeDraft = () => {
     if (!savedDraft) return;
+    const holeCount = savedDraft.scoringFormat === 'matchplay'
+      ? (savedDraft.holeResults?.length || 18)
+      : (savedDraft.scores ? Object.values(savedDraft.scores)[0]?.length || 18 : 18);
     const round = rounds.find(r => r.id === savedDraft.roundId)
-      || { id: savedDraft.roundId, course_id: savedDraft.courseId, total_holes: savedDraft.scores ? Object.values(savedDraft.scores)[0]?.length || 18 : 18, starting_hole: 1, status: 'active' };
+      || { id: savedDraft.roundId, course_id: savedDraft.courseId, total_holes: holeCount, starting_hole: 1, status: 'active' };
     const course = courses.find(c => c.id === savedDraft.courseId)
       || { id: savedDraft.courseId, name: savedDraft.courseName || 'Unknown', pars: {} };
+    setScoringFormat(savedDraft.scoringFormat || 'strokeplay');
     setScoringCourse(course);
     setScoringRound(round);
   };
 
   const handleDiscardDraft = () => {
-    if (savedDraft) clearDraft(savedDraft.roundId, savedDraft.userId || currentUser.id);
+    if (savedDraft) {
+      if (savedDraft.scoringFormat === 'matchplay') clearMPDraft(savedDraft.roundId, savedDraft.userId || currentUser.id);
+      else clearDraft(savedDraft.roundId, savedDraft.userId || currentUser.id);
+    }
     setSavedDraft(null);
   };
 
@@ -380,12 +410,16 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
 
   const handleStartRound = (round) => {
     const course = courses.find(c => c.id === round.course_id);
+    const tournament = localTournaments.find(t => t.id === round.tournament_id);
+    const fmt = round.scoring_format || (tournament?.format === 'matchplay' ? 'matchplay' : 'strokeplay');
+    setScoringFormat(fmt);
     setScoringCourse(course);
     setScoringRound(round);
   };
 
-  const handleStartCasual = (round, course) => {
+  const handleStartCasual = (round, course, format = 'strokeplay') => {
     setShowCasualPicker(false);
+    setScoringFormat(format);
     setScoringCourse(course);
     setScoringRound(round);
   };
@@ -395,17 +429,21 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
 
   // Scoring view
   if (scoringRound && scoringCourse) {
+    const scorerProps = {
+      round: scoringRound,
+      course: scoringCourse,
+      allPlayers: players || [],
+      currentUser,
+      onComplete: handleScoringComplete,
+      updateUser,
+      onBack: () => { setScoringRound(null); setScoringCourse(null); },
+    };
     return (
       <div style={pageStyle}>
-        <StrokePlayScorer
-          round={scoringRound}
-          course={scoringCourse}
-          allPlayers={players || []}
-          currentUser={currentUser}
-          onComplete={handleScoringComplete}
-          updateUser={updateUser}
-          onBack={() => { setScoringRound(null); setScoringCourse(null); }}
-        />
+        {scoringFormat === 'matchplay'
+          ? <MatchPlayScorer {...scorerProps} />
+          : <StrokePlayScorer {...scorerProps} />
+        }
         <GlobalStyles />
       </div>
     );
@@ -520,7 +558,9 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
           }}>
             <span style={{ fontSize: 20 }}>↩</span>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24' }}>Round in progress</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24' }}>
+                {savedDraft.scoringFormat === 'matchplay' ? '⚔️ Match' : '📊 Round'} in progress
+              </div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>
                 {savedDraft.courseName || 'Unknown course'} · hole {(savedDraft.currentHole || 0) + 1}
               </div>
