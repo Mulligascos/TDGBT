@@ -3,7 +3,7 @@ import { supabase } from '../supabaseClient';
 import { BRAND, formatName, formatDate } from '../utils';
 import { Badge } from '../components/ui';
 import { vsParLabel, vsParColor, buildLeaderboard } from '../utils/strokeplay';
-import { Trophy, Disc, Clock, ChevronRight, Zap, Flag, BookOpen } from 'lucide-react';
+import { Trophy, Disc, Clock, ChevronRight, Zap, Flag, BookOpen, Settings } from 'lucide-react';
 
 // ─── SECTION TITLE ────────────────────────────────────────────────────────────
 const SectionTitle = ({ children, action }) => (
@@ -233,21 +233,38 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{greeting}</div>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800, color: 'white', letterSpacing: -0.5, marginBottom: 10 }}>
-            {formatName(currentUser.name)} 👋
-          </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <Badge
-              label={currentUser.role === 'admin' ? 'Admin' : currentUser.role === 'committee' ? 'Committee' : 'Member'}
-              color={currentUser.role === 'admin' ? '#fbbf24' : BRAND.light}
-            />
-            <Badge label={currentUser.status || 'Active'} color={BRAND.light} />
-            {currentUser.division && (
-              <Badge label={divisionLabel[currentUser.division] || currentUser.division} color="rgba(255,255,255,0.35)" />
-            )}
-            {currentUser.bagTag && (
-              <Badge label={`#${currentUser.bagTag}`} color={BRAND.light} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{greeting}</div>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800, color: 'white', letterSpacing: -0.5, marginBottom: 10 }}>
+                {formatName(currentUser.name)} 👋
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <Badge
+                  label={currentUser.role === 'admin' ? 'Admin' : currentUser.role === 'committee' ? 'Committee' : 'Member'}
+                  color={currentUser.role === 'admin' ? '#fbbf24' : BRAND.light}
+                />
+                <Badge label={currentUser.status || 'Active'} color={BRAND.light} />
+                {currentUser.division && (
+                  <Badge label={divisionLabel[currentUser.division] || currentUser.division} color="rgba(255,255,255,0.35)" />
+                )}
+                {currentUser.bagTag && (
+                  <Badge label={`#${currentUser.bagTag}`} color={BRAND.light} />
+                )}
+              </div>
+            </div>
+            {isAdmin && (
+              <button onClick={() => onNavigate('matches')} style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                background: 'rgba(251,191,36,0.15)',
+                border: '1px solid rgba(251,191,36,0.35)',
+                borderRadius: 12, padding: '8px 14px',
+                color: '#fbbf24', cursor: 'pointer',
+                fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
+                flexShrink: 0, marginTop: 4,
+              }}>
+                <Settings size={15} /> Admin
+              </button>
             )}
           </div>
         </div>
