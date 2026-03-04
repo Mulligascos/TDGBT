@@ -808,7 +808,7 @@ const NAV_ITEMS = [
   { id: 'announcements', label: 'Announcements', icon: Megaphone },
 ];
 
-export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, courses, players, onDataChanged, onBack }) => {
+export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, courses, players, onDataChanged, onBack, pendingRequestsCount = 0 }) => {
   const [rounds, setRounds] = React.useState(roundsProp || []);
 
   useEffect(() => {
@@ -877,20 +877,31 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
               <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1 }}>Admin Panel</div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{formatName(currentUser.name)}</div>
             </div>
-            {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
-              <button key={id} onClick={() => { setActiveSection(id); setMenuOpen(false); }} style={{
-                display: 'flex', alignItems: 'center', gap: 12, padding: '13px 20px',
-                background: activeSection === id ? 'rgba(74,222,128,0.1)' : 'transparent',
-                borderLeft: `3px solid ${activeSection === id ? BRAND.light : 'transparent'}`,
-                border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
-                fontFamily: "'DM Sans', sans-serif",
-              }}>
-                <Icon size={18} color={activeSection === id ? BRAND.light : 'rgba(255,255,255,0.4)'} />
-                <span style={{ fontSize: 14, fontWeight: activeSection === id ? 700 : 500, color: activeSection === id ? BRAND.light : 'rgba(255,255,255,0.7)' }}>
-                  {label}
-                </span>
-              </button>
-            ))}
+            {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
+              const hasBadge = id === 'requests' && pendingRequestsCount > 0;
+              return (
+                <button key={id} onClick={() => { setActiveSection(id); setMenuOpen(false); }} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '13px 20px',
+                  background: activeSection === id ? 'rgba(74,222,128,0.1)' : 'transparent',
+                  borderLeft: `3px solid ${activeSection === id ? BRAND.light : 'transparent'}`,
+                  border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  <Icon size={18} color={activeSection === id ? BRAND.light : 'rgba(255,255,255,0.4)'} />
+                  <span style={{ flex: 1, fontSize: 14, fontWeight: activeSection === id ? 700 : 500, color: activeSection === id ? BRAND.light : 'rgba(255,255,255,0.7)' }}>
+                    {label}
+                  </span>
+                  {hasBadge && (
+                    <span style={{
+                      background: '#f87171', color: 'white', borderRadius: 10,
+                      padding: '1px 7px', fontSize: 11, fontWeight: 800, marginRight: 8,
+                    }}>
+                      {pendingRequestsCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </>
       )}
