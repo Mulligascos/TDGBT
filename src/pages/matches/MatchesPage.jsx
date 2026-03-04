@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../supabaseClient';
 import { BRAND, formatName, formatDate } from '../../utils';
 import { Card, Badge, Button, SectionLabel, EmptyState, PageHeader } from '../../components/ui';
-import { StrokePlayScorer } from '../scoring/StrokePlayScorer';
+import { StrokePlayScorer, listDrafts, clearDraft } from '../scoring/StrokePlayScorer';
 import { AdminPanel } from './AdminPanel';
 import { vsParLabel, vsParColor, buildLeaderboard, parsToArray, totalPar } from '../../utils/strokeplay';
 import { Trophy, Calendar, Play, ChevronRight, Settings, ChevronLeft, AlertCircle } from 'lucide-react';
@@ -304,6 +304,10 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
   const [loading, setLoading] = useState(true);
   const [scoringRound, setScoringRound] = useState(null);
   const [scoringCourse, setScoringCourse] = useState(null);
+  const [savedDraft, setSavedDraft] = useState(() => {
+    const drafts = listDrafts();
+    return drafts.length > 0 ? drafts[0] : null;
+  });
   const [viewingRound, setViewingRound] = useState(null);
   const [showCasualPicker, setShowCasualPicker] = useState(false);
   const [localTournaments, setLocalTournaments] = useState(tournaments || []);
@@ -351,9 +355,25 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
     if (!error) setRounds(prev => prev.map(r => r.id === roundId ? { ...r, status: newStatus } : r));
   };
 
+  const handleResumeDraft = () => {
+    if (!savedDraft) return;
+    const round = rounds.find(r => r.id === savedDraft.roundId)
+      || { id: savedDraft.roundId, course_id: savedDraft.courseId, total_holes: savedDraft.scores ? Object.values(savedDraft.scores)[0]?.length || 18 : 18, starting_hole: 1, status: 'active' };
+    const course = courses.find(c => c.id === savedDraft.courseId)
+      || { id: savedDraft.courseId, name: savedDraft.courseName || 'Unknown', pars: {} };
+    setScoringCourse(course);
+    setScoringRound(round);
+  };
+
+  const handleDiscardDraft = () => {
+    if (savedDraft) clearDraft(savedDraft.roundId, savedDraft.userId || currentUser.id);
+    setSavedDraft(null);
+  };
+
   const handleScoringComplete = () => {
     setScoringRound(null);
     setScoringCourse(null);
+    setSavedDraft(null);
     loadData();
     onDataChanged?.();
   };
@@ -491,6 +511,33 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
 
       {/* Content */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '20px 20px 0' }}>
+        {/* Draft resume banner */}
+        {savedDraft && !scoringRound && (
+          <div style={{
+            margin: '12px 20px 0', padding: '12px 16px', borderRadius: 14,
+            background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <span style={{ fontSize: 20 }}>↩</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24' }}>Round in progress</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>
+                {savedDraft.courseName || 'Unknown course'} · hole {(savedDraft.currentHole || 0) + 1}
+              </div>
+            </div>
+            <button onClick={handleResumeDraft} style={{
+              padding: '7px 14px', borderRadius: 9, background: '#fbbf24',
+              border: 'none', color: '#1a0a00', fontFamily: "'DM Sans', sans-serif",
+              fontSize: 12, fontWeight: 800, cursor: 'pointer',
+            }}>Resume</button>
+            <button onClick={handleDiscardDraft} style={{
+              padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 12, cursor: 'pointer',
+            }}>✕</button>
+          </div>
+        )}
+
         {activeTab === 'rounds' && (
           <>
             {loading ? (
