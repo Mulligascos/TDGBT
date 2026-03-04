@@ -653,11 +653,29 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
 
   useEffect(() => { load(); }, [load]);
 
-  const resolve = async (id, status, notes = '') => {
+  const [resolving, setResolving] = useState({}); // { [id]: 'approve' | 'reject' }
+  const [notes, setNotes] = useState({});           // { [id]: string }
+  const [saving, setSaving] = useState(null);
+
+  const startResolve = (id, action) => {
+    setResolving(p => ({ ...p, [id]: action }));
+    setNotes(p => ({ ...p, [id]: p[id] || '' }));
+  };
+
+  const cancelResolve = (id) => {
+    setResolving(p => { const n = { ...p }; delete n[id]; return n; });
+  };
+
+  const confirmResolve = async (id, status) => {
+    setSaving(id);
     await supabase.from('course_requests').update({
-      status, admin_notes: notes || null,
-      resolved_at: new Date().toISOString(), resolved_by: currentUser.id,
+      status,
+      admin_notes: notes[id]?.trim() || null,
+      resolved_at: new Date().toISOString(),
+      resolved_by: currentUser.id,
     }).eq('id', id);
+    setSaving(null);
+    setResolving(p => { const n = { ...p }; delete n[id]; return n; });
     setRequests(p => p.filter(r => r.id !== id));
     showToast(status === 'approved' ? 'Request approved' : 'Request rejected');
   };
@@ -683,6 +701,9 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
       {!loading && !error && requests.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>No {filter} requests</div>}
       {requests.map(r => {
         const course = courses.find(c => c.id === r.course_id);
+        const action = resolving[r.id];
+        const isApproving = action === 'approve';
+        const isRejecting = action === 'reject';
         return (
           <Card key={r.id}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
@@ -691,13 +712,54 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
             </div>
             {course && <div style={{ fontSize: 11, color: BRAND.light, marginBottom: 4 }}>📍 {course.name}</div>}
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: 6 }}>{r.description}</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: filter === 'pending' ? 12 : 0 }}>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 12 }}>
               By {allPlayers?.find(p => p.id === r.submitted_by)?.name || 'Unknown'} · {formatDate(r.submitted_at)}
             </div>
-            {filter === 'pending' && (
+
+            {filter === 'pending' && !action && (
               <div style={{ display: 'flex', gap: 8 }}>
-                <Btn small variant="primary" onClick={() => resolve(r.id, 'approved')}><Check size={13} /> Approve</Btn>
-                <Btn small variant="danger" onClick={() => resolve(r.id, 'rejected')}><X size={13} /> Reject</Btn>
+                <Btn small variant="primary" onClick={() => startResolve(r.id, 'approve')}><Check size={13} /> Approve</Btn>
+                <Btn small variant="danger" onClick={() => startResolve(r.id, 'reject')}><X size={13} /> Reject</Btn>
+              </div>
+            )}
+
+            {filter === 'pending' && action && (
+              <div style={{ marginTop: 4 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: isApproving ? BRAND.light : '#f87171', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>
+                  {isApproving ? '✓ Approving' : '✕ Rejecting'} — add notes for the requestor
+                </div>
+                <textarea
+                  value={notes[r.id] || ''}
+                  onChange={e => setNotes(p => ({ ...p, [r.id]: e.target.value }))}
+                  placeholder={isApproving ? 'e.g. Change scheduled for next round...' : 'e.g. Outside our current scope...'}
+                  rows={2}
+                  style={{
+                    width: '100%', padding: '10px 12px', borderRadius: 10, resize: 'vertical',
+                    background: 'rgba(255,255,255,0.07)',
+                    border: `1px solid ${isApproving ? 'rgba(74,222,128,0.25)' : 'rgba(248,113,113,0.25)'}`,
+                    color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+                    outline: 'none', boxSizing: 'border-box', marginBottom: 10,
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Btn small variant="ghost" onClick={() => cancelResolve(r.id)}>Cancel</Btn>
+                  <Btn
+                    small
+                    variant={isApproving ? 'primary' : 'danger'}
+                    disabled={saving === r.id}
+                    onClick={() => confirmResolve(r.id, isApproving ? 'approved' : 'rejected')}
+                  >
+                    {saving === r.id ? 'Saving...' : isApproving ? <><Check size={13} /> Confirm Approve</> : <><X size={13} /> Confirm Reject</>}
+                  </Btn>
+                </div>
+              </div>
+            )}
+
+            {/* Show admin notes on resolved requests */}
+            {filter !== 'pending' && r.admin_notes && (
+              <div style={{ marginTop: 6, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Admin Notes</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{r.admin_notes}</div>
               </div>
             )}
           </Card>
