@@ -806,14 +806,23 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
   };
 
   const handleDelete = async (id) => {
-    await supabase.from('announcements').delete().eq('id', id);
+    // Optimistically remove from UI
+    const prev = announcements;
     setAnnouncements(p => p.filter(a => a.id !== id));
-    showToast('Announcement deleted');
+    const { error } = await supabase.from('announcements').delete().eq('id', id);
+    if (error) {
+      // Revert if DB delete failed (e.g. RLS blocked it)
+      setAnnouncements(prev);
+      showToast('Delete failed — check permissions');
+      console.error('Delete announcement error:', error);
+    } else {
+      showToast('Announcement deleted');
+    }
   };
 
   const togglePin = async (a) => {
-    await supabase.from('announcements').update({ pinned: !a.pinned }).eq('id', a.id);
-    setAnnouncements(p => p.map(x => x.id === a.id ? { ...x, pinned: !x.pinned } : x));
+    const { error } = await supabase.from('announcements').update({ pinned: !a.pinned }).eq('id', a.id);
+    if (!error) setAnnouncements(p => p.map(x => x.id === a.id ? { ...x, pinned: !x.pinned } : x));
   };
 
   return (
