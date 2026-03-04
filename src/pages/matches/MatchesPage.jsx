@@ -51,26 +51,21 @@ const RoundCard = ({ round, index, course, myScore, isAdmin, onStart, onStatusCh
             </span>
           </div>
         </div>
-      ) : status !== 'complete' ? (
+      ) : status === 'active' ? (
         <button onClick={() => onStart(round)} style={{
           width: '100%', padding: '12px', borderRadius: 12,
-          background: status === 'active'
-            ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
-            : 'rgba(255,255,255,0.06)',
-          border: status === 'active'
-            ? '1px solid rgba(74,222,128,0.3)'
-            : '1px solid rgba(255,255,255,0.1)',
+          background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
+          border: '1px solid rgba(74,222,128,0.3)',
           color: 'white', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         }}>
-          <Play size={15} fill="currentColor" />
-          {status === 'active' ? 'Score This Round' : 'Start Early'}
+          <Play size={15} fill="currentColor" /> Score This Round
         </button>
-      ) : (
+      ) : status === 'complete' ? (
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', textAlign: 'center', padding: '4px 0' }}>
           No score recorded for you this round
         </div>
-      )}
+      ) : null /* upcoming — admin controls below handle opening */}
 
       {isAdmin && status !== 'complete' && (
         <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
@@ -587,17 +582,23 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
             ) : rounds.length === 0 ? (
               <EmptyState icon="📅" title="No rounds scheduled" subtitle={isAdmin ? "Add rounds in the Admin panel" : "Rounds will appear here when scheduled"} />
             ) : (
-              rounds.map((round, i) => {
-                const course = courses.find(c => c.id === round.course_id);
-                const myScore = roundScores.find(s => s.round_id === round.id && s.player_id === currentUser.id);
-                return (
-                  <div key={round.id}>
-                    <RoundCard
-                      round={round} index={i} course={course} myScore={myScore}
-                      isAdmin={isAdmin}
-                      onStart={handleStartRound}
-                      onStatusChange={handleRoundStatusChange}
-                    />
+              <>
+                {(() => {
+                  // Non-admins: only show active + complete rounds
+                  const visibleRounds = isAdmin ? rounds : rounds.filter(r => r.status === 'active' || r.status === 'complete');
+                  const scheduledCount = isAdmin ? 0 : rounds.filter(r => r.status === 'upcoming').length;
+                  return (<>
+                    {visibleRounds.map((round, i) => {
+                      const course = courses.find(c => c.id === round.course_id);
+                      const myScore = roundScores.find(s => s.round_id === round.id && s.player_id === currentUser.id);
+                      return (
+                        <div key={round.id}>
+                          <RoundCard
+                            round={round} index={rounds.indexOf(round)} course={course} myScore={myScore}
+                            isAdmin={isAdmin}
+                            onStart={handleStartRound}
+                            onStatusChange={handleRoundStatusChange}
+                          />
                     {round.status === 'complete' && (
                       <button
                         onClick={() => setViewingRound(round)}
@@ -613,9 +614,32 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
                         View results <ChevronRight size={12} />
                       </button>
                     )}
-                  </div>
-                );
-              })
+                        </div>
+                      );
+                    })}
+                    {scheduledCount > 0 && (
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+                        background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)',
+                        borderRadius: 14, marginBottom: 10,
+                      }}>
+                        <div style={{ fontSize: 24 }}>📅</div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
+                            {scheduledCount} upcoming round{scheduledCount !== 1 ? 's' : ''} scheduled
+                          </div>
+                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>
+                            Details will be revealed when the admin opens each round
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {visibleRounds.length === 0 && scheduledCount === 0 && (
+                      <EmptyState icon="📅" title="No rounds yet" subtitle="Rounds will appear here when scheduled" />
+                    )}
+                  </>);
+                })()}
+              </>
             )}
           </>
         )}
