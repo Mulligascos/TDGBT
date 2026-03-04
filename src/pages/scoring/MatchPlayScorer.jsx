@@ -38,11 +38,15 @@ const holeWinner = (p1Strokes, p2Strokes, p1Player, p2Player) => {
 };
 
 // Compute running matchplay status from stroke arrays
-export const calcMatchStatus = (p1Scores, p2Scores, p1Player, p2Player, totalHoles) => {
+// visitedHoles: Set of hole indices the user has actually touched
+export const calcMatchStatus = (p1Scores, p2Scores, p1Player, p2Player, totalHoles, visitedHoles) => {
   let p1Holes = 0, p2Holes = 0;
   const results = [];
 
   for (let i = 0; i < totalHoles; i++) {
+    // Only score a hole if it has been visited (user has confirmed entry)
+    const visited = visitedHoles ? visitedHoles.has(i) : false;
+    if (!visited) { results.push(0); continue; }
     const r = holeWinner(p1Scores[i], p2Scores[i], p1Player, p2Player);
     results.push(r);
     if (r === 1) p1Holes++;
@@ -54,9 +58,9 @@ export const calcMatchStatus = (p1Scores, p2Scores, p1Player, p2Player, totalHol
   const diff = p1Holes - p2Holes;
   const holesUp = Math.abs(diff);
   const leader = diff > 0 ? 1 : diff < 0 ? 2 : null;
-  const finished = holesUp > holesRemaining || (holesPlayed === totalHoles && holesUp !== 0);
+  const finished = holesPlayed > 0 && (holesUp > holesRemaining || (holesPlayed === totalHoles && holesUp !== 0));
   const allSquareFinished = holesPlayed === totalHoles && diff === 0;
-  const dormie = !finished && !allSquareFinished && leader !== null && holesUp === holesRemaining;
+  const dormie = !finished && !allSquareFinished && leader !== null && holesUp === holesRemaining && holesPlayed > 0;
 
   return { p1Holes, p2Holes, holesPlayed, holesRemaining, holesUp, leader, results,
            finished, allSquareFinished, dormie, winner: finished ? leader : null };
@@ -437,6 +441,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
   const [p1Scores, setP1Scores] = useState(() => existingDraft?.p1Scores || pars.map(p => p));
   const [p2Scores, setP2Scores] = useState(() => existingDraft?.p2Scores || pars.map(p => p));
   const [currentHole, setCurrentHole] = useState(() => existingDraft?.currentHole ?? 0);
+  const [visitedHoles, setVisitedHoles] = useState(() => existingDraft?.visitedHoles ? new Set(existingDraft.visitedHoles) : new Set([0]));
   const [view, setView]   = useState(() => existingDraft?.p2 ? 'scoring' : 'setup');
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [submitting, setSubmitting]   = useState(false);
@@ -459,6 +464,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
       courseId: round.course_id, courseName: course.name,
       scoringFormat: 'matchplay',
       p1, p2, p1Scores, p2Scores, currentHole,
+      visitedHoles: [...visitedHoles],
     });
   }, [p1Scores, p2Scores, currentHole, p2, view]); // eslint-disable-line
 
@@ -470,14 +476,23 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
 
   // Compute status live
   const status = p2
-    ? calcMatchStatus(p1Scores, p2Scores, p1, p2, totalHoles)
+    ? calcMatchStatus(p1Scores, p2Scores, p1, p2, totalHoles, visitedHoles)
     : { p1Holes: 0, p2Holes: 0, holesPlayed: 0, holesRemaining: totalHoles, holesUp: 0, leader: null, results: Array(totalHoles).fill(0), finished: false, allSquareFinished: false, dormie: false, winner: null };
 
-  const handleNext = () => {
+  const markVisitedAndAdvance = () => {
     haptic('medium');
-    if (status.finished || currentHole >= totalHoles - 1) { setView('summary'); return; }
-    setCurrentHole(h => Math.min(totalHoles - 1, h + 1));
+    // Mark current hole as visited, then check if match is now finished
+    const newVisited = new Set([...visitedHoles, currentHole]);
+    setVisitedHoles(newVisited);
+    // Recompute status with the updated visited set to check finish condition
+    const updatedStatus = calcMatchStatus(p1Scores, p2Scores, p1, p2, totalHoles, newVisited);
+    if (updatedStatus.finished || currentHole >= totalHoles - 1) { setView('summary'); return; }
+    const next = currentHole + 1;
+    setCurrentHole(next);
+    setVisitedHoles(new Set([...newVisited, next]));
   };
+
+  const handleNext = markVisitedAndAdvance;
 
   const handleBack = () => {
     if (currentHole > 0) { haptic('light'); setCurrentHole(h => h - 1); }
