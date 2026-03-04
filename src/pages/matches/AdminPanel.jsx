@@ -808,7 +808,14 @@ const NAV_ITEMS = [
   { id: 'announcements', label: 'Announcements', icon: Megaphone },
 ];
 
-export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players, onDataChanged }) => {
+export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, courses, players, onDataChanged, onBack }) => {
+  const [rounds, setRounds] = React.useState(roundsProp || []);
+
+  useEffect(() => {
+    if (roundsProp && roundsProp.length > 0) { setRounds(roundsProp); return; }
+    // Load rounds ourselves if not provided
+    supabase.from('rounds').select('*').then(({ data }) => { if (data) setRounds(data); });
+  }, [roundsProp]);
   const [activeSection, setActiveSection] = useState('tournaments');
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -836,13 +843,24 @@ export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players,
             <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>{activeItem?.label}</div>
           </div>
           {/* Hamburger menu */}
-          <button onClick={() => setMenuOpen(s => !s)} style={{
-            background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
-            borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'white',
-            display: 'flex', flexDirection: 'column', gap: 4,
-          }}>
-            {[0, 1, 2].map(i => <div key={i} style={{ width: 18, height: 2, background: 'white', borderRadius: 1 }} />)}
-          </button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {onBack && (
+              <button onClick={onBack} style={{
+                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'rgba(255,255,255,0.7)',
+                fontFamily: "'DM Sans', sans-serif", fontSize: 13, display: 'flex', alignItems: 'center', gap: 4,
+              }}>
+                <ChevronLeft size={15} /> Home
+              </button>
+            )}
+            <button onClick={() => setMenuOpen(s => !s)} style={{
+              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'white',
+              display: 'flex', flexDirection: 'column', gap: 4,
+            }}>
+              {[0, 1, 2].map(i => <div key={i} style={{ width: 18, height: 2, background: 'white', borderRadius: 1 }} />)}
+            </button>
+          </div>
         </div>
       </div>
 
