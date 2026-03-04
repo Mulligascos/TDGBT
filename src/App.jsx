@@ -24,8 +24,8 @@ export default function App() {
 
   const {
     courses, tournaments, matches, players,
-    isLoading, loadData, activeTournament,
-  } = useAppData(currentUser);
+    isLoading, loadData, activeTournament, pendingRequestsCount,
+  } = useAppData(currentUser, isAdmin);
 
   const showToast = useCallback((message, type = 'success') => {
     haptic(type === 'error' ? 'error' : 'success');
@@ -77,6 +77,7 @@ export default function App() {
         tournaments={tournaments}
         activeTournament={activeTournament}
         players={players}
+        pendingRequestsCount={pendingRequestsCount}
       />
     ),
     matches: (
@@ -101,6 +102,7 @@ export default function App() {
         players={players}
         onDataChanged={loadData}
         onBack={() => handleTabChange('home')}
+        pendingRequestsCount={pendingRequestsCount}
       />
     ),
     profile: (
