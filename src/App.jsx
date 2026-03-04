@@ -90,6 +90,7 @@ export default function App() {
         players={players}
         tournaments={tournaments}
         onDataChanged={loadData}
+        updateUser={updateUser}
       />
     ),
     history: <HistoryPage {...commonProps} matches={matches} players={players} />,
