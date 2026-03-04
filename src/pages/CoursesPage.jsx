@@ -104,8 +104,11 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
   const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const [submitError, setSubmitError] = useState('');
+
   const handleSave = async () => {
     if (!description.trim()) return;
+    setSubmitError('');
     setSaving(true);
     const { error } = await supabase.from('course_hazards').insert({
       course_id: courseId,
@@ -114,7 +117,8 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
       reported_by: currentUser.id,
     });
     setSaving(false);
-    if (!error) onSaved();
+    if (error) { setSubmitError(error.message); return; }
+    onSaved();
   };
 
   return (
@@ -149,6 +153,11 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
           />
         </div>
       </div>
+      {submitError && (
+        <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#f87171', marginBottom: 10 }}>
+          ⚠️ {submitError}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: '10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)',
@@ -172,6 +181,7 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
 const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCancel }) => {
   const [form, setForm] = useState({ request_type: 'layout', title: '', description: '' });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const types = [
     { value: 'par_change', label: 'Par Change' },
@@ -183,8 +193,9 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
 
   const handleSave = async () => {
     if (!form.title.trim() || !form.description.trim()) return;
+    setError('');
     setSaving(true);
-    const { error } = await supabase.from('course_requests').insert({
+    const { error: err } = await supabase.from('course_requests').insert({
       course_id: courseId || null,
       request_type: form.request_type,
       title: form.title.trim(),
@@ -192,7 +203,8 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
       submitted_by: currentUser.id,
     });
     setSaving(false);
-    if (!error) onSaved();
+    if (err) { setError(err.message); return; }
+    onSaved();
   };
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
@@ -222,6 +234,11 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
         ...inputStyle, resize: 'vertical', lineHeight: 1.5,
       }} />
 
+      {error && (
+        <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#f87171', marginBottom: 10 }}>
+          ⚠️ {error}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: '10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)',
