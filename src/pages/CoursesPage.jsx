@@ -274,7 +274,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
   const loadData = useCallback(async () => {
     const [{ data: haz }, { data: req }] = await Promise.all([
       supabase.from('course_hazards').select('*').eq('course_id', course.id).eq('cleared', false).order('reported_at', { ascending: false }),
-      supabase.from('course_requests').select('*').eq('course_id', course.id).eq('status', 'pending').order('submitted_at', { ascending: false }),
+      supabase.from('course_requests').select('*').eq('course_id', course.id).order('submitted_at', { ascending: false }),
     ]);
     setHazards(haz || []);
     setRequests(req || []);
@@ -440,19 +440,33 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
           )}
 
           {!loading && requests.length === 0 && !showRequestForm && (
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', padding: '8px 0' }}>No pending requests</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', padding: '8px 0' }}>No requests yet</div>
           )}
 
-          {requests.map(r => (
-            <div key={r.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px 14px', marginBottom: 8 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{r.title}</div>
-                <Badge label={r.request_type.replace('_', ' ')} color="rgba(255,255,255,0.3)" />
+          {requests.map(r => {
+            const statusStyles = {
+              pending:  { bg: 'rgba(251,191,36,0.08)',  border: 'rgba(251,191,36,0.2)',  color: '#fbbf24', label: '⏳ Pending'  },
+              approved: { bg: 'rgba(74,222,128,0.08)',  border: 'rgba(74,222,128,0.2)',  color: '#4ade80', label: '✓ Approved' },
+              rejected: { bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)', color: '#f87171', label: '✕ Rejected' },
+            };
+            const ss = statusStyles[r.status] || statusStyles.pending;
+            return (
+              <div key={r.id} style={{ background: ss.bg, border: `1px solid ${ss.border}`, borderRadius: 12, padding: '12px 14px', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{r.title}</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: ss.color, whiteSpace: 'nowrap', marginLeft: 8 }}>{ss.label}</span>
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 4 }}>{r.description}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Submitted {formatDate(r.submitted_at)}</div>
+                {r.admin_notes && (
+                  <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Admin Notes</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{r.admin_notes}</div>
+                  </div>
+                )}
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{r.description}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 6 }}>Submitted {formatDate(r.submitted_at)}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
       </div>
