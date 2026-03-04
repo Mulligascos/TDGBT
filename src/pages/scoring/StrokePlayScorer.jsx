@@ -277,7 +277,7 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
 };
 
 // ─── BAG TAG CHALLENGE SCREEN ─────────────────────────────────────────────────
-const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId, supabase: sb, onComplete }) => {
+const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId, onComplete }) => {
   const [playoff, setPlayoff] = useState(false);
   const [playoffWinnerId, setPlayoffWinnerId] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -315,7 +315,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
     if (isTie && !playoffWinnerId) { setError('Select a playoff winner first.'); return; }
     setSaving(true);
     try {
-      await persistBagTagChallenge(sb, {
+      await persistBagTagChallenge({
         roundId, courseId,
         challengeDate: new Date().toISOString().split('T')[0],
         swaps: effectiveSwaps,
@@ -609,7 +609,6 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           currentUser={currentUser}
           roundId={savedRoundId}
           courseId={savedCourseId}
-          supabase={supabase}
           onComplete={onComplete}
         />
         <GlobalStyles />
