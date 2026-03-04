@@ -633,17 +633,20 @@ const CoursesSection = ({ courses, onRefresh, showToast }) => {
 // SECTION: CHANGE REQUESTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const RequestsSection = ({ courses, currentUser, showToast }) => {
+const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast }) => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('pending');
+  const [error, setError] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from('course_requests')
-      .select('*, players!submitted_by(player_name)')
+    setError('');
+    const { data, error: err } = await supabase.from('course_requests')
+      .select('*')
       .eq('status', filter)
       .order('submitted_at', { ascending: false });
+    if (err) setError(err.message);
     setRequests(data || []);
     setLoading(false);
   }, [filter]);
@@ -676,7 +679,8 @@ const RequestsSection = ({ courses, currentUser, showToast }) => {
         ))}
       </div>
       {loading && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Loading...</div>}
-      {!loading && requests.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>No {filter} requests</div>}
+      {error && <div style={{ fontSize: 13, color: '#f87171', padding: '8px 0' }}>⚠️ {error}</div>}
+      {!loading && !error && requests.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>No {filter} requests</div>}
       {requests.map(r => {
         const course = courses.find(c => c.id === r.course_id);
         return (
@@ -688,7 +692,7 @@ const RequestsSection = ({ courses, currentUser, showToast }) => {
             {course && <div style={{ fontSize: 11, color: BRAND.light, marginBottom: 4 }}>📍 {course.name}</div>}
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: 6 }}>{r.description}</div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: filter === 'pending' ? 12 : 0 }}>
-              By {r.players?.player_name || 'Unknown'} · {formatDate(r.submitted_at)}
+              By {allPlayers?.find(p => p.id === r.submitted_by)?.name || 'Unknown'} · {formatDate(r.submitted_at)}
             </div>
             {filter === 'pending' && (
               <div style={{ display: 'flex', gap: 8 }}>
@@ -918,7 +922,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
           <CoursesSection courses={courses} onRefresh={onDataChanged} showToast={showToast} />
         )}
         {activeSection === 'requests' && (
-          <RequestsSection courses={courses} currentUser={currentUser} showToast={showToast} />
+          <RequestsSection courses={courses} currentUser={currentUser} players={players} showToast={showToast} />
         )}
         {activeSection === 'announcements' && (
           <AnnouncementsSection currentUser={currentUser} showToast={showToast} />
