@@ -12,6 +12,7 @@ import { HistoryPage } from './pages/HistoryPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { CoursesPage } from './pages/CoursesPage';
 import { BagTagsPage } from './pages/BagTagsPage';
+import { LostFoundPage } from './pages/LostFoundPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -111,6 +112,13 @@ export default function App() {
       <BagTagsPage
         currentUser={currentUser}
         players={players}
+      />
+    ),
+    lostfound: (
+      <LostFoundPage
+        currentUser={currentUser}
+        isAdmin={isAdmin}
+        courses={courses}
       />
     ),
     profile: (
