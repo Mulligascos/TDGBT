@@ -534,11 +534,10 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
       const courseIds = (initialCourses || []).map(c => c.id);
       if (courseIds.length === 0) { setLoading(false); return; }
 
-      const [{ data: hazards }, { data: myScores }] = await Promise.all([
+      // Two separate queries to avoid RLS blocking the join
+      const [{ data: hazards }, { data: myRoundScores }] = await Promise.all([
         supabase.from('course_hazards').select('course_id').eq('cleared', false).in('course_id', courseIds),
-        supabase.from('round_scores')
-          .select('round_id, rounds!inner(course_id)')
-          .eq('player_id', currentUser.id),
+        supabase.from('round_scores').select('round_id').eq('player_id', currentUser.id),
       ]);
 
       // Count hazards per course
@@ -546,12 +545,15 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
       (hazards || []).forEach(h => { hCounts[h.course_id] = (hCounts[h.course_id] || 0) + 1; });
       setHazardCounts(hCounts);
 
-      // Count my rounds per course
+      // Fetch round->course mapping separately then count
       const rCounts = {};
-      (myScores || []).forEach(s => {
-        const cid = s.rounds?.course_id;
-        if (cid) rCounts[cid] = (rCounts[cid] || 0) + 1;
-      });
+      if (myRoundScores && myRoundScores.length > 0) {
+        const roundIds = [...new Set(myRoundScores.map(s => s.round_id))];
+        const { data: roundRows } = await supabase.from('rounds').select('id, course_id').in('id', roundIds);
+        (roundRows || []).forEach(r => {
+          if (courseIds.includes(r.course_id)) rCounts[r.course_id] = (rCounts[r.course_id] || 0) + 1;
+        });
+      }
       setMyRoundCounts(rCounts);
       setLoading(false);
     };
@@ -583,7 +585,8 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
       )}
 
       {/* Header */}
-      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '52px 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '52px 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+        <LogoWatermark size={160} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>⛳ Courses</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>Local Courses</div>
