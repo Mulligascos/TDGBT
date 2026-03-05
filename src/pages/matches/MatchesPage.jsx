@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../supabaseClient';
 import { BRAND, formatName, formatDate } from '../../utils';
-import { Card, Badge, Button, SectionLabel, EmptyState, PageHeader } from '../../components/ui';
+import { Card, Badge, Button, SectionLabel, EmptyState, PageHeader, LogoWatermark } from '../../components/ui';
 import { StrokePlayScorer, listDrafts, clearDraft } from '../scoring/StrokePlayScorer';
 import { MatchPlayScorer, listMPDrafts, clearMPDraft } from '../scoring/MatchPlayScorer';
 import { AdminPanel } from './AdminPanel';
