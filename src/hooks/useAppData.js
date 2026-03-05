@@ -15,16 +15,11 @@ export const useAppData = (currentUser, isAdmin = false) => {
     if (!currentUser) return;
     setIsLoading(true);
     try {
+      // Use allSettled so one failing query doesn't kill the rest
       const queries = [
         supabase.from('courses').select('*').order('name'),
         supabase.from('tournaments').select('*').order('start_date', { ascending: false }),
-        supabase.from('matches').select(`
-          *,
-          player1:player1_id(player_id, player_name, player_status),
-          player2:player2_id(player_id, player_name, player_status),
-          winner:winner_id(player_id, player_name),
-          course:course_id(id, name, code)
-        `).order('scheduled_date', { ascending: false }),
+        supabase.from('matches').select('*').order('scheduled_date', { ascending: false }),
         supabase.from('players')
           .select('*')
           .eq('player_status', 'Active')
@@ -39,21 +34,19 @@ export const useAppData = (currentUser, isAdmin = false) => {
         );
       }
 
-      const results = await Promise.all(queries);
+      const results = await Promise.allSettled(queries);
       const [coursesRes, tournamentsRes, matchesRes, playersRes, pendingRes] = results;
 
-      if (coursesRes.data) setCourses(coursesRes.data);
-      if (tournamentsRes.data) setTournaments(tournamentsRes.data);
-      if (matchesRes.data) {
-        setMatches(matchesRes.data.map(m => ({
-          ...m,
-          player1: m.player1 ? normalisePlayer(m.player1) : null,
-          player2: m.player2 ? normalisePlayer(m.player2) : null,
-          winner: m.winner ? normalisePlayer(m.winner) : null,
-        })));
-      }
-      if (playersRes.data) setPlayers(playersRes.data.map(normalisePlayer));
-      if (isAdmin && pendingRes) setPendingRequestsCount(pendingRes.count || 0);
+      if (coursesRes.status === 'fulfilled' && coursesRes.value.data)
+        setCourses(coursesRes.value.data);
+      if (tournamentsRes.status === 'fulfilled' && tournamentsRes.value.data)
+        setTournaments(tournamentsRes.value.data);
+      if (matchesRes.status === 'fulfilled' && matchesRes.value.data)
+        setMatches(matchesRes.value.data);
+      if (playersRes.status === 'fulfilled' && playersRes.value.data)
+        setPlayers(playersRes.value.data.map(normalisePlayer));
+      if (isAdmin && pendingRes?.status === 'fulfilled' && pendingRes.value)
+        setPendingRequestsCount(pendingRes.value.count || 0);
 
       setLastLoaded(new Date());
     } catch (err) {
