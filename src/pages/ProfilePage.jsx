@@ -354,6 +354,7 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
       <div style={{
         background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`,
         padding: '52px 20px 28px',
+        position: 'relative', overflow: 'hidden',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto' }}>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { BRAND, formatName, formatDate } from '../utils';
+import { BRAND, formatName, formatDate , LogoWatermark } from '../utils';
 import { vsParLabel, vsParColor } from '../utils/strokeplay';
 import { Tag, ChevronLeft, Trophy } from 'lucide-react';
 
@@ -269,6 +269,7 @@ export const BagTagsPage = ({ currentUser, players }) => {
         padding: '52px 20px 0',
         borderBottom: '1px solid rgba(251,191,36,0.15)',
       }}>
+        <LogoWatermark size={160} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
             🏷️ Bag Tags

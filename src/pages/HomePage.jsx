@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { BRAND, formatName, formatDate } from '../utils';
+import { BRAND, formatName, formatDate , LogoWatermark } from '../utils';
 import { Badge } from '../components/ui';
 import { vsParLabel, vsParColor, buildLeaderboard } from '../utils/strokeplay';
 import { Trophy, Disc, Clock, ChevronRight, Zap, Flag, BookOpen, Settings } from 'lucide-react';
@@ -231,6 +231,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
       <div style={{
         background: `linear-gradient(160deg, ${BRAND.primary}cc, ${BRAND.accent}88)`,
         padding: '52px 20px 28px',
+        position: 'relative', overflow: 'hidden',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto' }}>

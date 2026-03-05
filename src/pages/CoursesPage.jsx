@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { BRAND, formatName, formatDate } from '../utils';
+import { BRAND, formatName, formatDate , LogoWatermark } from '../utils';
 import { Badge, EmptyState, SectionLabel } from '../components/ui';
 import { vsParLabel } from '../utils/strokeplay';
 import { ChevronLeft, ChevronRight, MapPin, AlertTriangle, Plus, Check, X, Flag } from 'lucide-react';
@@ -298,7 +298,8 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
       )}
 
       {/* Header */}
-      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '52px 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '52px 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+        <LogoWatermark size={160} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
             <ChevronLeft size={15} /> Courses

@@ -27,16 +27,17 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
     }}>
       {/* Logo area */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
-        <div style={{
-          width: 80, height: 80, borderRadius: '50%',
-          background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 16px',
-          boxShadow: `0 8px 32px ${BRAND.primary}60`,
-          fontSize: 36,
-        }}>
-          🥏
-        </div>
+        <img
+          src="/assets/tdg_logo.gif"
+          alt="Timaru Disc Golf Club"
+          style={{
+            width: 120, height: 120,
+            objectFit: 'contain',
+            margin: '0 auto 16px',
+            display: 'block',
+            filter: 'drop-shadow(0 8px 24px rgba(74,222,128,0.25))',
+          }}
+        />
         <h1 style={{
           fontFamily: "'Syne', sans-serif",
           fontSize: 32, fontWeight: 800,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { BRAND, formatName, formatDate } from '../utils';
+import { BRAND, formatName, formatDate , LogoWatermark } from '../utils';
 import { Badge, SectionLabel, EmptyState } from '../components/ui';
 import { vsParLabel, vsParColor, parsToArray, totalPar } from '../utils/strokeplay';
 import { ChevronDown, ChevronUp, Search, X, Calendar } from 'lucide-react';
@@ -604,6 +604,7 @@ export const HistoryPage = ({ currentUser, players }) => {
         background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`,
         padding: '52px 20px 24px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
+        position: 'relative', overflow: 'hidden',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
