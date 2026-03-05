@@ -544,7 +544,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
         <div style={{ display: 'flex', gap: 6, marginBottom: 18 }}>
           {[
             { id: 'active',  label: 'Active' },
-            { id: 'lost',    label: `Lost${lostCount > 0 ? \` (\${lostCount})\` : ''}` },
+            { id: 'lost',    label: lostCount > 0 ? `Lost (${lostCount})` : 'Lost' },
             { id: 'claimed', label: 'Claimed' },
             { id: 'all',     label: 'All' },
           ].map(tab => (
