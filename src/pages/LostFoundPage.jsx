@@ -48,7 +48,7 @@ const StatusBadge = ({ status }) => {
 };
 
 // ─── DISC CARD ────────────────────────────────────────────────────────────────
-const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onDelete }) => {
+const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) => {
   const [expanded, setExpanded] = useState(false);
   const isOwn = disc.reported_by === currentUser.id;
 
@@ -151,7 +151,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onDelete }) => {
           {disc.type === 'lost' && disc.status !== 'claimed' && (
             <div style={{ display: 'flex', gap: 8 }}>
               {!isOwn && (
-                <button onClick={() => onClaim(disc)} style={{
+                <button onClick={() => onFoundIt(disc)} style={{
                   flex: 1, padding: '10px', borderRadius: 12,
                   background: 'linear-gradient(135deg, #92400e, #b45309)',
                   border: '1px solid rgba(251,191,36,0.3)', color: 'white',
@@ -180,13 +180,13 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onDelete }) => {
             </div>
           )}
 
-          {isAdmin && disc.status !== 'claimed' && (
+          {isAdmin && disc.status !== 'claimed' && disc.type !== 'lost' && (
             <button onClick={() => onClaim(disc)} style={{
               marginTop: 8, width: '100%', padding: '8px', borderRadius: 10,
               background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)',
               color: '#fbbf24', fontFamily: "'DM Sans', sans-serif", fontSize: 12, cursor: 'pointer',
             }}>
-              ✓ Mark as resolved (admin)
+              ✓ Mark as claimed (admin)
             </button>
           )}
         </div>
@@ -452,6 +452,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
 
   useEffect(() => { loadDiscs(); }, [loadDiscs]);
 
+  // For found discs — owner claims their disc back
   const handleClaim = async (disc) => {
     haptic('medium');
     const { error } = await supabase
@@ -459,6 +460,23 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
       .update({ status: 'claimed', claimed_by: currentUser.id, claimed_at: new Date().toISOString() })
       .eq('id', disc.id);
     if (!error) setDiscs(prev => prev.map(d => d.id === disc.id ? { ...d, status: 'claimed' } : d));
+  };
+
+  // For lost discs — any member can mark it as found and provide their name
+  const handleFoundIt = async (disc) => {
+    haptic('success');
+    const { error } = await supabase
+      .from('lost_discs')
+      .update({
+        status: 'claimed',
+        claimed_by: currentUser.id,
+        claimed_at: new Date().toISOString(),
+        finder_name: currentUser.name,  // update finder to the person who found it
+      })
+      .eq('id', disc.id);
+    if (!error) setDiscs(prev => prev.map(d =>
+      d.id === disc.id ? { ...d, status: 'claimed', finder_name: currentUser.name } : d
+    ));
   };
 
   const handleDelete = async (id) => {
@@ -575,6 +593,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
               currentUser={currentUser}
               isAdmin={isAdmin}
               onClaim={handleClaim}
+              onFoundIt={handleFoundIt}
               onDelete={handleDelete}
             />
           ))
