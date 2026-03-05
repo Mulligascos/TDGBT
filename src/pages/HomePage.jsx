@@ -84,7 +84,7 @@ const RecentScores = ({ scores, onViewAll }) => (
           background: s.vs_par < 0 ? 'rgba(74,222,128,0.12)' : s.vs_par === 0 ? 'rgba(251,191,36,0.12)' : 'rgba(248,113,113,0.08)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         }}>
-          <div style={{ fontSize: 16, fontWeight: 800, color: vsParColor(s.vs_par), fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: vsParColor(s.vs_par), fontFamily: "Arial, sans-serif", lineHeight: 1 }}>
             {vsParLabel(s.vs_par)}
           </div>
           <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{s.total_strokes}</div>
