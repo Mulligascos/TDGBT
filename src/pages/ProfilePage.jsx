@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { BRAND, formatName } from '../utils';
 import { Badge, LogoWatermark } from '../components/ui';
@@ -307,6 +307,261 @@ const SeasonStats = ({ stats, onViewHistory }) => {
 };
 
 // ─── MAIN PROFILE PAGE ────────────────────────────────────────────────────────
+
+// ─── ACHIEVEMENTS ENGINE ──────────────────────────────────────────────────────
+
+const ACHIEVEMENTS = [
+  { id: 'first_round',    icon: '🎯', label: 'First Round',      desc: 'Completed your first round',               tier: 'bronze' },
+  { id: 'under_par',      icon: '⭐', label: 'Under Par',        desc: 'Finished a round under par',               tier: 'bronze' },
+  { id: 'birdie_machine', icon: '🐦', label: 'Birdie Machine',   desc: '3+ birdies in a single round',             tier: 'silver' },
+  { id: 'eagle',          icon: '🦅', label: 'Eagle!',           desc: 'Scored an eagle (2 under on a hole)',      tier: 'gold'   },
+  { id: 'ace',            icon: '🎳', label: 'Ace',              desc: 'Hole in one!',                             tier: 'gold'   },
+  { id: 'hot_streak',     icon: '🔥', label: 'Hot Streak',       desc: '3 consecutive under-par rounds',           tier: 'silver' },
+  { id: 'iron_man',       icon: '💪', label: 'Iron Man',         desc: 'Played 10+ rounds',                       tier: 'silver' },
+  { id: 'round_winner',   icon: '🥇', label: 'Round Winner',     desc: 'Best score in a round',                   tier: 'gold'   },
+  { id: 'consistent',     icon: '📅', label: 'Consistent',       desc: '5+ rounds in a single month',             tier: 'silver' },
+  { id: 'veteran',        icon: '🏅', label: 'Veteran',          desc: 'Played 25+ rounds',                       tier: 'gold'   },
+  { id: 'scratch',        icon: '💎', label: 'Scratch Player',   desc: 'Season average of even par or better',    tier: 'gold'   },
+];
+
+const TIER_COLORS = {
+  bronze: { bg: 'rgba(205,127,50,0.15)', border: 'rgba(205,127,50,0.35)', color: '#cd7f32' },
+  silver: { bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.3)', color: '#c0c0c0' },
+  gold:   { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.35)', color: '#fbbf24' },
+};
+
+const computeAchievements = (scores, allRoundScores, rounds) => {
+  const earned = new Set();
+  if (!scores.length) return earned;
+
+  // Sort by date ascending for streak calculations
+  const sorted = [...scores].sort((a, b) =>
+    new Date(a.submitted_at) - new Date(b.submitted_at)
+  );
+
+  const roundsPlayed = sorted.length;
+  const vsPars = sorted.map(s => s.vs_par ?? 0);
+
+  // First round
+  if (roundsPlayed >= 1) earned.add('first_round');
+
+  // Iron man / veteran
+  if (roundsPlayed >= 10) earned.add('iron_man');
+  if (roundsPlayed >= 25) earned.add('veteran');
+
+  // Under par (any round)
+  if (vsPars.some(v => v < 0)) earned.add('under_par');
+
+  // Hot streak — 3+ consecutive under par
+  let streak = 0;
+  for (const vp of vsPars) {
+    if (vp < 0) { streak++; if (streak >= 3) { earned.add('hot_streak'); break; } }
+    else streak = 0;
+  }
+
+  // Consistent — 5+ rounds in any calendar month
+  const byMonth = {};
+  sorted.forEach(s => {
+    const month = (s.submitted_at || '').slice(0, 7); // YYYY-MM
+    byMonth[month] = (byMonth[month] || 0) + 1;
+  });
+  if (Object.values(byMonth).some(n => n >= 5)) earned.add('consistent');
+
+  // Season average even or better
+  if (roundsPlayed >= 5) {
+    const avg = vsPars.reduce((a, b) => a + b, 0) / roundsPlayed;
+    if (avg <= 0) earned.add('scratch');
+  }
+
+  // Round winner — best score in any round
+  scores.forEach(s => {
+    const roundOthers = allRoundScores.filter(r => r.round_id === s.round_id);
+    if (roundOthers.length > 1) {
+      const best = Math.min(...roundOthers.map(r => r.total_strokes || 999));
+      if (s.total_strokes === best) earned.add('round_winner');
+    }
+  });
+
+  // Hole-level achievements — birdies, eagles, aces
+  scores.forEach(s => {
+    const round = rounds.find(r => r.id === s.round_id);
+    const holeScores = Array.isArray(s.scores) ? s.scores :
+      (s.scores ? JSON.parse(s.scores) : []);
+    if (!holeScores.length || !round) return;
+
+    // Default par 3 per hole if no course pars
+    const par = 3;
+    let birdiesThisRound = 0;
+
+    holeScores.forEach((strokes, i) => {
+      if (!strokes || strokes <= 0) return;
+      const holePar = par; // we use 3 as default; could pass course pars for accuracy
+      const diff = strokes - holePar;
+      if (diff <= -2) earned.add('eagle');
+      if (strokes === 1) earned.add('ace');
+      if (diff === -1) birdiesThisRound++;
+    });
+    if (birdiesThisRound >= 3) earned.add('birdie_machine');
+  });
+
+  return earned;
+};
+
+const computeStreaks = (scores) => {
+  if (!scores.length) return { current: 0, underPar: 0, bestUnderPar: 0 };
+
+  const sorted = [...scores].sort((a, b) =>
+    new Date(b.submitted_at) - new Date(a.submitted_at) // newest first
+  );
+
+  // Current round streak — consecutive rounds (any score)
+  // Treat rounds within 30 days of each other as continuous
+  let current = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    const daysDiff = (new Date(sorted[i-1].submitted_at) - new Date(sorted[i].submitted_at)) / 86400000;
+    if (daysDiff <= 45) current++;
+    else break;
+  }
+
+  // Best under-par streak
+  const vsPars = [...scores]
+    .sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at))
+    .map(s => s.vs_par ?? 0);
+
+  let best = 0, cur = 0;
+  for (const vp of vsPars) {
+    if (vp < 0) { cur++; best = Math.max(best, cur); }
+    else cur = 0;
+  }
+
+  // Current under-par streak (from most recent)
+  let currentUnder = 0;
+  for (const s of sorted) {
+    if ((s.vs_par ?? 0) < 0) currentUnder++;
+    else break;
+  }
+
+  return { current, underPar: currentUnder, bestUnderPar: best };
+};
+
+// ─── ACHIEVEMENTS COMPONENT ───────────────────────────────────────────────────
+const AchievementsSection = ({ currentUser }) => {
+  const [scores, setScores] = useState([]);
+  const [allRoundScores, setAllRoundScores] = useState([]);
+  const [rounds, setRounds] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    const [scoresRes, allRes, roundsRes] = await Promise.allSettled([
+      supabase.from('round_scores').select('*').eq('player_id', currentUser.id).order('submitted_at'),
+      supabase.from('round_scores').select('round_id, player_id, total_strokes, vs_par'),
+      supabase.from('rounds').select('id, course_id, total_holes'),
+    ]);
+    setScores(scoresRes.value?.data || []);
+    setAllRoundScores(allRes.value?.data || []);
+    setRounds(roundsRes.value?.data || []);
+    setLoading(false);
+  }, [currentUser.id]);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return (
+    <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
+      Loading achievements...
+    </div>
+  );
+
+  const earned = computeAchievements(scores, allRoundScores, rounds);
+  const streaks = computeStreaks(scores);
+  const earnedList = ACHIEVEMENTS.filter(a => earned.has(a.id));
+  const lockedList = ACHIEVEMENTS.filter(a => !earned.has(a.id));
+
+  return (
+    <div>
+      {/* Streaks */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+        {[
+          { icon: '🔥', label: 'Round Streak', value: streaks.current, sub: 'rounds played' },
+          { icon: '📈', label: 'Under Par Streak', value: streaks.underPar, sub: streaks.bestUnderPar > 0 ? `best: ${streaks.bestUnderPar}` : 'keep going!' },
+        ].map(({ icon, label, value, sub }) => (
+          <div key={label} style={{
+            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 14, padding: '14px',
+          }}>
+            <div style={{ fontSize: 24, marginBottom: 6 }}>{icon}</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
+              {value}
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{label}</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Earned badges */}
+      {earnedList.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            Earned · {earnedList.length}/{ACHIEVEMENTS.length}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {earnedList.map(a => {
+              const tier = TIER_COLORS[a.tier];
+              return (
+                <div key={a.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  background: tier.bg, border: `1px solid ${tier.border}`,
+                  borderRadius: 12, padding: '10px 14px',
+                }}>
+                  <span style={{ fontSize: 24, flexShrink: 0 }}>{a.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: tier.color }}>{a.label}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{a.desc}</div>
+                  </div>
+                  <div style={{
+                    fontSize: 9, fontWeight: 700, color: tier.color,
+                    textTransform: 'uppercase', letterSpacing: 1,
+                    background: `${tier.border}`, padding: '2px 6px', borderRadius: 4,
+                  }}>{a.tier}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Locked badges */}
+      {lockedList.length > 0 && (
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            Locked
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {lockedList.map(a => (
+              <div key={a.id} title={a.desc} style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 10, padding: '7px 10px',
+                opacity: 0.5,
+              }}>
+                <span style={{ fontSize: 16, filter: 'grayscale(1)' }}>{a.icon}</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{a.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {scores.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>🎯</div>
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>Play your first round to start earning achievements</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, seasonStats }) => {
   const [view, setView] = useState('main'); // main | edit | change-pin
   const [toast, setToast] = useState(null);
@@ -434,6 +689,12 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
           ) : (
             <MenuItem icon="📊" label="My Stats" sub="Season performance & history" onClick={() => onNavigate('history')} />
           )}
+        </div>
+
+        {/* Achievements */}
+        <div style={{ marginBottom: 20 }}>
+          <SectionTitle>Streaks & Achievements</SectionTitle>
+          <AchievementsSection currentUser={currentUser} />
         </div>
 
         {/* Account */}
