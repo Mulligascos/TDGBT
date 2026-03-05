@@ -222,3 +222,21 @@ export const SectionLabel = ({ children }) => (
 export const Divider = () => (
   <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', margin: '16px 0' }} />
 );
+
+// ─── LOGO WATERMARK ──────────────────────────────────────────────────────────
+export const LogoWatermark = ({ size = 80, opacity = 0.08, style = {} }) => (
+  <img
+    src="/assets/tdg_logo.gif"
+    alt=""
+    aria-hidden="true"
+    style={{
+      width: size,
+      height: size,
+      objectFit: 'contain',
+      opacity,
+      pointerEvents: 'none',
+      userSelect: 'none',
+      ...style,
+    }}
+  />
+);
