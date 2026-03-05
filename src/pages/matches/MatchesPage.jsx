@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../../supabaseClient';
 import { BRAND, formatName, formatDate } from '../../utils';
 import { Card, Badge, Button, SectionLabel, EmptyState, PageHeader, LogoWatermark } from '../../components/ui';
@@ -306,6 +306,210 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
       }}>
         <Play size={16} fill="currentColor" /> {scoringFormat === 'matchplay' ? 'Start Match' : 'Start Scorecard'}
       </button>
+    </div>
+  );
+};
+
+
+// ─── LIVE LEADERBOARD ─────────────────────────────────────────────────────────
+const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
+  const [liveData, setLiveData] = useState({}); // roundId → { scores, lastUpdated }
+  const [expanded, setExpanded] = useState(null);
+  const [batterySave, setBatterySave] = useState(false);
+  const intervalRef = useRef(null);
+
+  const activeRounds = rounds.filter(r => r.status === 'active');
+
+  const fetchLiveScores = useCallback(async () => {
+    if (activeRounds.length === 0) return;
+    const ids = activeRounds.map(r => r.id);
+    const { data } = await supabase
+      .from('round_scores')
+      .select('round_id, player_id, scores, total_strokes, vs_par, submitted_at')
+      .in('round_id', ids);
+    if (!data) return;
+
+    const grouped = {};
+    ids.forEach(id => { grouped[id] = []; });
+    data.forEach(s => { if (grouped[s.round_id]) grouped[s.round_id].push(s); });
+    setLiveData(prev => {
+      const next = { ...prev };
+      ids.forEach(id => { next[id] = { scores: grouped[id], lastUpdated: new Date() }; });
+      return next;
+    });
+  }, [activeRounds.map(r => r.id).join(',')]);
+
+  useEffect(() => {
+    fetchLiveScores();
+    if (!batterySave) {
+      intervalRef.current = setInterval(fetchLiveScores, 60000);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [fetchLiveScores, batterySave]);
+
+  if (activeRounds.length === 0) {
+    return (
+      <div style={{
+        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 16, padding: '32px 20px', textAlign: 'center', marginTop: 8,
+      }}>
+        <div style={{ fontSize: 32, marginBottom: 10 }}>🏌️</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>No active rounds</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 4 }}>Live scores appear here when a round is opened</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {activeRounds.map(round => {
+        const course = courses.find(c => c.id === round.course_id);
+        const pars = course ? parsToArray(
+          typeof course.pars === 'string' ? JSON.parse(course.pars) : (course.pars || {}),
+          round.starting_hole || 1, round.total_holes || 18
+        ) : Array(round.total_holes || 18).fill(3);
+        const totalParVal = totalPar(pars);
+        const roundScores = liveData[round.id]?.scores || [];
+        const lastUpdated = liveData[round.id]?.lastUpdated;
+
+        // Build live standings — include players with scores AND players who haven't started
+        const scoredPlayerIds = new Set(roundScores.map(s => s.player_id));
+        const entries = roundScores.map(s => {
+          const player = players.find(p => p.id === s.player_id);
+          const holes = Array.isArray(s.scores) ? s.scores : (s.scores ? JSON.parse(s.scores) : []);
+          const playedHoles = holes.filter(h => h != null && h > 0);
+          const holesThru = playedHoles.length;
+          const submitted = !!s.submitted_at && holesThru >= pars.length;
+
+          // Live vs par from actual hole scores
+          let liveVsPar = 0;
+          playedHoles.forEach((strokes, i) => { liveVsPar += strokes - (pars[i] ?? 3); });
+
+          return {
+            player, playerId: s.player_id,
+            holesThru, submitted, liveVsPar,
+            totalStrokes: playedHoles.reduce((a, b) => a + b, 0),
+            isMe: s.player_id === currentUser.id,
+          };
+        }).sort((a, b) => {
+          // Finished players first by score, then in-progress by holes played
+          if (a.submitted && !b.submitted) return -1;
+          if (!a.submitted && b.submitted) return 1;
+          if (a.liveVsPar !== b.liveVsPar) return a.liveVsPar - b.liveVsPar;
+          return b.holesThru - a.holesThru;
+        });
+
+        const isExpanded = expanded === round.id;
+
+        return (
+          <div key={round.id} style={{ marginBottom: 16 }}>
+            {/* Round header */}
+            <div style={{
+              background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.15)',
+              borderRadius: isExpanded ? '14px 14px 0 0' : 14, padding: '12px 16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              cursor: 'pointer',
+            }} onClick={() => setExpanded(isExpanded ? null : round.id)}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 6px #4ade80' }} />
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+                    LIVE · {course?.name || 'Unknown course'}
+                  </span>
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 3, paddingLeft: 16 }}>
+                  {round.total_holes} holes · Par {totalParVal} · {entries.length} player{entries.length !== 1 ? 's' : ''}
+                  {lastUpdated && <span> · updated {Math.round((new Date() - lastUpdated) / 1000)}s ago</span>}
+                </div>
+              </div>
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 16 }}>{isExpanded ? '▲' : '▼'}</span>
+            </div>
+
+            {isExpanded && (
+              <div style={{
+                background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(74,222,128,0.1)',
+                borderTop: 'none', borderRadius: '0 0 14px 14px', overflow: 'hidden',
+              }}>
+                {/* Column headers */}
+                <div style={{
+                  display: 'grid', gridTemplateColumns: '28px 1fr 52px 48px 56px',
+                  gap: 4, padding: '8px 14px',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  background: 'rgba(0,0,0,0.2)',
+                }}>
+                  {['#', 'Player', 'Thru', 'Stk', '+/-'].map(h => (
+                    <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>{h}</div>
+                  ))}
+                </div>
+
+                {entries.length === 0 ? (
+                  <div style={{ padding: '20px', textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>
+                    Waiting for scores...
+                  </div>
+                ) : (
+                  entries.map((entry, i) => (
+                    <div key={entry.playerId} style={{
+                      display: 'grid', gridTemplateColumns: '28px 1fr 52px 48px 56px',
+                      gap: 4, padding: '11px 14px', alignItems: 'center',
+                      borderBottom: i < entries.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                      background: entry.isMe ? 'rgba(74,222,128,0.04)' : 'transparent',
+                    }}>
+                      {/* Position */}
+                      <div style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? ['#fbbf24','rgba(255,255,255,0.5)','#cd7f32'][i] : 'rgba(255,255,255,0.2)', fontFamily: "'Syne', sans-serif", textAlign: 'center' }}>
+                        {i + 1}
+                      </div>
+                      {/* Name */}
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: entry.isMe ? 700 : 500, color: entry.isMe ? BRAND.light : 'white' }}>
+                          {formatName(entry.player?.name || 'Unknown')}
+                          {entry.isMe && <span style={{ fontSize: 10, color: BRAND.light, marginLeft: 4 }}>you</span>}
+                        </div>
+                        {entry.submitted && (
+                          <div style={{ fontSize: 10, color: '#4ade80', marginTop: 1 }}>✓ Finished</div>
+                        )}
+                      </div>
+                      {/* Thru */}
+                      <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+                        {entry.submitted ? 'F' : entry.holesThru === 0 ? '-' : entry.holesThru}
+                      </div>
+                      {/* Strokes */}
+                      <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+                        {entry.holesThru > 0 ? entry.totalStrokes : '-'}
+                      </div>
+                      {/* Vs par */}
+                      <div style={{ textAlign: 'center', fontSize: 14, fontWeight: 800, color: entry.holesThru > 0 ? vsParColor(entry.liveVsPar) : 'rgba(255,255,255,0.2)', fontFamily: "Arial, sans-serif" }}>
+                        {entry.holesThru > 0 ? vsParLabel(entry.liveVsPar) : '-'}
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                {/* Refresh / battery save footer */}
+                <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <button onClick={(e) => { e.stopPropagation(); setBatterySave(b => !b); }} style={{
+                    padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                    background: batterySave ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
+                    border: batterySave ? '1px solid rgba(251,191,36,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                    color: batterySave ? '#fbbf24' : 'rgba(255,255,255,0.3)',
+                    cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}>
+                    🔋 {batterySave ? 'Battery save ON' : 'Battery save'}
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); fetchLiveScores(); }} style={{
+                    padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                    background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)',
+                    color: '#4ade80', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}>
+                    ↻ Refresh
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };
@@ -646,6 +850,21 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
           </>
         )}
 
+        {activeTab === 'live' && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <SectionLabel>Live Scores</SectionLabel>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>{batterySave ? 'Manual refresh only' : 'Auto-refreshes every 60s'}</span>
+            </div>
+            <LiveLeaderboard
+              rounds={rounds}
+              courses={courses}
+              players={players || []}
+              currentUser={currentUser}
+            />
+          </>
+        )}
+
         {activeTab === 'leaderboard' && (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -674,6 +893,7 @@ const SubTabBar = ({ activeTab, setActiveTab, isAdmin }) => (
   }}>
     {[
       { id: 'rounds', label: 'Rounds', icon: <Calendar size={14} /> },
+      { id: 'live', label: '🔴 Live', icon: null },
       { id: 'leaderboard', label: 'Leaderboard', icon: <Trophy size={14} /> },
       ...(isAdmin ? [{ id: 'admin', label: 'Admin', icon: <Settings size={14} /> }] : []),
     ].map(tab => (
@@ -685,7 +905,7 @@ const SubTabBar = ({ activeTab, setActiveTab, isAdmin }) => (
         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
         whiteSpace: 'nowrap',
       }}>
-        {tab.icon} {tab.label}
+        {tab.icon && tab.icon} {tab.label}
       </button>
     ))}
   </div>
