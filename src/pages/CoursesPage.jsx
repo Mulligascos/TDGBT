@@ -534,11 +534,13 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
       const courseIds = (initialCourses || []).map(c => c.id);
       if (courseIds.length === 0) { setLoading(false); return; }
 
-      // Two separate queries to avoid RLS blocking the join
-      const [{ data: hazards }, { data: myRoundScores }] = await Promise.all([
+      // Use allSettled so one failure doesn't prevent courses from showing
+      const [hazardsRes, myRoundScoresRes] = await Promise.allSettled([
         supabase.from('course_hazards').select('course_id').eq('cleared', false).in('course_id', courseIds),
         supabase.from('round_scores').select('round_id').eq('player_id', currentUser.id),
       ]);
+      const hazards = hazardsRes.value?.data;
+      const myRoundScores = myRoundScoresRes.value?.data;
 
       // Count hazards per course
       const hCounts = {};

@@ -539,13 +539,7 @@ export const HistoryPage = ({ currentUser, players }) => {
       const roundIds = [...new Set(myScoresData.map(s => s.round_id))];
 
       // Load all supporting data in parallel
-      const [
-        { data: roundsData },
-        { data: allScoresData },
-        { data: coursesData },
-        { data: tournamentsData },
-        { data: scheduledRoundsData },
-      ] = await Promise.all([
+      const [roundsRes, allScoresRes, coursesRes, tournamentsRes, scheduledRes] = await Promise.allSettled([
         supabase.from('rounds').select('*').in('id', roundIds),
         supabase.from('round_scores').select('*').in('round_id', roundIds),
         supabase.from('courses').select('*'),
@@ -554,11 +548,11 @@ export const HistoryPage = ({ currentUser, players }) => {
       ]);
 
       setMyScores(myScoresData);
-      setRounds(roundsData || []);
-      setAllRoundScores(allScoresData || []);
-      setCourses(coursesData || []);
-      setTournaments(tournamentsData || []);
-      setAllScheduledRounds(scheduledRoundsData || []);
+      setRounds(roundsRes.value?.data || []);
+      setAllRoundScores(allScoresRes.value?.data || []);
+      setCourses(coursesRes.value?.data || []);
+      setTournaments(tournamentsRes.value?.data || []);
+      setAllScheduledRounds(scheduledRes.value?.data || []);
     } catch (err) {
       console.error('Error loading history:', err);
     } finally {
