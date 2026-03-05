@@ -230,11 +230,11 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
       {/* Header */}
       <div style={{
         background: `linear-gradient(160deg, ${BRAND.primary}cc, ${BRAND.accent}88)`,
-        padding: '52px 20px 28px',
+        padding: '36px 20px 16px',
         position: 'relative', overflow: 'hidden',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
-        <LogoWatermark size={160} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
+        <LogoWatermark size={110} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
 
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

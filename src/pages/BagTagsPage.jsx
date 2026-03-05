@@ -267,11 +267,11 @@ export const BagTagsPage = ({ currentUser, players }) => {
       {/* Header */}
       <div style={{
         background: 'linear-gradient(135deg, #92400e, #1a0a00)',
-        padding: '52px 20px 0',
+        padding: '36px 20px 0',
         borderBottom: '1px solid rgba(251,191,36,0.15)',
         position: 'relative', overflow: 'hidden',
       }}>
-        <LogoWatermark size={160} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
+        <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
             🏷️ Bag Tags
