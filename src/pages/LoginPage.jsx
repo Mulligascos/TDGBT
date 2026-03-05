@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BRAND, haptic } from '../utils';
-import { Button, Input, Select } from '../components/ui';
+import { Button, Input, Select, LogoWatermark } from '../components/ui';
 
 export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) => {
   const [selectedName, setSelectedName] = useState('');

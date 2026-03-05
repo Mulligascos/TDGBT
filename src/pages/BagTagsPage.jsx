@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { LogoWatermark } from '../components/ui';
 import { supabase } from '../supabaseClient';
-import { BRAND, formatName, formatDate , LogoWatermark } from '../utils';
+import { BRAND, formatName, formatDate  } from '../utils';
 import { vsParLabel, vsParColor } from '../utils/strokeplay';
 import { Tag, ChevronLeft, Trophy } from 'lucide-react';
 

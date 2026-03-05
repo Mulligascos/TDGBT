@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { BRAND, formatName } from '../utils';
-import { Badge } from '../components/ui';
+import { Badge, LogoWatermark } from '../components/ui';
 import { vsParLabel, vsParColor } from '../utils/strokeplay';
 import { ChevronLeft, Eye, EyeOff, Check, X, Edit2 } from 'lucide-react';
 

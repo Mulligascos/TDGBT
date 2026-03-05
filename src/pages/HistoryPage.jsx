@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { BRAND, formatName, formatDate , LogoWatermark } from '../utils';
-import { Badge, SectionLabel, EmptyState } from '../components/ui';
+import { BRAND, formatName, formatDate  } from '../utils';
+import { Badge, SectionLabel, EmptyState, LogoWatermark } from '../components/ui';
 import { vsParLabel, vsParColor, parsToArray, totalPar } from '../utils/strokeplay';
 import { ChevronDown, ChevronUp, Search, X, Calendar } from 'lucide-react';
 
