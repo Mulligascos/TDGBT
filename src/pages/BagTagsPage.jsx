@@ -269,6 +269,7 @@ export const BagTagsPage = ({ currentUser, players }) => {
         background: 'linear-gradient(135deg, #92400e, #1a0a00)',
         padding: '52px 20px 0',
         borderBottom: '1px solid rgba(251,191,36,0.15)',
+        position: 'relative', overflow: 'hidden',
       }}>
         <LogoWatermark size={160} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>

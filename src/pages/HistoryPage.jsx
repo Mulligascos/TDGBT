@@ -606,6 +606,8 @@ export const HistoryPage = ({ currentUser, players }) => {
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         position: 'relative', overflow: 'hidden',
       }}>
+        <LogoWatermark size={160} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
+
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
             📋 History
