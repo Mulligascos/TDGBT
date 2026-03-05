@@ -315,6 +315,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
 const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
   const [liveData, setLiveData] = useState({}); // roundId → { scores, lastUpdated }
   const [expanded, setExpanded] = useState(null);
+  const [batterySave, setBatterySave] = useState(false);
   const intervalRef = useRef(null);
 
   const activeRounds = rounds.filter(r => r.status === 'active');
@@ -340,9 +341,11 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
 
   useEffect(() => {
     fetchLiveScores();
-    intervalRef.current = setInterval(fetchLiveScores, 30000);
+    if (!batterySave) {
+      intervalRef.current = setInterval(fetchLiveScores, 60000);
+    }
     return () => clearInterval(intervalRef.current);
-  }, [fetchLiveScores]);
+  }, [fetchLiveScores, batterySave]);
 
   if (activeRounds.length === 0) {
     return (
@@ -481,8 +484,18 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
                   ))
                 )}
 
-                {/* Refresh button */}
-                <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'flex-end' }}>
+                {/* Refresh / battery save footer */}
+                <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <button onClick={(e) => { e.stopPropagation(); setBatterySave(b => !b); }} style={{
+                    padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                    background: batterySave ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
+                    border: batterySave ? '1px solid rgba(251,191,36,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                    color: batterySave ? '#fbbf24' : 'rgba(255,255,255,0.3)',
+                    cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}>
+                    🔋 {batterySave ? 'Battery save ON' : 'Battery save'}
+                  </button>
                   <button onClick={(e) => { e.stopPropagation(); fetchLiveScores(); }} style={{
                     padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
                     background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)',
@@ -841,7 +854,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <SectionLabel>Live Scores</SectionLabel>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Auto-refreshes every 30s</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Auto-refreshes · tap 🔋 to pause</span>
             </div>
             <LiveLeaderboard
               rounds={rounds}
