@@ -504,24 +504,22 @@ const AchievementsSection = ({ currentUser }) => {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Earned · {earnedList.length}/{ACHIEVEMENTS.length}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {earnedList.map(a => {
               const tier = TIER_COLORS[a.tier];
               return (
                 <div key={a.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  textAlign: 'center', gap: 6,
                   background: tier.bg, border: `1px solid ${tier.border}`,
-                  borderRadius: 12, padding: '10px 14px',
+                  borderRadius: 12, padding: '12px 8px',
                 }}>
-                  <span style={{ fontSize: 24, flexShrink: 0 }}>{a.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: tier.color }}>{a.label}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{a.desc}</div>
-                  </div>
+                  <span style={{ fontSize: 26 }}>{a.icon}</span>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: tier.color, lineHeight: 1.2 }}>{a.label}</div>
                   <div style={{
-                    fontSize: 9, fontWeight: 700, color: tier.color,
+                    fontSize: 8, fontWeight: 700, color: tier.color,
                     textTransform: 'uppercase', letterSpacing: 1,
-                    background: `${tier.border}`, padding: '2px 6px', borderRadius: 4,
+                    background: tier.border, padding: '2px 5px', borderRadius: 4,
                   }}>{a.tier}</div>
                 </div>
               );
@@ -536,16 +534,17 @@ const AchievementsSection = ({ currentUser }) => {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Locked
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {lockedList.map(a => (
               <div key={a.id} title={a.desc} style={{
-                display: 'flex', alignItems: 'center', gap: 6,
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                textAlign: 'center', gap: 5,
                 background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 10, padding: '7px 10px',
-                opacity: 0.5,
+                borderRadius: 12, padding: '12px 8px',
+                opacity: 0.4,
               }}>
-                <span style={{ fontSize: 16, filter: 'grayscale(1)' }}>{a.icon}</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{a.label}</span>
+                <span style={{ fontSize: 22, filter: 'grayscale(1)' }}>{a.icon}</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.2 }}>{a.label}</span>
               </div>
             ))}
           </div>
