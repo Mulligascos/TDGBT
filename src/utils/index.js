@@ -81,3 +81,23 @@ export const BRAND = {
   gold: '#D4AF37',
   light: '#4ade80',
 };
+
+// ─── LOGO WATERMARK ──────────────────────────────────────────────────────────
+// Shared club logo watermark for page headers
+// size: pixel width (height auto). opacity: 0–1. position: css position object.
+export const LogoWatermark = ({ size = 80, opacity = 0.08, style = {} }) => (
+  <img
+    src="/assets/tdg_logo.gif"
+    alt=""
+    aria-hidden="true"
+    style={{
+      width: size,
+      height: size,
+      objectFit: 'contain',
+      opacity,
+      pointerEvents: 'none',
+      userSelect: 'none',
+      ...style,
+    }}
+  />
+);
