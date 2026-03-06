@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { BRAND, formatName } from '../utils';
+import { BRAND, formatName, formatDate } from '../utils';
 import { Badge, LogoWatermark } from '../components/ui';
 import { vsParLabel, vsParColor } from '../utils/strokeplay';
 import { ChevronLeft, Eye, EyeOff, Check, X, Edit2 } from 'lucide-react';
@@ -331,77 +331,80 @@ const TIER_COLORS = {
 };
 
 const computeAchievements = (scores, allRoundScores, rounds) => {
-  const earned = new Set();
+  // Returns Map of achievementId -> { date, detail }
+  const earned = new Map();
+  const earn = (id, date, detail) => { if (!earned.has(id)) earned.set(id, { date, detail }); };
   if (!scores.length) return earned;
 
-  // Sort by date ascending for streak calculations
-  const sorted = [...scores].sort((a, b) =>
-    new Date(a.submitted_at) - new Date(b.submitted_at)
-  );
-
+  const sorted = [...scores].sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
   const roundsPlayed = sorted.length;
   const vsPars = sorted.map(s => s.vs_par ?? 0);
 
   // First round
-  if (roundsPlayed >= 1) earned.add('first_round');
+  earn('first_round', sorted[0].submitted_at, 'You played your first round!');
 
   // Iron man / veteran
-  if (roundsPlayed >= 10) earned.add('iron_man');
-  if (roundsPlayed >= 25) earned.add('veteran');
+  if (roundsPlayed >= 10) earn('iron_man', sorted[9].submitted_at, `Reached ${roundsPlayed} rounds played`);
+  if (roundsPlayed >= 25) earn('veteran', sorted[24].submitted_at, `Reached ${roundsPlayed} rounds played`);
 
-  // Under par (any round)
-  if (vsPars.some(v => v < 0)) earned.add('under_par');
+  // Under par
+  const firstUnder = sorted.find(s => (s.vs_par ?? 0) < 0);
+  if (firstUnder) earn('under_par', firstUnder.submitted_at, `First under-par round: ${firstUnder.vs_par > 0 ? '+' : ''}${firstUnder.vs_par}`);
 
   // Hot streak — 3+ consecutive under par
-  let streak = 0;
-  for (const vp of vsPars) {
-    if (vp < 0) { streak++; if (streak >= 3) { earned.add('hot_streak'); break; } }
-    else streak = 0;
+  let streak = 0, streakStart = null;
+  for (const s of sorted) {
+    if ((s.vs_par ?? 0) < 0) {
+      if (streak === 0) streakStart = s;
+      streak++;
+      if (streak >= 3) { earn('hot_streak', s.submitted_at, `${streak} consecutive under-par rounds`); break; }
+    } else { streak = 0; streakStart = null; }
   }
 
-  // Consistent — 5+ rounds in any calendar month
+  // Consistent — 5+ rounds in a month
   const byMonth = {};
   sorted.forEach(s => {
-    const month = (s.submitted_at || '').slice(0, 7); // YYYY-MM
-    byMonth[month] = (byMonth[month] || 0) + 1;
+    const month = (s.submitted_at || '').slice(0, 7);
+    if (!byMonth[month]) byMonth[month] = [];
+    byMonth[month].push(s);
   });
-  if (Object.values(byMonth).some(n => n >= 5)) earned.add('consistent');
+  Object.entries(byMonth).forEach(([month, monthScores]) => {
+    if (monthScores.length >= 5) {
+      const [y, m] = month.split('-');
+      const label = new Date(y, m - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+      earn('consistent', monthScores[4].submitted_at, `${monthScores.length} rounds in ${label}`);
+    }
+  });
 
-  // Season average even or better
+  // Scratch — season avg ≤ par
   if (roundsPlayed >= 5) {
     const avg = vsPars.reduce((a, b) => a + b, 0) / roundsPlayed;
-    if (avg <= 0) earned.add('scratch');
+    if (avg <= 0) earn('scratch', sorted[roundsPlayed - 1].submitted_at, `Season average: ${avg.toFixed(1)} vs par`);
   }
 
-  // Round winner — best score in any round
+  // Round winner
   scores.forEach(s => {
     const roundOthers = allRoundScores.filter(r => r.round_id === s.round_id);
     if (roundOthers.length > 1) {
       const best = Math.min(...roundOthers.map(r => r.total_strokes || 999));
-      if (s.total_strokes === best) earned.add('round_winner');
+      if (s.total_strokes === best) earn('round_winner', s.submitted_at, `Shot ${s.total_strokes} strokes — best in the round`);
     }
   });
 
-  // Hole-level achievements — birdies, eagles, aces
+  // Hole-level — eagles, aces, birdie machine
   scores.forEach(s => {
     const round = rounds.find(r => r.id === s.round_id);
-    const holeScores = Array.isArray(s.scores) ? s.scores :
-      (s.scores ? JSON.parse(s.scores) : []);
+    const holeScores = Array.isArray(s.scores) ? s.scores : (s.scores ? JSON.parse(s.scores) : []);
     if (!holeScores.length || !round) return;
-
-    // Default par 3 per hole if no course pars
-    const par = 3;
-    let birdiesThisRound = 0;
-
+    let birdies = 0;
     holeScores.forEach((strokes, i) => {
       if (!strokes || strokes <= 0) return;
-      const holePar = par; // we use 3 as default; could pass course pars for accuracy
-      const diff = strokes - holePar;
-      if (diff <= -2) earned.add('eagle');
-      if (strokes === 1) earned.add('ace');
-      if (diff === -1) birdiesThisRound++;
+      const diff = strokes - 3;
+      if (diff <= -2) earn('eagle', s.submitted_at, `Eagle on hole ${i + 1}!`);
+      if (strokes === 1) earn('ace', s.submitted_at, `Hole-in-one on hole ${i + 1}!`);
+      if (diff === -1) birdies++;
     });
-    if (birdiesThisRound >= 3) earned.add('birdie_machine');
+    if (birdies >= 3) earn('birdie_machine', s.submitted_at, `${birdies} birdies in one round`);
   });
 
   return earned;
@@ -475,9 +478,62 @@ const AchievementsSection = ({ currentUser }) => {
   const streaks = computeStreaks(scores);
   const earnedList = ACHIEVEMENTS.filter(a => earned.has(a.id));
   const lockedList = ACHIEVEMENTS.filter(a => !earned.has(a.id));
+  const [popup, setPopup] = useState(null);
 
   return (
     <div>
+      {/* Achievement popup */}
+      {popup && (
+        <div onClick={() => setPopup(null)} style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
+          zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '0 24px',
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: '#0d2b0d', borderRadius: 20, padding: '24px 20px',
+            maxWidth: 320, width: '100%', textAlign: 'center',
+            border: `1px solid ${popup.earned ? TIER_COLORS[popup.tier].border : 'rgba(255,255,255,0.1)'}`,
+          }}>
+            <div style={{ fontSize: 52, marginBottom: 12 }}>{popup.icon}</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: popup.earned ? TIER_COLORS[popup.tier].color : 'rgba(255,255,255,0.4)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>
+              {popup.label}
+            </div>
+            {popup.earned ? (
+              <>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 10, lineHeight: 1.5 }}>
+                  {popup.earnedData.detail}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>
+                  Earned {formatDate(popup.earnedData.date)}
+                </div>
+                <div style={{
+                  display: 'inline-block', marginTop: 10,
+                  fontSize: 10, fontWeight: 700, color: TIER_COLORS[popup.tier].color,
+                  textTransform: 'uppercase', letterSpacing: 1,
+                  background: TIER_COLORS[popup.tier].bg, border: `1px solid ${TIER_COLORS[popup.tier].border}`,
+                  padding: '3px 8px', borderRadius: 6,
+                }}>{popup.tier}</div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 10, lineHeight: 1.5 }}>
+                  {popup.desc}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>
+                  🔒 Not yet earned
+                </div>
+              </>
+            )}
+            <button onClick={() => setPopup(null)} style={{
+              marginTop: 18, padding: '9px 24px', borderRadius: 10,
+              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'rgba(255,255,255,0.5)', fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13, cursor: 'pointer',
+            }}>Close</button>
+          </div>
+        </div>
+      )}
+
       {/* Streaks */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
         {[
@@ -508,11 +564,11 @@ const AchievementsSection = ({ currentUser }) => {
             {earnedList.map(a => {
               const tier = TIER_COLORS[a.tier];
               return (
-                <div key={a.id} style={{
+                <div key={a.id} onClick={() => setPopup({ ...a, earned: true, earnedData: earned.get(a.id) })} style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
                   textAlign: 'center', gap: 6,
                   background: tier.bg, border: `1px solid ${tier.border}`,
-                  borderRadius: 12, padding: '12px 8px',
+                  borderRadius: 12, padding: '12px 8px', cursor: 'pointer',
                 }}>
                   <span style={{ fontSize: 26 }}>{a.icon}</span>
                   <div style={{ fontSize: 11, fontWeight: 700, color: tier.color, lineHeight: 1.2 }}>{a.label}</div>
@@ -536,12 +592,12 @@ const AchievementsSection = ({ currentUser }) => {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {lockedList.map(a => (
-              <div key={a.id} title={a.desc} style={{
+              <div key={a.id} onClick={() => setPopup({ ...a, earned: false })} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 textAlign: 'center', gap: 5,
                 background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: 12, padding: '12px 8px',
-                opacity: 0.4,
+                opacity: 0.4, cursor: 'pointer',
               }}>
                 <span style={{ fontSize: 22, filter: 'grayscale(1)' }}>{a.icon}</span>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.2 }}>{a.label}</span>
