@@ -455,15 +455,22 @@ const AchievementsSection = ({ currentUser }) => {
   const [loading, setLoading] = useState(true);
   const [popup, setPopup] = useState(null);
 
+  const [dbAchievements, setDbAchievements] = useState([]);
+  const [dbAwards, setDbAwards] = useState([]);
+
   const load = useCallback(async () => {
-    const [scoresRes, allRes, roundsRes] = await Promise.allSettled([
+    const [scoresRes, allRes, roundsRes, achievementsRes, awardsRes] = await Promise.allSettled([
       supabase.from('round_scores').select('*').eq('player_id', currentUser.id).order('submitted_at'),
       supabase.from('round_scores').select('round_id, player_id, total_strokes, vs_par'),
       supabase.from('rounds').select('id, course_id, total_holes'),
+      supabase.from('achievements').select('*').eq('active', true).order('sort_order'),
+      supabase.from('achievement_awards').select('*').eq('player_id', currentUser.id),
     ]);
     setScores(scoresRes.value?.data || []);
     setAllRoundScores(allRes.value?.data || []);
     setRounds(roundsRes.value?.data || []);
+    setDbAchievements(achievementsRes.value?.data || []);
+    setDbAwards(awardsRes.value?.data || []);
     setLoading(false);
   }, [currentUser.id]);
 
@@ -475,10 +482,24 @@ const AchievementsSection = ({ currentUser }) => {
     </div>
   );
 
-  const earned = computeAchievements(scores, allRoundScores, rounds);
+  const computedEarned = computeAchievements(scores, allRoundScores, rounds);
   const streaks = computeStreaks(scores);
-  const earnedList = ACHIEVEMENTS.filter(a => earned.has(a.id));
-  const lockedList = ACHIEVEMENTS.filter(a => !earned.has(a.id));
+
+  // Merge: DB awards take precedence, then computed auto-awards
+  // Use DB achievement definitions if available, fall back to hardcoded ACHIEVEMENTS
+  const achievementDefs = dbAchievements.length > 0 ? dbAchievements.map(a => ({
+    id: a.code, icon: a.icon, label: a.label, desc: a.description, tier: a.tier, dbId: a.id,
+  })) : ACHIEVEMENTS;
+
+  // Build merged earned map
+  const earned = new Map(computedEarned);
+  dbAwards.forEach(award => {
+    const def = achievementDefs.find(a => a.dbId === award.achievement_id || a.id === award.achievement_id);
+    if (def) earned.set(def.id, { date: award.earned_at, detail: award.detail || 'Awarded' });
+  });
+
+  const earnedList = achievementDefs.filter(a => earned.has(a.id));
+  const lockedList = achievementDefs.filter(a => !earned.has(a.id));
 
   return (
     <div>
