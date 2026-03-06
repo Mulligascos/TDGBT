@@ -61,6 +61,9 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
           {junior && (
             <span style={{ fontSize: 9, background: 'rgba(251,191,36,0.2)', color: '#fbbf24', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>J</span>
           )}
+          {player.isGuest && (
+            <span style={{ fontSize: 9, background: 'rgba(148,163,184,0.2)', color: '#94a3b8', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>GUEST</span>
+          )}
         </div>
         {adjusted != null && (
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>
@@ -120,11 +123,21 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
 
 // ─── ADD PLAYERS MODAL ────────────────────────────────────────────────────────
 const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
+  const [tab, setTab] = useState('members'); // 'members' | 'guest'
   const [search, setSearch] = useState('');
+  const [guestName, setGuestName] = useState('');
   const available = allPlayers.filter(p =>
     !currentPlayers.find(cp => cp.id === p.id) &&
     p.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const addGuest = () => {
+    const name = guestName.trim();
+    if (!name) return;
+    haptic('light');
+    onAdd({ id: `guest-${Date.now()}`, name, isGuest: true });
+    onClose();
+  };
 
   return (
     <div onClick={e => e.target === e.currentTarget && onClose()} style={{
@@ -138,7 +151,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
         width: '100%', maxWidth: 520, maxHeight: '70vh',
         display: 'flex', flexDirection: 'column',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'white', margin: 0 }}>
             Add Player
           </h3>
@@ -147,39 +160,85 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
           </button>
         </div>
 
-        <input
-          value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search players..."
-          style={{
-            width: '100%', padding: '10px 14px', borderRadius: 10, marginBottom: 12,
-            background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
-            color: 'white', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none',
-            boxSizing: 'border-box',
-          }}
-        />
-
-        <div style={{ overflowY: 'auto', flex: 1 }}>
-          {available.length === 0 ? (
-            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>
-              No players available
-            </p>
-          ) : (
-            available.map(p => (
-              <button key={p.id} onClick={() => { haptic('light'); onAdd(p); onClose(); }} style={{
-                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 12, padding: '12px 16px', marginBottom: 6,
-                color: 'white', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>{p.name}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {isJunior(p) && <span style={{ fontSize: 10, color: '#fbbf24', fontWeight: 700 }}>JUNIOR</span>}
-                  <UserPlus size={16} color={BRAND.light} />
-                </div>
-              </button>
-            ))
-          )}
+        {/* Tab switcher */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+          {[['members', '👥 Members'], ['guest', '🙋 Guest']].map(([id, label]) => (
+            <button key={id} onClick={() => setTab(id)} style={{
+              flex: 1, padding: '8px', borderRadius: 10,
+              background: tab === id ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${tab === id ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.08)'}`,
+              color: tab === id ? '#4ade80' : 'rgba(255,255,255,0.4)',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            }}>{label}</button>
+          ))}
         </div>
+
+        {tab === 'members' ? (
+          <>
+            <input
+              value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search members..."
+              style={{
+                width: '100%', padding: '10px 14px', borderRadius: 10, marginBottom: 12,
+                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'white', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              {available.length === 0 ? (
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>
+                  No members available
+                </p>
+              ) : (
+                available.map(p => (
+                  <button key={p.id} onClick={() => { haptic('light'); onAdd(p); onClose(); }} style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: 12, padding: '12px 16px', marginBottom: 6,
+                    color: 'white', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                  }}>
+                    <span style={{ fontSize: 14, fontWeight: 500 }}>{p.name}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {isJunior(p) && <span style={{ fontSize: 10, color: '#fbbf24', fontWeight: 700 }}>JUNIOR</span>}
+                      <UserPlus size={16} color={BRAND.light} />
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </>
+        ) : (
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 10, lineHeight: 1.5 }}>
+              Guest scores are saved with the round but don't count toward club stats or bag tags.
+            </div>
+            <input
+              value={guestName}
+              onChange={e => setGuestName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addGuest()}
+              placeholder="Guest name..."
+              autoFocus
+              style={{
+                width: '100%', padding: '12px 14px', borderRadius: 10, marginBottom: 14,
+                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'white', fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+            <button onClick={addGuest} disabled={!guestName.trim()} style={{
+              width: '100%', padding: '13px', borderRadius: 12,
+              background: guestName.trim() ? 'linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.1))' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${guestName.trim() ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.08)'}`,
+              color: guestName.trim() ? '#4ade80' : 'rgba(255,255,255,0.3)',
+              fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+              cursor: guestName.trim() ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}>
+              <UserPlus size={16} /> Add {guestName.trim() || 'Guest'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -614,13 +673,15 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       }
 
       const rows = cardPlayers.map(p => {
+        const isGuest = p.isGuest === true;
         const playerScores = scores[p.id] || [];
         const adjusted = playerScores.map(s => s != null ? applyHandicap(s, p) : null);
         const total = adjusted.filter(s => s != null).reduce((a, b) => a + b, 0);
         const vp = calcVsPar(adjusted, pars);
         return {
           round_id: realRoundId,
-          player_id: p.id,
+          player_id: isGuest ? null : p.id,
+          guest_name: isGuest ? p.name : null,
           scores: playerScores,
           total_strokes: total,
           vs_par: vp,
@@ -643,7 +704,8 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       clearDraft(round.id, currentUser.id);
 
       // ── Bag Tag Challenge Detection ──────────────────────────
-      const scoredPlayers = cardPlayers.map(p => {
+      // Guests don't participate in bag tag challenges
+      const scoredPlayers = cardPlayers.filter(p => !p.isGuest).map(p => {
         const playerScores = scores[p.id] || [];
         const adjusted = playerScores.map(s => s != null ? applyHandicap(s, p) : null);
         const total = adjusted.filter(s => s != null).reduce((a, b) => a + b, 0);
@@ -798,13 +860,17 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           </div>
           {cardPlayers.map(p => {
             const playerScores = scores[p.id] || [];
+            const isGuest = p.isGuest === true;
             const adjusted = playerScores.slice(0, currentHole + 1).map(s => s != null ? applyHandicap(s, p) : null);
             const vp = calcVsPar(adjusted, pars.slice(0, currentHole + 1));
             const holesPlayed = adjusted.filter(s => s != null).length;
             if (holesPlayed === 0) return null;
             return (
               <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{formatName(p.name)}</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+                  {formatName(p.name)}
+                  {p.isGuest && <span style={{ fontSize: 9, background: 'rgba(148,163,184,0.15)', color: '#94a3b8', padding: '1px 5px', borderRadius: 4, fontWeight: 700, marginLeft: 5 }}>GUEST</span>}
+                </span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: vsParColor(vp) }}>{vsParLabel(vp)}</span>
               </div>
             );
