@@ -4,7 +4,7 @@ import { BRAND, formatName, formatDate } from '../../utils';
 import { Toast, Badge } from '../../components/ui';
 import {
   ChevronLeft, ChevronRight, Plus, Check, X, Edit2, Trash2,
-  Users, Trophy, MapPin, Megaphone, FileText, Settings
+  Users, Trophy, MapPin, Megaphone, FileText, Settings, Award, RotateCcw
 } from 'lucide-react';
 
 // ─── SHARED PRIMITIVES ────────────────────────────────────────────────────────
@@ -872,6 +872,294 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── ACHIEVEMENTS SECTION ─────────────────────────────────────────────────────
+const TIERS = ['bronze', 'silver', 'gold'];
+const TIER_COLORS = {
+  bronze: { bg: 'rgba(205,127,50,0.15)', border: 'rgba(205,127,50,0.3)', color: '#cd7f32' },
+  silver: { bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)', color: '#c0c0c0' },
+  gold:   { bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.3)',  color: '#fbbf24' },
+};
+const COMMON_ICONS = ['🎯','⭐','🐦','🦅','🎳','🔥','💪','🥇','📅','🏅','💎','🏆','👑','🎖️','🌟','⚡','🎪','🎨','🎭','🎬'];
+
+const AchievementForm = ({ existing, onSave, onBack }) => {
+  const [form, setForm] = useState({
+    icon: existing?.icon || '🏅',
+    label: existing?.label || '',
+    description: existing?.description || '',
+    tier: existing?.tier || 'bronze',
+    auto_award: existing?.auto_award ?? true,
+    active: existing?.active ?? true,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  const handleSave = async () => {
+    if (!form.label || !form.description) { setError('Label and description required'); return; }
+    setSaving(true); setError('');
+    try {
+      const payload = {
+        icon: form.icon, label: form.label, description: form.description,
+        tier: form.tier, auto_award: form.auto_award, active: form.active,
+        code: existing?.code || form.label.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+      };
+      const { data, error: err } = existing
+        ? await supabase.from('achievements').update(payload).eq('id', existing.id).select().single()
+        : await supabase.from('achievements').insert(payload).select().single();
+      if (err) throw err;
+      onSave(data);
+    } catch (e) { setError(e.message); setSaving(false); }
+  };
+
+  return (
+    <div>
+      <BackHeader title={existing ? 'Edit Achievement' : 'New Achievement'} onBack={onBack} />
+      <Field label="Icon">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+          {COMMON_ICONS.map(ic => (
+            <button key={ic} onClick={() => set('icon', ic)} style={{
+              width: 36, height: 36, borderRadius: 8, fontSize: 18,
+              background: form.icon === ic ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${form.icon === ic ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              cursor: 'pointer',
+            }}>{ic}</button>
+          ))}
+        </div>
+        <Inp value={form.icon} onChange={e => set('icon', e.target.value)} placeholder="Or type any emoji" />
+      </Field>
+      <Field label="Label *"><Inp value={form.label} onChange={e => set('label', e.target.value)} placeholder="e.g. Eagle!" /></Field>
+      <Field label="Description *"><Inp value={form.description} onChange={e => set('description', e.target.value)} placeholder="How to earn this achievement" /></Field>
+      <Field label="Tier">
+        <div style={{ display: 'flex', gap: 8 }}>
+          {TIERS.map(t => (
+            <button key={t} onClick={() => set('tier', t)} style={{
+              flex: 1, padding: '9px', borderRadius: 10, cursor: 'pointer',
+              background: form.tier === t ? TIER_COLORS[t].bg : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${form.tier === t ? TIER_COLORS[t].border : 'rgba(255,255,255,0.08)'}`,
+              color: form.tier === t ? TIER_COLORS[t].color : 'rgba(255,255,255,0.4)',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
+              textTransform: 'capitalize',
+            }}>{t}</button>
+          ))}
+        </div>
+      </Field>
+      <Field label="Award type">
+        <div style={{ display: 'flex', gap: 8 }}>
+          {[['true', 'Auto (from scores)'], ['false', 'Manual only']].map(([val, lbl]) => (
+            <button key={val} onClick={() => set('auto_award', val === 'true')} style={{
+              flex: 1, padding: '9px', borderRadius: 10, cursor: 'pointer',
+              background: String(form.auto_award) === val ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${String(form.auto_award) === val ? 'rgba(74,222,128,0.25)' : 'rgba(255,255,255,0.08)'}`,
+              color: String(form.auto_award) === val ? '#4ade80' : 'rgba(255,255,255,0.4)',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
+            }}>{lbl}</button>
+          ))}
+        </div>
+      </Field>
+      {error && <div style={{ color: '#f87171', fontSize: 13, marginBottom: 12 }}>⚠️ {error}</div>}
+      <Btn fullWidth onClick={handleSave} disabled={saving}>
+        <Check size={15} />{saving ? 'Saving...' : existing ? 'Save Changes' : 'Create Achievement'}
+      </Btn>
+    </div>
+  );
+};
+
+const AchievementsSection = ({ players, showToast }) => {
+  const [view, setView] = useState('list'); // list | edit | awards
+  const [achievements, setAchievements] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [awards, setAwards] = useState([]); // for selected achievement
+  const [loading, setLoading] = useState(true);
+  const [awardingPlayer, setAwardingPlayer] = useState('');
+  const [awardDetail, setAwardDetail] = useState('');
+
+  const load = useCallback(async () => {
+    const { data } = await supabase.from('achievements').select('*').order('sort_order');
+    setAchievements(data || []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const loadAwards = async (achievement) => {
+    const { data } = await supabase
+      .from('achievement_awards')
+      .select('*, player:player_id(player_name)')
+      .eq('achievement_id', achievement.id)
+      .order('earned_at', { ascending: false });
+    setAwards(data || []);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this achievement? This will also remove all awards for it.')) return;
+    const { error } = await supabase.from('achievements').delete().eq('id', id);
+    if (!error) { setAchievements(p => p.filter(a => a.id !== id)); showToast('Achievement deleted'); }
+  };
+
+  const handleToggleActive = async (a) => {
+    const { error } = await supabase.from('achievements').update({ active: !a.active }).eq('id', a.id);
+    if (!error) { setAchievements(p => p.map(x => x.id === a.id ? { ...x, active: !x.active } : x)); }
+  };
+
+  const handleManualAward = async () => {
+    if (!awardingPlayer) return;
+    const { error } = await supabase.from('achievement_awards').upsert({
+      achievement_id: selected.id,
+      player_id: awardingPlayer,
+      detail: awardDetail || 'Awarded by admin',
+      earned_at: new Date().toISOString(),
+    }, { onConflict: 'achievement_id,player_id' });
+    if (!error) {
+      showToast('Award granted');
+      setAwardingPlayer(''); setAwardDetail('');
+      loadAwards(selected);
+    }
+  };
+
+  const handleRevokeAward = async (awardId) => {
+    const { error } = await supabase.from('achievement_awards').delete().eq('id', awardId);
+    if (!error) { setAwards(p => p.filter(a => a.id !== awardId)); showToast('Award revoked'); }
+  };
+
+  const handleResetAll = async (achievement) => {
+    if (!window.confirm(`Reset ALL awards for "${achievement.label}"? This cannot be undone.`)) return;
+    const { error } = await supabase.from('achievement_awards').delete().eq('achievement_id', achievement.id);
+    if (!error) { setAwards([]); showToast('All awards reset'); }
+  };
+
+  if (view === 'edit') return (
+    <AchievementForm
+      existing={selected}
+      onBack={() => { setView('list'); setSelected(null); }}
+      onSave={a => {
+        setAchievements(p => selected ? p.map(x => x.id === a.id ? a : x) : [a, ...p]);
+        showToast(selected ? 'Achievement updated' : 'Achievement created');
+        setView('list'); setSelected(null);
+      }}
+    />
+  );
+
+  if (view === 'awards' && selected) return (
+    <div>
+      <BackHeader title={`${selected.icon} ${selected.label}`} onBack={() => { setView('list'); setSelected(null); }} />
+
+      {/* Manual award */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', marginBottom: 20 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Grant to player</div>
+        <select value={awardingPlayer} onChange={e => setAwardingPlayer(e.target.value)}
+          style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, marginBottom: 8 }}>
+          <option value="">Select player...</option>
+          {(players || []).filter(p => p.status === 'Active').map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+        <Inp value={awardDetail} onChange={e => setAwardDetail(e.target.value)} placeholder="Detail (optional, e.g. 'Eagle on hole 3')" style={{ marginBottom: 8 }} />
+        <Btn onClick={handleManualAward} disabled={!awardingPlayer}><Award size={14} /> Grant Award</Btn>
+      </div>
+
+      {/* Reset all */}
+      <button onClick={() => handleResetAll(selected)} style={{
+        width: '100%', padding: '10px', borderRadius: 10, marginBottom: 20,
+        background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)',
+        color: '#f87171', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+      }}>
+        <RotateCcw size={13} /> Reset all awards for this achievement
+      </button>
+
+      {/* Current awardees */}
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+        Earned by {awards.length} player{awards.length !== 1 ? 's' : ''}
+      </div>
+      {awards.length === 0 ? (
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', textAlign: 'center', padding: '20px 0' }}>No one has earned this yet</div>
+      ) : (
+        awards.map(award => (
+          <div key={award.id} style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px',
+            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 12, marginBottom: 8,
+          }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>
+                {formatName(award.player?.player_name || 'Unknown')}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+                {award.detail} · {formatDate(award.earned_at)}
+              </div>
+            </div>
+            <button onClick={() => handleRevokeAward(award.id)} style={{
+              padding: '5px 10px', borderRadius: 8, background: 'rgba(248,113,113,0.08)',
+              border: '1px solid rgba(248,113,113,0.2)', color: '#f87171',
+              cursor: 'pointer', fontSize: 12, fontFamily: "'DM Sans', sans-serif",
+            }}>Revoke</button>
+          </div>
+        ))
+      )}
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <SectionHead>Achievements ({achievements.length})</SectionHead>
+        <Btn onClick={() => { setSelected(null); setView('edit'); }}><Plus size={14} /> New</Btn>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading...</div>
+      ) : (
+        achievements.map(a => {
+          const tier = TIER_COLORS[a.tier];
+          return (
+            <div key={a.id} style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
+              background: a.active ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
+              border: `1px solid ${a.active ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)'}`,
+              borderRadius: 12, marginBottom: 8,
+              opacity: a.active ? 1 : 0.5,
+            }}>
+              <span style={{ fontSize: 24, flexShrink: 0 }}>{a.icon}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: tier.color }}>{a.label}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{a.description}</div>
+                <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: tier.color, textTransform: 'uppercase', letterSpacing: 1, background: tier.bg, border: `1px solid ${tier.border}`, padding: '1px 5px', borderRadius: 4 }}>{a.tier}</span>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', padding: '1px 5px' }}>{a.auto_award ? 'Auto' : 'Manual'}</span>
+                  {!a.active && <span style={{ fontSize: 9, color: '#f87171', padding: '1px 5px' }}>Inactive</span>}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                <button onClick={() => { setSelected(a); loadAwards(a); setView('awards'); }} style={{
+                  padding: '5px 9px', borderRadius: 8, background: 'rgba(74,222,128,0.08)',
+                  border: '1px solid rgba(74,222,128,0.2)', color: '#4ade80',
+                  cursor: 'pointer', fontSize: 11, fontFamily: "'DM Sans', sans-serif",
+                }}>Awards</button>
+                <button onClick={() => { setSelected(a); setView('edit'); }} style={{
+                  padding: '5px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)',
+                  cursor: 'pointer',
+                }}><Edit2 size={12} /></button>
+                <button onClick={() => handleToggleActive(a)} style={{
+                  padding: '5px 8px', borderRadius: 8,
+                  background: a.active ? 'rgba(251,191,36,0.08)' : 'rgba(74,222,128,0.08)',
+                  border: `1px solid ${a.active ? 'rgba(251,191,36,0.2)' : 'rgba(74,222,128,0.2)'}`,
+                  color: a.active ? '#fbbf24' : '#4ade80',
+                  cursor: 'pointer', fontSize: 11, fontFamily: "'DM Sans', sans-serif",
+                }}>{a.active ? 'Hide' : 'Show'}</button>
+                <button onClick={() => handleDelete(a.id)} style={{
+                  padding: '5px 8px', borderRadius: 8, background: 'rgba(248,113,113,0.08)',
+                  border: '1px solid rgba(248,113,113,0.2)', color: '#f87171',
+                  cursor: 'pointer',
+                }}><Trash2 size={12} /></button>
+              </div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+};
+
 // MAIN ADMIN PANEL
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -881,6 +1169,7 @@ const NAV_ITEMS = [
   { id: 'courses', label: 'Courses', icon: MapPin },
   { id: 'requests', label: 'Requests', icon: FileText },
   { id: 'announcements', label: 'Announcements', icon: Megaphone },
+  { id: 'achievements', label: 'Achievements', icon: Award },
 ];
 
 export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, courses, players, onDataChanged, onBack, pendingRequestsCount = 0 }) => {
@@ -997,6 +1286,9 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
         )}
         {activeSection === 'announcements' && (
           <AnnouncementsSection currentUser={currentUser} showToast={showToast} />
+        )}
+        {activeSection === 'achievements' && (
+          <AchievementsSection players={players} showToast={showToast} />
         )}
       </div>
 
