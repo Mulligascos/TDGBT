@@ -453,6 +453,7 @@ const AchievementsSection = ({ currentUser }) => {
   const [allRoundScores, setAllRoundScores] = useState([]);
   const [rounds, setRounds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [popup, setPopup] = useState(null);
 
   const load = useCallback(async () => {
     const [scoresRes, allRes, roundsRes] = await Promise.allSettled([
@@ -478,7 +479,6 @@ const AchievementsSection = ({ currentUser }) => {
   const streaks = computeStreaks(scores);
   const earnedList = ACHIEVEMENTS.filter(a => earned.has(a.id));
   const lockedList = ACHIEVEMENTS.filter(a => !earned.has(a.id));
-  const [popup, setPopup] = useState(null);
 
   return (
     <div>
