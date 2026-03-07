@@ -395,15 +395,31 @@ const MemberForm = ({ existing, onSave, onBack }) => {
   );
 };
 
-const MembersSection = ({ players, onRefresh, showToast }) => {
+const MembersSection = ({ players: propPlayers, onRefresh, showToast }) => {
   const [view, setView] = useState('list');
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
-  const [localPlayers, setLocalPlayers] = useState(players);
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'Active' | 'Inactive'
+  const [localPlayers, setLocalPlayers] = useState([]);
+  const [loadingAll, setLoadingAll] = useState(true);
 
-  useEffect(() => { setLocalPlayers(players); }, [players]);
+  // Fetch ALL players (bypasses the Active-only filter in useAppData)
+  const loadAll = useCallback(async () => {
+    setLoadingAll(true);
+    const { data } = await supabase.from('players').select('*').order('player_name');
+    if (data) {
+      setLocalPlayers(data.map(raw => ({
+        id: raw.player_id, name: raw.player_name, status: raw.player_status,
+        division: raw.player_division, bagTag: raw.bag_tag, role: raw.role || 'member',
+        pin: raw.pin, membershipNumber: raw.membership_number,
+        email: raw.email || '', phone: raw.phone || '',
+        pdgaNumber: raw.pdga_number || '', udiscUsername: raw.udisc_username || '',
+      })));
+    }
+    setLoadingAll(false);
+  }, []);
 
-  const filtered = localPlayers.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()));
+  useEffect(() => { loadAll(); }, [loadAll]);
 
   const handleSave = (raw) => {
     const normalised = {
@@ -424,44 +440,106 @@ const MembersSection = ({ players, onRefresh, showToast }) => {
     onRefresh();
   };
 
-  if (view === 'edit' && selected) return <MemberForm existing={selected} onBack={() => setView('list')} onSave={handleSave} />;
+  const handleToggleStatus = async (e, player) => {
+    e.stopPropagation();
+    const newStatus = player.status === 'Active' ? 'Inactive' : 'Active';
+    const { error } = await supabase.from('players')
+      .update({ player_status: newStatus })
+      .eq('player_id', player.id);
+    if (!error) {
+      setLocalPlayers(p => p.map(x => x.id === player.id ? { ...x, status: newStatus } : x));
+      showToast(`${formatName(player.name)} set to ${newStatus}`);
+      onRefresh();
+    }
+  };
+
+  if (view === 'edit' && selected) return <MemberForm existing={selected} onBack={() => { setView('list'); loadAll(); }} onSave={handleSave} />;
   if (view === 'new') return <MemberForm onBack={() => setView('list')} onSave={handleSave} />;
 
   const divColor = { Mixed: BRAND.light, Female: '#f9a8d4', Junior: '#fbbf24', Senior: '#93c5fd' };
+  const activeCount = localPlayers.filter(p => p.status === 'Active').length;
+  const inactiveCount = localPlayers.filter(p => p.status !== 'Active').length;
+
+  const filtered = localPlayers.filter(p => {
+    if (statusFilter === 'Active' && p.status !== 'Active') return false;
+    if (statusFilter === 'Inactive' && p.status === 'Active') return false;
+    if (search && !p.name?.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <SectionHead>Members ({localPlayers.filter(p => p.status === 'Active').length} active)</SectionHead>
+        <SectionHead>Members ({activeCount} active · {inactiveCount} inactive)</SectionHead>
         <Btn small onClick={() => { setSelected(null); setView('new'); }}><Plus size={13} /> Add</Btn>
       </div>
+
+      {/* Status filter tabs */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+        {[['all', `All (${localPlayers.length})`], ['Active', `Active (${activeCount})`], ['Inactive', `Inactive (${inactiveCount})`]].map(([val, label]) => (
+          <button key={val} onClick={() => setStatusFilter(val)} style={{
+            padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            background: statusFilter === val ? BRAND.primary : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${statusFilter === val ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+            color: statusFilter === val ? '#4ade80' : 'rgba(255,255,255,0.4)',
+            fontFamily: "'DM Sans', sans-serif",
+          }}>{label}</button>
+        ))}
+      </div>
+
       <div style={{ position: 'relative', marginBottom: 14 }}>
         <Inp value={search} onChange={e => setSearch(e.target.value)} placeholder="Search members..." />
       </div>
-      {filtered.map(p => (
-        <Card key={p.id} onClick={() => { setSelected(p); setView('edit'); }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
-              background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 15, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif",
-            }}>
-              {p.name?.[0]?.toUpperCase()}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>{formatName(p.name)}</div>
-              <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
-                {p.bagTag && <span style={{ fontSize: 11, color: BRAND.light }}>#{p.bagTag}</span>}
-                <span style={{ fontSize: 11, color: divColor[p.division] || 'rgba(255,255,255,0.3)' }}>{p.division}</span>
-                {p.role !== 'member' && <span style={{ fontSize: 11, color: '#fbbf24' }}>{p.role}</span>}
-                {p.status !== 'Active' && <span style={{ fontSize: 11, color: '#f87171' }}>Inactive</span>}
+
+      {loadingAll ? (
+        <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading...</div>
+      ) : filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>No members found</div>
+      ) : (
+        filtered.map(p => (
+          <Card key={p.id} onClick={() => { setSelected(p); setView('edit'); }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+                background: p.status === 'Active'
+                  ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
+                  : 'rgba(255,255,255,0.08)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 15, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif",
+                opacity: p.status === 'Active' ? 1 : 0.5,
+              }}>
+                {p.name?.[0]?.toUpperCase()}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: p.status === 'Active' ? 'white' : 'rgba(255,255,255,0.4)' }}>
+                  {formatName(p.name)}
+                </div>
+                <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
+                  {p.bagTag && <span style={{ fontSize: 11, color: BRAND.light }}>#{p.bagTag}</span>}
+                  <span style={{ fontSize: 11, color: divColor[p.division] || 'rgba(255,255,255,0.3)' }}>{p.division}</span>
+                  {p.role !== 'member' && <span style={{ fontSize: 11, color: '#fbbf24' }}>{p.role}</span>}
+                  <span style={{ fontSize: 11, color: p.status === 'Active' ? '#4ade80' : '#f87171' }}>{p.status}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <button
+                  onClick={(e) => handleToggleStatus(e, p)}
+                  style={{
+                    padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    background: p.status === 'Active' ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)',
+                    border: `1px solid ${p.status === 'Active' ? 'rgba(248,113,113,0.25)' : 'rgba(74,222,128,0.25)'}`,
+                    color: p.status === 'Active' ? '#f87171' : '#4ade80',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  {p.status === 'Active' ? 'Deactivate' : 'Activate'}
+                </button>
+                <ChevronRight size={15} color="rgba(255,255,255,0.2)" />
               </div>
             </div>
-            <ChevronRight size={15} color="rgba(255,255,255,0.2)" />
-          </div>
-        </Card>
-      ))}
+          </Card>
+        ))
+      )}
     </div>
   );
 };
