@@ -22,6 +22,8 @@ import { CTPPage } from './pages/CTPPage';
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [toast, setToast] = useState(null);
+  const [, forceThemeRender] = useState(0);
+  const handleThemeChange = () => forceThemeRender(n => n + 1);
 
   const {
     currentUser, players: loginPlayers, isLoadingPlayers,
@@ -98,7 +100,7 @@ export default function App() {
       case 'bagtags': return <BagTagsPage currentUser={currentUser} players={players} />;
       case 'lostfound': return <LostFoundPage currentUser={currentUser} isAdmin={isAdmin} courses={courses} />;
       case 'ctp': return <CTPPage currentUser={currentUser} isAdmin={isAdmin} courses={courses} />;
-      case 'profile': return <ProfilePage {...commonProps} onLogout={handleLogout} updateUser={updateUser} />;
+      case 'profile': return <ProfilePage {...commonProps} onLogout={handleLogout} updateUser={updateUser} onThemeChange={handleThemeChange} />;
       default: return <HomePage {...commonProps} tournaments={tournaments} activeTournament={activeTournament}
         players={players} pendingRequestsCount={pendingRequestsCount} />;
     }
