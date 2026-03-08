@@ -27,7 +27,7 @@ export default function App() {
   const {
     courses, tournaments, matches, players,
     isLoading, loadData, activeTournament, pendingRequestsCount,
-  } = useAppData(currentUser, isAdmin);
+  } = useAppData(currentUser, isAdmin, updateUser);
 
   const showToast = useCallback((message, type = 'success') => {
     haptic(type === 'error' ? 'error' : 'success');
