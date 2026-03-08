@@ -4,7 +4,8 @@ import { BRAND, formatName, formatDate } from '../../utils';
 import { Toast, Badge } from '../../components/ui';
 import {
   ChevronLeft, ChevronRight, Plus, Check, X, Edit2, Trash2,
-  Users, Trophy, MapPin, Megaphone, FileText, Settings, Award, RotateCcw
+  Users, Trophy, MapPin, Megaphone, FileText, Settings, Award, RotateCcw,
+  Mail, Send, Clock, AlertCircle
 } from 'lucide-react';
 
 // ─── SHARED PRIMITIVES ────────────────────────────────────────────────────────
@@ -1243,6 +1244,301 @@ const AchievementsSection = ({ players, showToast }) => {
   );
 };
 
+
+// ─── MESSAGES SECTION ────────────────────────────────────────────────────────
+const QUICK_TEMPLATES = [
+  { label: '💰 Fees Due',      subject: 'Club Fees Reminder', body: 'Hi,\n\nJust a reminder that club fees are now due. Please arrange payment at your earliest convenience.\n\nThank you!' },
+  { label: '🏆 Tournament',    subject: 'Upcoming Tournament', body: 'Hi,\n\nDon\'t forget we have a tournament coming up soon. Make sure you\'re registered and ready to play!\n\nSee you on the course!' },
+  { label: '🔧 Working Bee',   subject: 'Course Working Bee', body: 'Hi,\n\nWe\'re organising a course working bee. Your help would be greatly appreciated — please come along if you can.\n\nThanks!' },
+  { label: '📅 Round Reminder',subject: 'Club Round This Weekend', body: 'Hi,\n\nJust a reminder that we have a club round this weekend. Head to the app to register your score afterwards.\n\nSee you there!' },
+];
+
+const MessagesSection = ({ players, currentUser, showToast }) => {
+  const [view, setView]           = useState('compose'); // compose | history
+  const [subject, setSubject]     = useState('');
+  const [body, setBody]           = useState('');
+  const [selected, setSelected]   = useState(new Set()); // selected player ids
+  const [search, setSearch]       = useState('');
+  const [sending, setSending]     = useState(false);
+  const [history, setHistory]     = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [expandedMsg, setExpandedMsg] = useState(null);
+
+  const activePlayers = (players || []).filter(p => p.status === 'Active' && p.email);
+  const noEmail       = (players || []).filter(p => p.status === 'Active' && !p.email);
+
+  const filtered = activePlayers.filter(p =>
+    !search || p.name?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const togglePlayer = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => setSelected(new Set(filtered.map(p => p.id)));
+  const selectNone = () => setSelected(new Set());
+
+  const applyTemplate = (t) => { setSubject(t.subject); setBody(t.body); };
+
+  const loadHistory = async () => {
+    setLoadingHistory(true);
+    const { data } = await supabase
+      .from('club_messages')
+      .select('*')
+      .order('sent_at', { ascending: false })
+      .limit(50);
+    setHistory(data || []);
+    setLoadingHistory(false);
+  };
+
+  useEffect(() => { if (view === 'history') loadHistory(); }, [view]);
+
+  const handleSend = async () => {
+    if (!subject.trim())    { showToast('Subject is required', 'error'); return; }
+    if (!body.trim())       { showToast('Message body is required', 'error'); return; }
+    if (selected.size === 0){ showToast('Select at least one recipient', 'error'); return; }
+
+    setSending(true);
+    try {
+      const recipients = activePlayers
+        .filter(p => selected.has(p.id))
+        .map(p => ({ email: p.email, name: formatName(p.name), id: p.id }));
+
+      // Call Supabase Edge Function
+      const { data: { session } } = await supabase.auth.getSession();
+      const fnUrl = `${supabase.supabaseUrl}/functions/v1/send-club-email`;
+
+      const res = await fetch(fnUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || supabase.supabaseKey}`,
+          'apikey': supabase.supabaseKey,
+        },
+        body: JSON.stringify({
+          subject: subject.trim(),
+          body: body.trim(),
+          recipients: recipients.map(r => ({ email: r.email, name: r.name })),
+        }),
+      });
+
+      const result = await res.json();
+      const sent   = result.sent   || 0;
+      const failed = result.failed || 0;
+
+      // Log to DB
+      await supabase.from('club_messages').insert({
+        subject: subject.trim(),
+        body: body.trim(),
+        sent_by: currentUser.id,
+        recipient_ids:    recipients.map(r => r.id),
+        recipient_emails: recipients.map(r => r.email),
+        recipient_names:  recipients.map(r => r.name),
+        sent_count:   sent,
+        failed_count: failed,
+        status: failed === 0 ? 'sent' : sent === 0 ? 'failed' : 'partial',
+      });
+
+      if (failed === 0) {
+        showToast(`✉️ Sent to ${sent} member${sent !== 1 ? 's' : ''}`);
+        setSubject(''); setBody(''); setSelected(new Set());
+      } else {
+        showToast(`Sent ${sent}, failed ${failed}`, 'error');
+      }
+    } catch (err) {
+      console.error('Send error:', err);
+      showToast('Failed to send — check Edge Function setup', 'error');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const statusColor = { sent: '#4ade80', partial: '#fbbf24', failed: '#f87171' };
+  const statusIcon  = { sent: '✓', partial: '⚠️', failed: '✗' };
+
+  return (
+    <div>
+      {/* Tab toggle */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        {[['compose', <><Mail size={13} /> Compose</>], ['history', <><Clock size={13} /> Sent History</>]].map(([id, label]) => (
+          <button key={id} onClick={() => setView(id)} style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            padding: '8px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            background: view === id ? BRAND.primary : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${view === id ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+            color: view === id ? '#4ade80' : 'rgba(255,255,255,0.4)',
+            fontFamily: "'DM Sans', sans-serif",
+          }}>{label}</button>
+        ))}
+      </div>
+
+      {view === 'compose' && (
+        <div>
+          {/* Quick templates */}
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Quick Templates</div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {QUICK_TEMPLATES.map(t => (
+                <button key={t.label} onClick={() => applyTemplate(t)} style={{
+                  padding: '6px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.6)', fontFamily: "'DM Sans', sans-serif",
+                }}>{t.label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Subject */}
+          <Field label="Subject *">
+            <Inp value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Club Fees Due" />
+          </Field>
+
+          {/* Body */}
+          <Field label="Message *">
+            <textarea
+              value={body}
+              onChange={e => setBody(e.target.value)}
+              placeholder="Write your message here..."
+              rows={6}
+              style={{
+                width: '100%', padding: '10px 12px', borderRadius: 12,
+                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
+                resize: 'vertical', lineHeight: 1.5,
+              }}
+            />
+          </Field>
+
+          {/* Recipients */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>
+                Recipients ({selected.size} selected)
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button onClick={selectAll} style={{ fontSize: 11, color: '#4ade80', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>All</button>
+                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11 }}>·</span>
+                <button onClick={selectNone} style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>None</button>
+              </div>
+            </div>
+
+            <Inp value={search} onChange={e => setSearch(e.target.value)} placeholder="Search members..." style={{ marginBottom: 8 }} />
+
+            {noEmail.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', marginBottom: 8, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10 }}>
+                <AlertCircle size={13} color="#fbbf24" />
+                <span style={{ fontSize: 12, color: '#fbbf24' }}>{noEmail.length} member{noEmail.length !== 1 ? 's' : ''} have no email address and will be skipped</span>
+              </div>
+            )}
+
+            <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
+              {filtered.length === 0 ? (
+                <div style={{ padding: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.25)', fontSize: 13 }}>No members with email addresses</div>
+              ) : (
+                filtered.map(p => {
+                  const isSelected = selected.has(p.id);
+                  return (
+                    <div key={p.id} onClick={() => togglePlayer(p.id)} style={{
+                      display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
+                      background: isSelected ? 'rgba(74,222,128,0.06)' : 'transparent',
+                      borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer',
+                    }}>
+                      <div style={{
+                        width: 20, height: 20, borderRadius: 6, flexShrink: 0,
+                        background: isSelected ? BRAND.primary : 'rgba(255,255,255,0.07)',
+                        border: `1.5px solid ${isSelected ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.15)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {isSelected && <Check size={12} color="#4ade80" />}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{formatName(p.name)}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.email}</div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Send button */}
+          <Btn fullWidth onClick={handleSend} disabled={sending || selected.size === 0 || !subject || !body}>
+            <Send size={14} />{sending ? `Sending to ${selected.size} member${selected.size !== 1 ? 's' : ''}...` : `Send to ${selected.size} member${selected.size !== 1 ? 's' : ''}`}
+          </Btn>
+        </div>
+      )}
+
+      {view === 'history' && (
+        <div>
+          {loadingHistory ? (
+            <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading...</div>
+          ) : history.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>No messages sent yet</div>
+            </div>
+          ) : (
+            history.map(msg => {
+              const isExpanded = expandedMsg === msg.id;
+              return (
+                <div key={msg.id} style={{
+                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 14, marginBottom: 10, overflow: 'hidden',
+                }}>
+                  <div onClick={() => setExpandedMsg(isExpanded ? null : msg.id)} style={{ padding: '14px 16px', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                      <div style={{
+                        width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                        background: `${statusColor[msg.status]}20`,
+                        border: `1px solid ${statusColor[msg.status]}40`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12,
+                      }}>{statusIcon[msg.status]}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 3 }}>{msg.subject}</div>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 11, color: statusColor[msg.status] }}>
+                            {msg.sent_count} sent{msg.failed_count > 0 ? `, ${msg.failed_count} failed` : ''}
+                          </span>
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>{formatDate(msg.sent_at)}</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={14} color="rgba(255,255,255,0.2)" style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
+                    </div>
+                  </div>
+                  {isExpanded && (
+                    <div style={{ padding: '0 16px 14px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 10 }}>
+                        {msg.body}
+                      </div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
+                        Sent to ({msg.recipient_names?.length || 0})
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {(msg.recipient_names || []).map((name, i) => (
+                          <span key={i} style={{
+                            fontSize: 11, padding: '3px 8px', borderRadius: 8,
+                            background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)',
+                          }}>{name}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // MAIN ADMIN PANEL
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1253,6 +1549,7 @@ const NAV_ITEMS = [
   { id: 'requests', label: 'Requests', icon: FileText },
   { id: 'announcements', label: 'Announcements', icon: Megaphone },
   { id: 'achievements', label: 'Achievements', icon: Award },
+  { id: 'messages', label: 'Messages', icon: Mail },
 ];
 
 export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, courses, players, onDataChanged, onBack, pendingRequestsCount = 0 }) => {
@@ -1373,6 +1670,9 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
         )}
         {activeSection === 'achievements' && (
           <AchievementsSection players={players} showToast={showToast} />
+        )}
+        {activeSection === 'messages' && (
+          <MessagesSection players={players} currentUser={currentUser} showToast={showToast} />
         )}
       </div>
 
