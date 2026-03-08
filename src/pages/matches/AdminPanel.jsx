@@ -104,13 +104,13 @@ const RichTextToolbar = ({ value, onChange, textareaRef }) => {
   });
 
   return (
-    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6, padding: '6px 8px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px 10px 0 0', borderBottom: 'none' }}>
+    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6, padding: '6px 8px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px 10px 0 0', borderBottom: 'none' }}>
       <button type="button" onClick={() => wrap('**', '**', 'bold text')} style={btnStyle(false)}><strong>B</strong></button>
       <button type="button" onClick={() => wrap('*', '*', 'italic text')} style={btnStyle(false)}><em>I</em></button>
       <button type="button" onClick={() => insertList('- ')} style={btnStyle(false)}>• List</button>
       <button type="button" onClick={() => insertList('1. ')} style={btnStyle(false)}>1. List</button>
-      <div style={{ width: 1, background: 'rgba(255,255,255,0.1)', margin: '2px 2px' }} />
-      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', alignSelf: 'center', paddingLeft: 4 }}>**bold**  *italic*  - list</span>
+      <div style={{ width: 1, background: 'var(--bg-input)', margin: '2px 2px' }} />
+      <span style={{ fontSize: 10, color: 'var(--text-muted)', alignSelf: 'center', paddingLeft: 4 }}>**bold**  *italic*  - list</span>
     </div>
   );
 };
@@ -118,7 +118,7 @@ const RichTextToolbar = ({ value, onChange, textareaRef }) => {
 // ─── SHARED PRIMITIVES ────────────────────────────────────────────────────────
 const Field = ({ label, children, hint }) => (
   <div style={{ marginBottom: 14 }}>
-    {label && <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>}
+    {label && <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>}
     {children}
     {hint && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>{hint}</div>}
   </div>
@@ -126,8 +126,8 @@ const Field = ({ label, children, hint }) => (
 
 const inputStyle = {
   width: '100%', padding: '11px 13px', borderRadius: 10,
-  background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-  color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
+  background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+  color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
   boxSizing: 'border-box',
 };
 
@@ -140,8 +140,8 @@ const Sel = ({ children, ...props }) => (
 
 const Btn = ({ children, onClick, disabled, variant = 'primary', small = false, fullWidth = false }) => {
   const styles = {
-    primary: { background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, border: '1px solid rgba(74,222,128,0.3)', color: 'white' },
-    ghost: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' },
+    primary: { background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)' },
+    ghost: { background: 'var(--bg-card)', border: '1px solid var(--border-card)', color: 'var(--text-secondary)' },
     danger: { background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', color: '#f87171' },
     warning: { background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24' },
   };
@@ -172,7 +172,7 @@ const SectionHead = ({ children }) => (
 
 const Card = ({ children, onClick, style = {} }) => (
   <div onClick={onClick} style={{
-    background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
+    background: 'var(--bg-card)', border: '1px solid var(--border)',
     borderRadius: 14, padding: '14px 16px', marginBottom: 8,
     cursor: onClick ? 'pointer' : 'default', ...style,
   }}>
@@ -180,7 +180,7 @@ const Card = ({ children, onClick, style = {} }) => (
   </div>
 );
 
-const statusColor = { upcoming: '#fbbf24', active: '#4ade80', complete: 'rgba(255,255,255,0.4)', pending: '#fbbf24', approved: '#4ade80', rejected: '#f87171' };
+const statusColor = { upcoming: '#fbbf24', active: '#4ade80', complete: 'var(--text-secondary)', pending: '#fbbf24', approved: '#4ade80', rejected: '#f87171' };
 
 // ─── BACK HEADER ──────────────────────────────────────────────────────────────
 const BackHeader = ({ title, onBack }) => (
@@ -188,7 +188,7 @@ const BackHeader = ({ title, onBack }) => (
     <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
       <ChevronLeft size={22} />
     </button>
-    <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>{title}</div>
+    <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{title}</div>
   </div>
 );
 
@@ -363,8 +363,8 @@ const TournamentsSection = ({ tournaments, rounds, courses, onRefresh, showToast
             <Card key={r.id} onClick={() => { setSelectedRound(r); setView('edit-r'); }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>{c?.name || 'Unknown course'}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{formatDate(r.scheduled_date)} · {r.total_holes} holes</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{c?.name || 'Unknown course'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{formatDate(r.scheduled_date)} · {r.total_holes} holes</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Badge label={r.status} color={statusColor[r.status]} />
@@ -384,13 +384,13 @@ const TournamentsSection = ({ tournaments, rounds, courses, onRefresh, showToast
         <SectionHead>Tournaments</SectionHead>
         <Btn small onClick={() => setView('new-t')}><Plus size={13} /> New</Btn>
       </div>
-      {localT.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 16 }}>No tournaments yet</div>}
+      {localT.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>No tournaments yet</div>}
       {localT.map(t => (
         <Card key={t.id} onClick={() => { setSelected(t); setView('detail'); }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{t.name}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t.format} · {tRounds(t.id).length} round{tRounds(t.id).length !== 1 ? 's' : ''}{t.start_date ? ` · ${formatDate(t.start_date)}` : ''}
               </div>
             </div>
@@ -593,7 +593,7 @@ const MembersSection = ({ players: propPlayers, onRefresh, showToast }) => {
             padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
             background: statusFilter === val ? BRAND.primary : 'rgba(255,255,255,0.05)',
             border: `1px solid ${statusFilter === val ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
-            color: statusFilter === val ? '#4ade80' : 'rgba(255,255,255,0.4)',
+            color: statusFilter === val ? '#4ade80' : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
         ))}
@@ -617,13 +617,13 @@ const MembersSection = ({ players: propPlayers, onRefresh, showToast }) => {
                   ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
                   : 'rgba(255,255,255,0.08)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 15, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif",
+                fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif",
                 opacity: p.status === 'Active' ? 1 : 0.5,
               }}>
                 {p.name?.[0]?.toUpperCase()}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: p.status === 'Active' ? 'white' : 'rgba(255,255,255,0.4)' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: p.status === 'Active' ? 'white' : 'var(--text-secondary)' }}>
                   {formatName(p.name)}
                 </div>
                 <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
@@ -738,7 +738,7 @@ const CourseForm = ({ existing, onSave, onBack }) => {
                   width: '100%', padding: '6px 2px', borderRadius: 7, textAlign: 'center',
                   background: p === 3 ? 'rgba(74,222,128,0.15)' : p === 4 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
                   border: `1px solid ${p === 3 ? 'rgba(74,222,128,0.3)' : p === 4 ? 'rgba(251,191,36,0.3)' : 'rgba(248,113,113,0.3)'}`,
-                  color: 'white', fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, outline: 'none',
+                  color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, outline: 'none',
                   appearance: 'none',
                 }}>
                   <option value={3} style={{ background: 'var(--bg-nav)' }}>3</option>
@@ -802,13 +802,13 @@ const CoursesSection = ({ courses, onRefresh, showToast }) => {
         <SectionHead>Courses ({localCourses.length})</SectionHead>
         <Btn small onClick={() => { setSelected(null); setView('new'); }}><Plus size={13} /> Add</Btn>
       </div>
-      {localCourses.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>No courses yet</div>}
+      {localCourses.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>No courses yet</div>}
       {localCourses.map(c => (
         <Card key={c.id} onClick={() => { setSelected(c); setView('edit'); }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{c.name}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{c.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {c.holes || 18} holes{tp(c.pars) ? ` · Par ${tp(c.pars)}` : ''}{c.location ? ` · ${c.location}` : ''}
               </div>
             </div>
@@ -880,7 +880,7 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
             padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
             background: filter === s ? `rgba(74,222,128,0.15)` : 'rgba(255,255,255,0.05)',
             border: `1px solid ${filter === s ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.08)'}`,
-            color: filter === s ? BRAND.light : 'rgba(255,255,255,0.4)',
+            color: filter === s ? BRAND.light : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>
             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -898,11 +898,11 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
         return (
           <Card key={r.id}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{r.title}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.title}</div>
               <Badge label={r.request_type.replace('_', ' ')} color="rgba(255,255,255,0.3)" />
             </div>
             {course && <div style={{ fontSize: 11, color: BRAND.light, marginBottom: 4 }}>📍 {course.name}</div>}
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: 6 }}>{r.description}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 6 }}>{r.description}</div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12 }}>
               By {allPlayers?.find(p => p.id === r.submitted_by)?.name || 'Unknown'} · {formatDate(r.submitted_at)}
             </div>
@@ -928,7 +928,7 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
                     width: '100%', padding: '10px 12px', borderRadius: 10, resize: 'vertical',
                     background: 'var(--bg-input)',
                     border: `1px solid ${isApproving ? 'rgba(74,222,128,0.25)' : 'rgba(248,113,113,0.25)'}`,
-                    color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+                    color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
                     outline: 'none', boxSizing: 'border-box', marginBottom: 10,
                   }}
                 />
@@ -948,9 +948,9 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
 
             {/* Show admin notes on resolved requests */}
             {filter !== 'pending' && r.admin_notes && (
-              <div style={{ marginTop: 6, padding: '8px 12px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ marginTop: 6, padding: '8px 12px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Admin Notes</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{r.admin_notes}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.admin_notes}</div>
               </div>
             )}
           </Card>
@@ -1035,7 +1035,7 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
                   padding: '4px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
                   background: (preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.05)',
                   border: `1px solid ${(preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
-                  color: (preview ? m === 'preview' : m === 'write') ? '#4ade80' : 'rgba(255,255,255,0.4)',
+                  color: (preview ? m === 'preview' : m === 'write') ? '#4ade80' : 'var(--text-secondary)',
                   fontFamily: "'DM Sans', sans-serif", textTransform: 'capitalize',
                 }}>{m}</button>
               ))}
@@ -1053,12 +1053,12 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
                 />
               </>
             ) : (
-              <div style={{ ...inputStyle, minHeight: 100, lineHeight: 1.6, fontSize: 14, color: 'rgba(255,255,255,0.8)' }}>
-                {form.body ? renderMarkdown(form.body) : <span style={{ color: 'rgba(255,255,255,0.2)' }}>Nothing to preview yet</span>}
+              <div style={{ ...inputStyle, minHeight: 100, lineHeight: 1.6, fontSize: 14, color: 'var(--text-primary)' }}>
+                {form.body ? renderMarkdown(form.body) : <span style={{ color: 'var(--text-muted)' }}>Nothing to preview yet</span>}
               </div>
             )}
           </Field>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, cursor: 'pointer', fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, cursor: 'pointer', fontSize: 13, color: 'var(--text-secondary)' }}>
             <input type="checkbox" checked={form.pinned} onChange={e => setForm(p => ({ ...p, pinned: e.target.checked }))} />
             Pin to top of home screen
           </label>
@@ -1076,10 +1076,10 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
       {announcements.map(a => (
         <Card key={a.id}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'white', flex: 1 }}>{a.title}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>{a.title}</div>
             {a.pinned && <span style={{ fontSize: 10, color: '#fbbf24', marginLeft: 8 }}>📌</span>}
           </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginBottom: 8 }}>{renderMarkdown(a.body)}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 8 }}>{renderMarkdown(a.body)}</div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>{formatDate(a.created_at)}</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <Btn small variant="ghost" onClick={() => togglePin(a)}>{a.pinned ? 'Unpin' : '📌 Pin'}</Btn>
@@ -1157,7 +1157,7 @@ const AchievementForm = ({ existing, onSave, onBack }) => {
               flex: 1, padding: '9px', borderRadius: 10, cursor: 'pointer',
               background: form.tier === t ? TIER_COLORS[t].bg : 'rgba(255,255,255,0.04)',
               border: `1px solid ${form.tier === t ? TIER_COLORS[t].border : 'rgba(255,255,255,0.08)'}`,
-              color: form.tier === t ? TIER_COLORS[t].color : 'rgba(255,255,255,0.4)',
+              color: form.tier === t ? TIER_COLORS[t].color : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
               textTransform: 'capitalize',
             }}>{t}</button>
@@ -1171,7 +1171,7 @@ const AchievementForm = ({ existing, onSave, onBack }) => {
               flex: 1, padding: '9px', borderRadius: 10, cursor: 'pointer',
               background: String(form.auto_award) === val ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.04)',
               border: `1px solid ${String(form.auto_award) === val ? 'rgba(74,222,128,0.25)' : 'rgba(255,255,255,0.08)'}`,
-              color: String(form.auto_award) === val ? '#4ade80' : 'rgba(255,255,255,0.4)',
+              color: String(form.auto_award) === val ? '#4ade80' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
             }}>{lbl}</button>
           ))}
@@ -1265,10 +1265,10 @@ const AchievementsSection = ({ players, showToast }) => {
       <BackHeader title={`${selected.icon} ${selected.label}`} onBack={() => { setView('list'); setSelected(null); }} />
 
       {/* Manual award */}
-      <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', marginBottom: 20 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Grant to player</div>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '14px', marginBottom: 20 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Grant to player</div>
         <select value={awardingPlayer} onChange={e => setAwardingPlayer(e.target.value)}
-          style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, marginBottom: 8 }}>
+          style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, marginBottom: 8 }}>
           <option value="">Select player...</option>
           {(players || []).filter(p => p.status === 'Active').map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
@@ -1300,7 +1300,7 @@ const AchievementsSection = ({ players, showToast }) => {
             borderRadius: 12, marginBottom: 8,
           }}>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
                 {formatName(award.player?.player_name || 'Unknown')}
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
@@ -1355,8 +1355,8 @@ const AchievementsSection = ({ players, showToast }) => {
                   cursor: 'pointer', fontSize: 11, fontFamily: "'DM Sans', sans-serif",
                 }}>Awards</button>
                 <button onClick={() => { setSelected(a); setView('edit'); }} style={{
-                  padding: '5px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-secondary)',
+                  padding: '5px 8px', borderRadius: 8, background: 'var(--bg-card)',
+                  border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
                   cursor: 'pointer',
                 }}><Edit2 size={12} /></button>
                 <button onClick={() => handleToggleActive(a)} style={{
@@ -1515,7 +1515,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
             padding: '8px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
             background: view === id ? BRAND.primary : 'rgba(255,255,255,0.05)',
             border: `1px solid ${view === id ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
-            color: view === id ? '#4ade80' : 'rgba(255,255,255,0.4)',
+            color: view === id ? '#4ade80' : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
         ))}
@@ -1530,8 +1530,8 @@ const MessagesSection = ({ currentUser, showToast }) => {
               {QUICK_TEMPLATES.map(t => (
                 <button key={t.label} onClick={() => applyTemplate(t)} style={{
                   padding: '6px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(255,255,255,0.6)', fontFamily: "'DM Sans', sans-serif",
+                  background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+                  color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
                 }}>{t.label}</button>
               ))}
             </div>
@@ -1551,8 +1551,8 @@ const MessagesSection = ({ currentUser, showToast }) => {
               rows={6}
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 12,
-                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-                color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
                 resize: 'vertical', lineHeight: 1.5,
               }}
             />
@@ -1566,8 +1566,8 @@ const MessagesSection = ({ currentUser, showToast }) => {
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button onClick={selectAll} style={{ fontSize: 11, color: '#4ade80', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>All</button>
-                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11 }}>·</span>
-                <button onClick={selectNone} style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>None</button>
+                <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>·</span>
+                <button onClick={selectNone} style={{ fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>None</button>
               </div>
             </div>
 
@@ -1601,7 +1601,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
                         {isSelected && <Check size={12} color="#4ade80" />}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{formatName(p.name)}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
                         <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.email}</div>
                       </div>
                     </div>
@@ -1645,7 +1645,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
                         fontSize: 12,
                       }}>{statusIcon[msg.status]}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 3 }}>{msg.subject}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3 }}>{msg.subject}</div>
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                           <span style={{ fontSize: 11, color: statusColor[msg.status] }}>
                             {msg.sent_count} sent{msg.failed_count > 0 ? `, ${msg.failed_count} failed` : ''}
@@ -1658,7 +1658,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
                   </div>
                   {isExpanded && (
                     <div style={{ padding: '0 16px 14px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 10 }}>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 10 }}>
                         {msg.body}
                       </div>
                       <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
@@ -1668,7 +1668,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
                         {(msg.recipient_names || []).map((name, i) => (
                           <span key={i} style={{
                             fontSize: 11, padding: '3px 8px', borderRadius: 8,
-                            background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)',
+                            background: 'var(--bg-card)', color: 'var(--text-secondary)',
                           }}>{name}</span>
                         ))}
                       </div>
@@ -1722,29 +1722,29 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
 
       {/* Header */}
       <div style={{
-        background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`,
+        background: 'var(--bg-header)',
         padding: '52px 20px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--border)',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>⚙️ Admin</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>{activeItem?.label}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{activeItem?.label}</div>
           </div>
           {/* Hamburger menu */}
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {onBack && (
               <button onClick={onBack} style={{
-                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'rgba(255,255,255,0.7)',
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'var(--text-secondary)',
                 fontFamily: "'DM Sans', sans-serif", fontSize: 13, display: 'flex', alignItems: 'center', gap: 4,
               }}>
                 <ChevronLeft size={15} /> Home
               </button>
             )}
             <button onClick={() => setMenuOpen(s => !s)} style={{
-              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'white',
+              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'var(--text-primary)',
               display: 'flex', flexDirection: 'column', gap: 4,
             }}>
               {[0, 1, 2].map(i => <div key={i} style={{ width: 18, height: 2, background: 'white', borderRadius: 1 }} />)}
@@ -1763,7 +1763,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
             zIndex: 100, paddingTop: 60, display: 'flex', flexDirection: 'column',
           }}>
             <div style={{ padding: '0 16px 16px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1 }}>Admin Panel</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Admin Panel</div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>{formatName(currentUser.name)}</div>
             </div>
             {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
@@ -1776,13 +1776,13 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
                   border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
                   fontFamily: "'DM Sans', sans-serif",
                 }}>
-                  <Icon size={18} color={activeSection === id ? BRAND.light : 'rgba(255,255,255,0.4)'} />
+                  <Icon size={18} color={activeSection === id ? BRAND.light : 'var(--text-secondary)'} />
                   <span style={{ flex: 1, fontSize: 14, fontWeight: activeSection === id ? 700 : 500, color: activeSection === id ? BRAND.light : 'rgba(255,255,255,0.7)' }}>
                     {label}
                   </span>
                   {hasBadge && (
                     <span style={{
-                      background: '#f87171', color: 'white', borderRadius: 10,
+                      background: '#f87171', color: 'var(--text-primary)', borderRadius: 10,
                       padding: '1px 7px', fontSize: 11, fontWeight: 800, marginRight: 8,
                     }}>
                       {pendingRequestsCount}
@@ -1828,13 +1828,13 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
 const containerStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
     textarea { font-family: 'DM Sans', sans-serif; }

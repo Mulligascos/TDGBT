@@ -22,15 +22,15 @@ const RoundCard = ({ round, index, course, myScore, isAdmin, onStart, onStatusCh
 
   return (
     <div style={{
-      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-card)', border: '1px solid var(--border)',
       borderRadius: 16, padding: '16px', marginBottom: 10,
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
         <div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
             Round {index + 1}
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 3 }}>
             {formatDate(round.scheduled_date)} · {course?.name || '—'} · {round.total_holes} holes
           </div>
         </div>
@@ -56,7 +56,7 @@ const RoundCard = ({ round, index, course, myScore, isAdmin, onStart, onStatusCh
           width: '100%', padding: '12px', borderRadius: 12,
           background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
           border: '1px solid rgba(74,222,128,0.3)',
-          color: 'white', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+          color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         }}>
           <Play size={15} fill="currentColor" /> Score This Round
@@ -130,7 +130,7 @@ const LeaderboardTable = ({ entries, countRounds, totalRounds }) => {
             }}>
               <div style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? posColors[i] : 'rgba(255,255,255,0.25)', fontFamily: "'Syne', sans-serif" }}>{i + 1}</div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {formatName(entry.player?.name || 'Unknown')}
                 </div>
                 {entry.roundsCounted < entry.roundsPlayed && (
@@ -139,8 +139,8 @@ const LeaderboardTable = ({ entries, countRounds, totalRounds }) => {
                   </div>
                 )}
               </div>
-              <div style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>{entry.roundsPlayed}/{totalRounds}</div>
-              <div style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>{entry.totalStrokes}</div>
+              <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>{entry.roundsPlayed}/{totalRounds}</div>
+              <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>{entry.totalStrokes}</div>
               <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 800, color: vsParColor(entry.totalVsPar), fontFamily: "'Syne', sans-serif" }}>
                 {vsParLabel(entry.totalVsPar)}
               </div>
@@ -148,7 +148,7 @@ const LeaderboardTable = ({ entries, countRounds, totalRounds }) => {
           );
         })}
       </div>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginTop: 10 }}>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', marginTop: 10 }}>
         Best {countRounds} rounds counted · Handicap applied for Juniors
       </div>
     </div>
@@ -168,8 +168,8 @@ const RoundResults = ({ round, roundScores, players, course, onBack }) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingTop: 8 }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 22 }}>‹</button>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>Round Results</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{formatDate(round.scheduled_date)} · {course?.name}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>Round Results</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{formatDate(round.scheduled_date)} · {course?.name}</div>
         </div>
       </div>
       {sorted.length === 0 ? (
@@ -191,7 +191,7 @@ const RoundResults = ({ round, roundScores, players, course, onBack }) => {
                 background: i === 0 ? 'rgba(251,191,36,0.04)' : 'transparent',
               }}>
                 <div style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? ['#fbbf24','rgba(255,255,255,0.5)','#cd7f32'][i] : 'rgba(255,255,255,0.25)', fontFamily: "'Syne', sans-serif" }}>{i + 1}</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>{formatName(player?.name || 'Unknown')}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(player?.name || 'Unknown')}</div>
                 <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>{rs.total_strokes}</div>
                 <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 800, color: vsParColor(rs.vs_par), fontFamily: "'Syne', sans-serif" }}>{vsParLabel(rs.vs_par)}</div>
               </div>
@@ -228,10 +228,10 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
 
   const selectStyle = {
     width: '100%', padding: '12px 14px', borderRadius: 12,
-    background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-    color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
+    background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+    color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
   };
-  const labelStyle = { fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, display: 'block' };
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, display: 'block' };
 
   return (
     <div style={{ padding: '0 20px 20px' }}>
@@ -240,8 +240,8 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
           <ChevronLeft size={22} />
         </button>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>Casual Round</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Score outside a tournament</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>Casual Round</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Score outside a tournament</div>
         </div>
       </div>
 
@@ -287,7 +287,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
               flex: 1, padding: '12px 8px', borderRadius: 12, cursor: 'pointer',
               background: scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.12)' : `rgba(74,222,128,0.12)`) : 'rgba(255,255,255,0.05)',
               border: `1px solid ${scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.35)' : 'rgba(74,222,128,0.35)') : 'rgba(255,255,255,0.1)'}`,
-              color: scoringFormat === fmt ? 'white' : 'rgba(255,255,255,0.4)',
+              color: scoringFormat === fmt ? 'white' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
             }}>
               {label}
@@ -300,7 +300,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
         width: '100%', padding: '15px', borderRadius: 14,
         background: selectedCourse ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
         border: selectedCourse ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.1)',
-        color: 'white', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
+        color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: selectedCourse ? 'pointer' : 'not-allowed',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
       }}>
@@ -354,8 +354,8 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
         borderRadius: 16, padding: '32px 20px', textAlign: 'center', marginTop: 8,
       }}>
         <div style={{ fontSize: 32, marginBottom: 10 }}>🏌️</div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>No active rounds</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 4 }}>Live scores appear here when a round is opened</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)' }}>No active rounds</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Live scores appear here when a round is opened</div>
       </div>
     );
   }
@@ -413,7 +413,7 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 6px #4ade80' }} />
-                  <span style={{ fontSize: 14, fontWeight: 700, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                     LIVE · {course?.name || 'Unknown course'}
                   </span>
                 </div>
@@ -438,12 +438,12 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
                   background: 'rgba(0,0,0,0.2)',
                 }}>
                   {['#', 'Player', 'Thru', 'Stk', '+/-'].map(h => (
-                    <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>{h}</div>
+                    <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>{h}</div>
                   ))}
                 </div>
 
                 {entries.length === 0 ? (
-                  <div style={{ padding: '20px', textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>
+                  <div style={{ padding: '20px', textAlign: 'center', fontSize: 13, color: 'var(--text-muted)' }}>
                     Waiting for scores...
                   </div>
                 ) : (
@@ -469,11 +469,11 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
                         )}
                       </div>
                       {/* Thru */}
-                      <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+                      <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-secondary)' }}>
                         {entry.submitted ? 'F' : entry.holesThru === 0 ? '-' : entry.holesThru}
                       </div>
                       {/* Strokes */}
-                      <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+                      <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-secondary)' }}>
                         {entry.holesThru > 0 ? entry.totalStrokes : '-'}
                       </div>
                       {/* Vs par */}
@@ -710,9 +710,9 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
     <div style={pageStyle}>
       {/* Header */}
       <div style={{
-        background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`,
+        background: 'var(--bg-header)',
         padding: '36px 20px 14px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--border)',
         position: 'relative', overflow: 'hidden',
       }}>
         <LogoWatermark size={110} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
@@ -722,26 +722,26 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
           </div>
           {activeTournament ? (
             <>
-              <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                 {activeTournament.name}
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center' }}>
                 <Badge label={activeTournament.status} color={activeTournament.status === 'active' ? '#4ade80' : '#fbbf24'} />
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                   {activeTournament.format} · {rounds.length} rounds
                 </span>
               </div>
             </>
           ) : (
-            <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
               No active tournament
             </div>
           )}
 
           <button onClick={() => setShowCasualPicker(true)} style={{
             marginTop: 14, padding: '9px 16px', borderRadius: 12,
-            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-            color: 'rgba(255,255,255,0.7)', fontFamily: "'DM Sans', sans-serif",
+            background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.15)',
+            color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
             fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6,
           }}>
             <Play size={13} /> Score a casual round
@@ -766,7 +766,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
               <div style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24' }}>
                 {savedDraft.scoringFormat === 'matchplay' ? '⚔️ Match' : '📊 Round'} in progress
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 1 }}>
                 {savedDraft.courseName || 'Unknown course'} · hole {(savedDraft.currentHole || 0) + 1}
               </div>
             </div>
@@ -776,8 +776,8 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
               fontSize: 12, fontWeight: 800, cursor: 'pointer',
             }}>Resume</button>
             <button onClick={handleDiscardDraft} style={{
-              padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)',
+              padding: '7px 10px', borderRadius: 9, background: 'var(--bg-card)',
+              border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 12, cursor: 'pointer',
             }}>✕</button>
           </div>
@@ -815,7 +815,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
                         style={{
                           width: '100%', marginTop: -4, marginBottom: 14,
                           padding: '8px', borderRadius: '0 0 12px 12px',
-                          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                          background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)',
                           borderTop: 'none', color: 'var(--text-muted)',
                           fontFamily: "'DM Sans', sans-serif", fontSize: 12,
                           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
@@ -835,10 +835,10 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
                       }}>
                         <div style={{ fontSize: 24 }}>📅</div>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)' }}>
                             {scheduledCount} upcoming round{scheduledCount !== 1 ? 's' : ''} scheduled
                           </div>
-                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
                             Details will be revealed when the admin opens each round
                           </div>
                         </div>
@@ -892,7 +892,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
 // ─── SUB-TAB BAR ─────────────────────────────────────────────────────────────
 const SubTabBar = ({ activeTab, setActiveTab, isAdmin }) => (
   <div style={{
-    display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.06)',
+    display: 'flex', borderBottom: '1px solid var(--border)',
     background: 'rgba(0,0,0,0.3)', maxWidth: 520, margin: '0 auto', overflowX: 'auto',
   }}>
     {[
@@ -918,13 +918,13 @@ const SubTabBar = ({ activeTab, setActiveTab, isAdmin }) => (
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
     ::-webkit-scrollbar { display: none; }
