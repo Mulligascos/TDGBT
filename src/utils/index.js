@@ -74,11 +74,17 @@ export const haptic = (style = 'medium') => {
 };
 
 // ─── COLOURS ─────────────────────────────────────────────────────────────────
+// BRAND reads live CSS variables so themes apply instantly across all components
+const getVar = (name, fallback) => {
+  if (typeof document === 'undefined') return fallback;
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+};
 
 export const BRAND = {
-  primary: '#006400',
-  accent: '#228B22',
+  get primary() { return getVar('--brand-primary', '#006400'); },
+  get accent()  { return getVar('--brand-accent',  '#228B22'); },
+  get light()   { return getVar('--brand-light',   '#4ade80'); },
+  get text()    { return getVar('--brand-text',    '#052e0f'); },
   gold: '#D4AF37',
-  light: '#4ade80',
 };
 
