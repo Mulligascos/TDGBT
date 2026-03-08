@@ -697,8 +697,12 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
-  // Keep courses in sync with prop changes
-  useEffect(() => { setCourses(initialCourses || []); }, [initialCourses]);
+  // Stable key so we only re-run effects when the actual set of courses changes
+  const courseIdsKey = (initialCourses || []).map(c => c.id).sort().join(',');
+
+  // Keep courses in sync with prop changes — keyed on ids so new array refs don't trigger a loop
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setCourses(initialCourses || []); }, [courseIdsKey]);
 
   // Load hazard counts and my round counts for all courses
   useEffect(() => {
@@ -733,7 +737,8 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
       setLoading(false);
     };
     loadMeta();
-  }, [initialCourses, currentUser.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseIdsKey, currentUser.id]);
 
   // Course detail view
   if (selectedCourse) {
