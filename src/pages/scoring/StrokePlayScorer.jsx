@@ -5,8 +5,20 @@ import {
   parsToArray, totalPar, calcVsPar, calcAdjustedStrokes,
   vsParLabel, vsParColor, isJunior, applyHandicap,
 } from '../../utils/strokeplay';
-import { ChevronLeft, ChevronRight, Plus, Minus, Check, X, UserPlus, UserMinus, Tag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Minus, Check, X, UserPlus, UserMinus, Tag, MapPin, Target } from 'lucide-react';
 import { resolveBagTagChallenge, persistBagTagChallenge } from '../../utils/bagTags';
+
+
+// ─── CTP HELPERS ─────────────────────────────────────────────────────────────
+const haversineDistance = (lat1, lng1, lat2, lng2) => {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+const fmtDist = (m) => m < 1 ? `${Math.round(m*100)}cm` : m < 10 ? `${m.toFixed(2)}m` : `${m.toFixed(1)}m`;
 
 // ─── DRAFT PERSISTENCE ────────────────────────────────────────────────────────
 const DRAFT_KEY = (roundId, userId) => `tdg-draft-${roundId}-${userId}`;
@@ -597,6 +609,61 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   const [savedCourseId, setSavedCourseId] = useState(null);
   const [resumedFromDraft] = useState(!!existingDraft);
 
+
+  // ─── CTP state ──────────────────────────────────────────────────────────────
+  const [ctpChallenges, setCtpChallenges] = useState([]);
+  const [ctpSheet, setCtpSheet] = useState(false);   // bottom sheet open
+  const [ctpPos, setCtpPos]     = useState(null);    // captured disc GPS
+  const [ctpGpsLoading, setCtpGpsLoading] = useState(false);
+  const [ctpGpsError, setCtpGpsError]     = useState('');
+  const [ctpSubmitting, setCtpSubmitting] = useState(false);
+  const [ctpToast, setCtpToast]           = useState('');
+
+  const showCtpToast = (msg) => { setCtpToast(msg); setTimeout(() => setCtpToast(''), 3500); };
+
+  // Load active CTP challenges for this course
+  React.useEffect(() => {
+    if (!round.course_id) return;
+    supabase.from('ctp_challenges')
+      .select('*')
+      .eq('status', 'active')
+      .eq('course_id', round.course_id)
+      .then(({ data }) => setCtpChallenges(data || []));
+  }, [round.course_id]);
+
+  // Challenge matching current hole (1-indexed)
+  const currentHoleNum = currentHole + (round.starting_hole || 1);
+  const ctpForHole = ctpChallenges.find(c => c.hole === currentHoleNum);
+
+  const captureCtpGps = () => {
+    setCtpGpsLoading(true); setCtpGpsError('');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setCtpGpsLoading(false); setCtpPos({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }); },
+      (err) => { setCtpGpsLoading(false); setCtpGpsError(err.code === 1 ? 'Location permission denied' : 'Could not get location'); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  };
+
+  const submitCtpShot = async () => {
+    if (!ctpPos || !ctpForHole) return;
+    setCtpSubmitting(true);
+    const dist = haversineDistance(ctpForHole.pin_lat, ctpForHole.pin_lng, ctpPos.lat, ctpPos.lng);
+    const { error } = await supabase.from('ctp_entries').upsert({
+      challenge_id: ctpForHole.id,
+      player_id: currentUser.id,
+      player_name: currentUser.name,
+      disc_lat: ctpPos.lat,
+      disc_lng: ctpPos.lng,
+      distance_m: dist,
+      submitted_at: new Date().toISOString(),
+    }, { onConflict: 'challenge_id,player_id' });
+    setCtpSubmitting(false);
+    if (!error) {
+      setCtpSheet(false); setCtpPos(null);
+      showCtpToast(`🎯 CTP recorded! ${fmtDist(dist)} from pin`);
+    }
+  };
+
   const [visitedHoles, setVisitedHoles] = useState(() =>
     existingDraft?.visitedHoles ? new Set(existingDraft.visitedHoles) : new Set([0])
   );
@@ -812,6 +879,22 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             })}
           </div>
         </div>
+
+          {/* CTP indicator */}
+          {ctpForHole && (
+            <button onClick={() => { setCtpSheet(true); setCtpPos(null); setCtpGpsError(''); }} style={{
+              width: '100%', marginTop: 10, padding: '9px 14px',
+              background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)',
+              borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+              fontFamily: "'DM Sans', sans-serif",
+            }}>
+              <Target size={14} color="#fbbf24" />
+              <span style={{ flex: 1, textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#fbbf24' }}>
+                🎯 CTP Challenge active — tap to record your shot
+              </span>
+            </button>
+          )}
+
       </div>
 
       {/* Scores */}
