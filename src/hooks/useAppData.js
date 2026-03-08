@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { normalisePlayer } from './useAuth';
 
-export const useAppData = (currentUser, isAdmin = false) => {
+export const useAppData = (currentUser, isAdmin = false, onCurrentUserUpdated = null) => {
   const [courses, setCourses] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [matches, setMatches] = useState([]);
@@ -43,8 +43,15 @@ export const useAppData = (currentUser, isAdmin = false) => {
         setTournaments(tournamentsRes.value.data);
       if (matchesRes.status === 'fulfilled' && matchesRes.value.data)
         setMatches(matchesRes.value.data);
-      if (playersRes.status === 'fulfilled' && playersRes.value.data)
-        setPlayers(playersRes.value.data.map(normalisePlayer));
+      if (playersRes.status === 'fulfilled' && playersRes.value.data) {
+        const normalised = playersRes.value.data.map(normalisePlayer);
+        setPlayers(normalised);
+        // Sync currentUser with fresh DB data so stale localStorage values (e.g. bagTag) are updated
+        if (currentUser && onCurrentUserUpdated) {
+          const freshMe = normalised.find(p => p.id === currentUser.id);
+          if (freshMe) onCurrentUserUpdated(freshMe);
+        }
+      }
       if (isAdmin && pendingRes?.status === 'fulfilled' && pendingRes.value)
         setPendingRequestsCount(pendingRes.value.count || 0);
 
