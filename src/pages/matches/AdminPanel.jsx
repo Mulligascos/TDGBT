@@ -1459,7 +1459,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
         .map(p => ({ email: p.email, name: formatName(p.name), id: p.id }));
 
       // Call Supabase Edge Function using the built-in invoker
-      const { data: result, error: fnError } = await supabase.functions.invoke('dynamic-action', {
+      const { data: result, error: fnError } = await supabase.functions.invoke('send-club-email', {
         body: {
           subject: subject.trim(),
           body: body.trim(),
