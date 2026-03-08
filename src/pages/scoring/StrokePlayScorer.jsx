@@ -167,7 +167,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
           <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'white', margin: 0 }}>
             Add Player
           </h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
             <X size={22} />
           </button>
         </div>
@@ -192,21 +192,21 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
               placeholder="Search members..."
               style={{
                 width: '100%', padding: '10px 14px', borderRadius: 10, marginBottom: 12,
-                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
                 color: 'white', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none',
                 boxSizing: 'border-box',
               }}
             />
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {available.length === 0 ? (
-                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>
                   No members available
                 </p>
               ) : (
                 available.map(p => (
                   <button key={p.id} onClick={() => { haptic('light'); onAdd(p); onClose(); }} style={{
                     width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+                    background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
                     borderRadius: 12, padding: '12px 16px', marginBottom: 6,
                     color: 'white', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
                   }}>
@@ -233,7 +233,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
               autoFocus
               style={{
                 width: '100%', padding: '12px 14px', borderRadius: 10, marginBottom: 14,
-                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
                 color: 'white', fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -269,7 +269,7 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
   return (
     <div style={{ padding: '0 20px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, paddingTop: 8 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
         <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'white', margin: 0 }}>
@@ -278,12 +278,12 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
       </div>
 
       {/* Leaderboard */}
-      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 20 }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 20 }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Player</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Player</span>
           <div style={{ display: 'flex', gap: 20 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Strokes</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, width: 36, textAlign: 'right' }}>+/-</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Strokes</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, width: 36, textAlign: 'right' }}>+/-</span>
           </div>
         </div>
         {rows.map((row, i) => (
@@ -446,7 +446,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
   const handleSkip = () => onComplete?.();
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #1a0a00 0%, #0a1f0a 60%, #071407 100%)', color: 'white', paddingBottom: 40 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'white', paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #92400e, #d97706)', padding: '52px 20px 24px', borderBottom: '1px solid rgba(251,191,36,0.2)' }}>
         <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
@@ -464,7 +464,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
 
         {/* Scores summary */}
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Scores</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Scores</div>
           {scoredPlayers
             .filter(p => eligible.find(e => e.id === p.id))
             .sort((a, b) => a.vs_par - b.vs_par)
@@ -529,16 +529,16 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
         {/* Tag swap preview */}
         {(effectiveWinner || (isTie && playoffWinnerId)) && effectiveSwaps.length > 0 && (
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
               Tag Changes
             </div>
             {hasSwap ? (
               effectiveSwaps.filter(s => s.tagBefore !== s.tagAfter).map(s => (
-                <div key={s.player.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, marginBottom: 8 }}>
+                <div key={s.player.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, marginBottom: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'white', flex: 1 }}>{formatName(s.player.name)}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 14, fontWeight: 700, color: '#f87171', fontFamily: "'Syne', sans-serif" }}>#{s.tagBefore}</span>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>→</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>→</span>
                     <span style={{ fontSize: 14, fontWeight: 700, color: '#4ade80', fontFamily: "'Syne', sans-serif" }}>#{s.tagAfter}</span>
                   </div>
                 </div>
@@ -850,11 +850,11 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
               <ChevronLeft size={16} />
             </button>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>
                 {course.name}
               </div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
-                Hole {currentHole + round.starting_hole} <span style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.5)' }}>of {totalHoles}</span>
+                Hole {currentHole + round.starting_hole} <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}>of {totalHoles}</span>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -915,7 +915,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           <button onClick={() => setShowAddPlayer(true)} style={{
             flex: 1, padding: '10px', borderRadius: 10,
             background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-            color: 'rgba(255,255,255,0.5)', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+            color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
             <UserPlus size={14} /> Add Player
@@ -935,10 +935,10 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 
         {/* Running totals */}
         <div style={{
-          background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+          background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.06)',
           borderRadius: 12, padding: '10px 14px', marginBottom: 20,
         }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
             Running Totals
           </div>
           {cardPlayers.map(p => {
@@ -1021,7 +1021,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       {ctpSheet && ctpForHole && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
           <div onClick={() => setCtpSheet(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
-          <div style={{ position: 'relative', background: '#0d2b0d', borderRadius: '20px 20px 0 0',
+          <div style={{ position: 'relative', background: 'var(--bg-nav)', borderRadius: '20px 20px 0 0',
             padding: '24px 20px 40px', maxWidth: 520, width: '100%', margin: '0 auto',
             border: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -1031,7 +1031,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
                 </div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Hole {ctpForHole.hole} · Closest to Pin</div>
               </div>
-              <button onClick={() => setCtpSheet(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', color: 'rgba(255,255,255,0.5)' }}>
+              <button onClick={() => setCtpSheet(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', color: 'var(--text-secondary)' }}>
                 <X size={16} />
               </button>
             </div>
@@ -1084,7 +1084,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 130,
 };
 

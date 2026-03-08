@@ -42,9 +42,10 @@ const holeWinner = (p1Strokes, p2Strokes, p1Player, p2Player) => {
 export const calcMatchStatus = (p1Scores, p2Scores, p1Player, p2Player, totalHoles, visitedHoles) => {
   let p1Holes = 0, p2Holes = 0;
   const results = [];
+  // Iterate over all entries including playoff holes (scores may be longer than totalHoles)
+  const len = Math.max(totalHoles, p1Scores.length, p2Scores.length);
 
-  for (let i = 0; i < totalHoles; i++) {
-    // Only score a hole if it has been visited (user has confirmed entry)
+  for (let i = 0; i < len; i++) {
     const visited = visitedHoles ? visitedHoles.has(i) : false;
     if (!visited) { results.push(0); continue; }
     const r = holeWinner(p1Scores[i], p2Scores[i], p1Player, p2Player);
@@ -53,23 +54,44 @@ export const calcMatchStatus = (p1Scores, p2Scores, p1Player, p2Player, totalHol
     else if (r === 2) p2Holes++;
   }
 
+  const regularHolesVisited = [...(visitedHoles || [])].filter(i => i < totalHoles).length;
+  const allRegularPlayed = regularHolesVisited === totalHoles;
+  const playoffHolesVisited = [...(visitedHoles || [])].filter(i => i >= totalHoles);
   const holesPlayed = results.filter(r => r !== 0).length;
-  const holesRemaining = totalHoles - holesPlayed;
+  const holesRemaining = Math.max(0, totalHoles - regularHolesVisited);
   const diff = p1Holes - p2Holes;
   const holesUp = Math.abs(diff);
   const leader = diff > 0 ? 1 : diff < 0 ? 2 : null;
-  const finished = holesPlayed > 0 && (holesUp > holesRemaining || (holesPlayed === totalHoles && holesUp !== 0));
-  const allSquareFinished = holesPlayed === totalHoles && diff === 0;
-  const dormie = !finished && !allSquareFinished && leader !== null && holesUp === holesRemaining && holesPlayed > 0;
+
+  // Match is finished if: lead > holes remaining in regulation, OR a playoff hole was decisive
+  const finishedInRegulation = holesRemaining === 0 && holesUp > 0 && allRegularPlayed;
+  const finishedInPlayoff = playoffHolesVisited.length > 0 && leader !== null &&
+    playoffHolesVisited[playoffHolesVisited.length - 1] === (len - 1) &&
+    results[len - 1] !== 3 && results[len - 1] !== 0;
+  const earlyFinish = holesUp > holesRemaining && holesRemaining >= 0 && regularHolesVisited > 0;
+  const finished = earlyFinish || finishedInRegulation || finishedInPlayoff;
+
+  // All square after regulation = needs playoff
+  const allSquareFinished = allRegularPlayed && diff === 0 && playoffHolesVisited.length === 0;
+  // Halved playoff hole = needs another
+  const playoffHalved = playoffHolesVisited.length > 0 && !finishedInPlayoff && allRegularPlayed;
+
+  const dormie = !finished && !allSquareFinished && leader !== null && holesUp === holesRemaining && regularHolesVisited > 0;
 
   return { p1Holes, p2Holes, holesPlayed, holesRemaining, holesUp, leader, results,
-           finished, allSquareFinished, dormie, winner: finished ? leader : null };
+           finished, allSquareFinished, playoffHalved, dormie,
+           playoffCount: playoffHolesVisited.length,
+           winner: finished ? leader : null };
 };
 
 // "3&2", "1 Up", "All Square", "Dormie 2"
 const matchLabel = (status) => {
   if (status.allSquareFinished) return 'All Square';
-  if (status.finished && status.winner) return `${status.holesUp}&${status.holesRemaining}`;
+  if (status.playoffHalved) return `Playoff hole ${status.playoffCount} — halved`;
+  if (status.finished && status.winner) {
+    if (status.playoffCount > 0) return `Won on playoff hole ${status.playoffCount}`;
+    return `${status.holesUp}&${status.holesRemaining}`;
+  }
   if (status.holesPlayed === 0) return 'Not started';
   if (status.leader === null) return 'All Square';
   if (status.dormie) return `Dormie ${status.holesUp}`;
@@ -98,7 +120,7 @@ const GlobalStyles = () => (
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 
@@ -154,37 +176,41 @@ const StrokeRow = ({ player, score, par, onChange, holeResult, isP1, opponent })
 };
 
 // ─── SCORECARD (horizontal hole-by-hole) ─────────────────────────────────────
-const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHoleClick, startingHole }) => {
+const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHoleClick, startingHole, playoffPar = 3 }) => {
+  // Extend pars to cover any playoff holes
+  const allPars = [...pars];
+  while (allPars.length < Math.max(p1Scores.length, p2Scores.length)) allPars.push(playoffPar);
   const totalHoles = pars.length;
 
-  const ScorecardHalf = ({ from, to, label }) => (
+  const ScorecardHalf = ({ from, to, label, isPlayoff }) => (
     <div style={{ marginBottom: 10 }}>
-      {label && <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4, paddingLeft: 48 }}>{label}</div>}
+      {label && <div style={{ fontSize: 9, fontWeight: 700, color: isPlayoff ? 'rgba(251,191,36,0.5)' : 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4, paddingLeft: 48 }}>{label}</div>}
       <div style={{ display: 'flex', gap: 2 }}>
         {/* Name column */}
         <div style={{ width: 46, flexShrink: 0 }}>
           <div style={{ height: 20, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4 }}>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>Hole</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>Hole</span>
           </div>
           <div style={{ height: 24, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4 }}>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>Par</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>Par</span>
           </div>
           <div style={{ height: 26, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 44 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 44 }}>
               {formatName(p1.name).split(' ')[0]}
             </span>
           </div>
           <div style={{ height: 26, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 44 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 44 }}>
               {formatName(p2.name).split(' ')[0]}
             </span>
           </div>
         </div>
 
         {/* Hole columns */}
-        {pars.slice(from, to).map((par, idx) => {
+        {Array.from({ length: to - from }, (_, idx) => {
           const i = from + idx;
-          const holeNum = i + startingHole;
+          const par = allPars[i] ?? 3;
+          const holeNum = isPlayoff ? `P${i - totalHoles + 1}` : i + startingHole;
           const r = status.results[i] ?? 0;
           const s1 = p1Scores[i];
           const s2 = p2Scores[i];
@@ -257,9 +283,17 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
   );
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '12px 10px', overflowX: 'auto' }}>
-      <ScorecardHalf from={0} to={Math.min(9, totalHoles)} label={totalHoles > 9 ? 'Front 9' : ''} />
-      {totalHoles > 9 && <ScorecardHalf from={9} to={totalHoles} label="Back 9" />}
+    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '12px 10px', overflowX: 'auto' }}>
+      {(() => {
+        const hc = pars.length;
+        return (<>
+          <ScorecardHalf from={0} to={Math.min(9, hc)} label={hc > 9 ? 'Front 9' : ''} />
+          {hc > 9 && <ScorecardHalf from={9} to={hc} label="Back 9" />}
+          {p1Scores.length > hc && (
+            <ScorecardHalf from={hc} to={p1Scores.length} label="Playoff" isPlayoff />
+          )}
+        </>);
+      })()}
     </div>
   );
 };
@@ -273,7 +307,7 @@ const AddPlayerModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
   );
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ width: '100%', maxWidth: 520, margin: '0 auto', background: '#0d2b0d', borderRadius: '20px 20px 0 0', padding: '20px', maxHeight: '70vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: '100%', maxWidth: 520, margin: '0 auto', background: 'var(--bg-nav)', borderRadius: '20px 20px 0 0', padding: '20px', maxHeight: '70vh', display: 'flex', flexDirection: 'column' }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 14 }}>Add Opponent</div>
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." autoFocus
           style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, marginBottom: 12, outline: 'none' }} />
@@ -281,7 +315,7 @@ const AddPlayerModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
           {available.map(p => (
             <button key={p.id} onClick={() => { onAdd(p); onClose(); }} style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px',
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+              background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: 10, marginBottom: 6, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", textAlign: 'left',
             }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: BRAND.primary + '40', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: BRAND.light }}>
@@ -296,9 +330,9 @@ const AddPlayerModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
               </div>
             </button>
           ))}
-          {available.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '20px 0' }}>No players available</div>}
+          {available.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>No players available</div>}
         </div>
-        <button onClick={onClose} style={{ marginTop: 12, padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, cursor: 'pointer' }}>Cancel</button>
+        <button onClick={onClose} style={{ marginTop: 12, padding: '12px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, cursor: 'pointer' }}>Cancel</button>
       </div>
     </div>
   );
@@ -333,7 +367,7 @@ const MPBagTagScreen = ({ p1, p2, winnerPlayer, onComplete, updateUser, currentU
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #1a0a00 0%, #0a1f0a 60%, #071407 100%)', color: 'white', paddingBottom: 40 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'white', paddingBottom: 40 }}>
       <div style={{ background: 'linear-gradient(135deg, #92400e, #d97706)', padding: '52px 20px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: 48, marginBottom: 8 }}>🏷️</div>
         <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800 }}>Bag Tag Challenge!</div>
@@ -353,12 +387,12 @@ const MPBagTagScreen = ({ p1, p2, winnerPlayer, onComplete, updateUser, currentU
               {swap && swap.tagBefore !== swap.tagAfter && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
                   <span style={{ color: '#f87171', fontWeight: 700 }}>#{swap.tagBefore}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.3)' }}>→</span>
+                  <span style={{ color: 'var(--text-muted)' }}>→</span>
                   <span style={{ color: '#4ade80', fontWeight: 700 }}>#{swap.tagAfter}</span>
                 </div>
               )}
               {swap && swap.tagBefore === swap.tagAfter && (
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>#{swap.tagBefore}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>#{swap.tagBefore}</span>
               )}
             </div>
           );
@@ -375,10 +409,10 @@ const MPBagTagScreen = ({ p1, p2, winnerPlayer, onComplete, updateUser, currentU
 };
 
 // ─── MATCH SUMMARY ────────────────────────────────────────────────────────────
-const MatchSummary = ({ p1, p2, p1Scores, p2Scores, pars, status, onConfirm, onBack, submitting, submitError, startingHole }) => (
+const MatchSummary = ({ p1, p2, p1Scores, p2Scores, pars, status, onConfirm, onBack, submitting, submitError, startingHole, onAddPlayoffHole, onSetPlayoffPar, playoffPar }) => (
   <div style={{ maxWidth: 520, margin: '0 auto', padding: '20px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-      <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}><ChevronLeft size={22} /></button>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><ChevronLeft size={22} /></button>
       <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'white' }}>Match Summary</div>
     </div>
 
@@ -389,7 +423,7 @@ const MatchSummary = ({ p1, p2, p1Scores, p2Scores, pars, status, onConfirm, onB
         <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800, color: 'white' }}>All Square</div></>
       ) : status.winner ? (
         <><div style={{ fontSize: 36, marginBottom: 8 }}>🏆</div>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Winner</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Winner</div>
         <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 26, fontWeight: 800, color: '#fbbf24' }}>
           {formatName(status.winner === 1 ? p1.name : p2.name)}
         </div>
@@ -403,7 +437,7 @@ const MatchSummary = ({ p1, p2, p1Scores, p2Scores, pars, status, onConfirm, onB
     {/* Scorecard */}
     <div style={{ marginBottom: 24 }}>
       <Scorecard p1={p1} p2={p2} p1Scores={p1Scores} p2Scores={p2Scores} pars={pars}
-        status={status} currentHole={-1} onHoleClick={() => {}} startingHole={startingHole} />
+        status={status} currentHole={-1} onHoleClick={() => {}} startingHole={startingHole} playoffPar={playoffPar} />
     </div>
 
     {submitError && (
@@ -412,16 +446,56 @@ const MatchSummary = ({ p1, p2, p1Scores, p2Scores, pars, status, onConfirm, onB
       </div>
     )}
 
-    <button onClick={onConfirm} disabled={submitting} style={{
-      width: '100%', padding: '16px', borderRadius: 14,
-      background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-      border: '1px solid rgba(74,222,128,0.3)', color: 'white',
-      fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
-      cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.6 : 1,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    }}>
-      <Check size={18} /> {submitting ? 'Saving...' : 'Submit Result'}
-    </button>
+    {(status.allSquareFinished || status.playoffHalved) ? (
+      <div>
+        <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 14, padding: '16px', marginBottom: 12, textAlign: 'center' }}>
+          <div style={{ fontSize: 22, marginBottom: 6 }}>🤝</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
+            {status.playoffHalved ? `Playoff hole ${status.playoffCount} halved` : 'All Square after 18'}
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+            A winner must be found — add a sudden death playoff hole
+          </div>
+        </div>
+        {onAddPlayoffHole && (
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <div style={{ flex: 1, fontSize: 12, color: 'var(--text-secondary)' }}>Playoff hole par:</div>
+              {[3, 4, 5].map(p => (
+                <button key={p} onClick={() => onSetPlayoffPar(p)} style={{
+                  width: 36, height: 36, borderRadius: 8, border: 'none', cursor: 'pointer',
+                  background: playoffPar === p ? BRAND.primary : 'rgba(255,255,255,0.07)',
+                  color: playoffPar === p ? 'white' : 'rgba(255,255,255,0.4)',
+                  fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+                }}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        <button onClick={onAddPlayoffHole} style={{
+          width: '100%', padding: '16px', borderRadius: 14,
+          background: 'linear-gradient(135deg, #92400e, #d97706)',
+          border: '1px solid rgba(251,191,36,0.3)', color: 'white',
+          fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        }}>
+          ⚡ Play Playoff Hole {(status.playoffCount || 0) + 1}
+        </button>
+      </div>
+    ) : (
+      <button onClick={onConfirm} disabled={submitting} style={{
+        width: '100%', padding: '16px', borderRadius: 14,
+        background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
+        border: '1px solid rgba(74,222,128,0.3)', color: 'white',
+        fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
+        cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.6 : 1,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+      }}>
+        <Check size={18} /> {submitting ? 'Saving...' : 'Submit Result'}
+      </button>
+    )}
   </div>
 );
 
@@ -443,6 +517,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
   const [currentHole, setCurrentHole] = useState(() => existingDraft?.currentHole ?? 0);
   const [visitedHoles, setVisitedHoles] = useState(() => existingDraft?.visitedHoles ? new Set(existingDraft.visitedHoles) : new Set([0]));
   const [view, setView]   = useState(() => existingDraft?.p2 ? 'scoring' : 'setup');
+  const [playoffPar, setPlayoffPar] = useState(() => existingDraft?.playoffPar ?? 3);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [submitting, setSubmitting]   = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -464,7 +539,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
       courseId: round.course_id, courseName: course.name,
       scoringFormat: 'matchplay',
       p1, p2, p1Scores, p2Scores, currentHole,
-      visitedHoles: [...visitedHoles],
+      visitedHoles: [...visitedHoles], playoffPar,
     });
   }, [p1Scores, p2Scores, currentHole, p2, view]); // eslint-disable-line
 
@@ -493,6 +568,16 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
   };
 
   const handleNext = markVisitedAndAdvance;
+
+  const addPlayoffHole = () => {
+    haptic('medium');
+    // Extend score arrays with par as default
+    const nextIdx = Math.max(p1Scores.length, p2Scores.length, totalHoles);
+    setP1Scores(prev => { const n = [...prev]; while (n.length <= nextIdx) n.push(playoffPar); return n; });
+    setP2Scores(prev => { const n = [...prev]; while (n.length <= nextIdx) n.push(playoffPar); return n; });
+    setCurrentHole(nextIdx);
+    setVisitedHoles(prev => new Set([...prev, nextIdx]));
+  };
 
   const handleBack = () => {
     if (currentHole > 0) { haptic('light'); setCurrentHole(h => h - 1); }
@@ -566,7 +651,9 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
           p1Scores={p1Scores} p2Scores={p2Scores} pars={pars} status={status}
           onConfirm={handleSubmit} onBack={() => setView('scoring')}
           submitting={submitting} submitError={submitError}
-          startingHole={round.starting_hole} />
+          startingHole={round.starting_hole}
+          onAddPlayoffHole={() => { addPlayoffHole(); setView('scoring'); }}
+          onSetPlayoffPar={setPlayoffPar} playoffPar={playoffPar} />
         <GlobalStyles />
       </div>
     );
@@ -577,7 +664,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
       <div style={pageStyle}>
         <div style={{ padding: '52px 20px 20px', maxWidth: 520, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-            <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}><ChevronLeft size={22} /></button>
+            <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><ChevronLeft size={22} /></button>
             <div>
               <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'white' }}>Match Play</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{course.name} · {totalHoles} holes</div>
@@ -600,7 +687,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
 
           {/* P2 */}
           {p2 ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, marginBottom: 10 }}>
               <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
                 {p2.name[0].toUpperCase()}
               </div>
@@ -609,12 +696,12 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
                 {isJunior(p2) && <div style={{ fontSize: 11, color: '#60a5fa' }}>Junior (-1 handicap)</div>}
                 {(p2.bagTag ?? p2.bag_tag) && <div style={{ fontSize: 11, color: '#fbbf24' }}>🏷️ #{p2.bagTag ?? p2.bag_tag}</div>}
               </div>
-              <button onClick={() => setP2(null)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer' }}><X size={18} /></button>
+              <button onClick={() => setP2(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={18} /></button>
             </div>
           ) : (
             <button onClick={() => setShowAddPlayer(true)} style={{
               width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              padding: '14px', background: 'rgba(255,255,255,0.04)', border: '2px dashed rgba(255,255,255,0.15)',
+              padding: '14px', background: 'var(--bg-card)', border: '2px dashed rgba(255,255,255,0.15)',
               borderRadius: 14, marginBottom: 10, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.4)', fontSize: 14,
             }}>
               <UserPlus size={18} /> Add Opponent
@@ -668,11 +755,14 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
               <ChevronLeft size={16} />
             </button>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>
                 {course.name} · Match Play
               </div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
-                Hole {holeNum} <span style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.5)' }}>of {totalHoles} · Par {par}</span>
+                {currentHole >= totalHoles
+                  ? <>Playoff {currentHole - totalHoles + 1} <span style={{ fontSize: 13, fontWeight: 400, color: '#fbbf24' }}>sudden death · Par {par}</span></>
+                  : <>Hole {holeNum} <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}>of {totalHoles} · Par {par}</span></>
+                }
               </div>
             </div>
             <button onClick={() => setView('summary')} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '6px 14px', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', fontFamily: "'DM Sans', sans-serif", fontSize: 12 }}>
@@ -714,7 +804,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
       {/* Hole scoring */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '20px 20px 0' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
             Hole {holeNum} Scores
           </div>
           {holeResult === 3 && <span style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700 }}>= Halved</span>}
@@ -746,10 +836,10 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
 
         {/* Scorecard */}
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Scorecard</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Scorecard</div>
           <Scorecard p1={p1} p2={p2} p1Scores={p1Scores} p2Scores={p2Scores} pars={pars}
             status={status} currentHole={currentHole} onHoleClick={i => { haptic('light'); setCurrentHole(i); }}
-            startingHole={round.starting_hole} />
+            startingHole={round.starting_hole} playoffPar={playoffPar} />
         </div>
       </div>
 
@@ -773,8 +863,10 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
             fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
-            {status.finished || currentHole >= totalHoles - 1
+            {status.finished
               ? <><Check size={15} /> Finish Match</>
+              : currentHole >= p1Scores.length - 1
+              ? <><Check size={15} /> View Summary</>
               : <>Next Hole <ChevronRight size={16} /></>
             }
           </button>
