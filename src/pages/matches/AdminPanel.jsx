@@ -1389,19 +1389,33 @@ const QUICK_TEMPLATES = [
   { label: '📅 Round Reminder',subject: 'Club Round This Weekend', body: 'Hi,\n\nJust a reminder that we have a club round this weekend. Head to the app to register your score afterwards.\n\nSee you there!' },
 ];
 
-const MessagesSection = ({ players, currentUser, showToast }) => {
-  const [view, setView]           = useState('compose'); // compose | history
+const MessagesSection = ({ currentUser, showToast }) => {
+  const [view, setView]           = useState('compose');
   const [subject, setSubject]     = useState('');
   const [body, setBody]           = useState('');
-  const [selected, setSelected]   = useState(new Set()); // selected player ids
+  const [selected, setSelected]   = useState(new Set());
   const [search, setSearch]       = useState('');
   const [sending, setSending]     = useState(false);
   const [history, setHistory]     = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [expandedMsg, setExpandedMsg] = useState(null);
+  const [allPlayers, setAllPlayers] = useState([]);
 
-  const activePlayers = (players || []).filter(p => p.status === 'Active' && p.email);
-  const noEmail       = (players || []).filter(p => p.status === 'Active' && !p.email);
+  // Fetch full player list including email (prop players omits email field)
+  useEffect(() => {
+    supabase.from('players')
+      .select('player_id, player_name, player_status, email')
+      .eq('player_status', 'Active')
+      .order('player_name')
+      .then(({ data }) => {
+        setAllPlayers((data || []).map(p => ({
+          id: p.player_id, name: p.player_name, status: p.player_status, email: p.email || '',
+        })));
+      });
+  }, []);
+
+  const activePlayers = allPlayers.filter(p => p.email);
+  const noEmail       = allPlayers.filter(p => !p.email);
 
   const filtered = activePlayers.filter(p =>
     !search || p.name?.toLowerCase().includes(search.toLowerCase())
@@ -1444,25 +1458,16 @@ const MessagesSection = ({ players, currentUser, showToast }) => {
         .filter(p => selected.has(p.id))
         .map(p => ({ email: p.email, name: formatName(p.name), id: p.id }));
 
-      // Call Supabase Edge Function
-      const { data: { session } } = await supabase.auth.getSession();
-      const fnUrl = `${supabase.supabaseUrl}/functions/v1/send-club-email`;
-
-      const res = await fetch(fnUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || supabase.supabaseKey}`,
-          'apikey': supabase.supabaseKey,
-        },
-        body: JSON.stringify({
+      // Call Supabase Edge Function using the built-in invoker
+      const { data: result, error: fnError } = await supabase.functions.invoke('dynamic-action', {
+        body: {
           subject: subject.trim(),
           body: body.trim(),
           recipients: recipients.map(r => ({ email: r.email, name: r.name })),
-        }),
+        },
       });
 
-      const result = await res.json();
+      if (fnError) throw new Error(fnError.message);
       const sent   = result.sent   || 0;
       const failed = result.failed || 0;
 
@@ -1808,7 +1813,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
           <AchievementsSection players={players} showToast={showToast} />
         )}
         {activeSection === 'messages' && (
-          <MessagesSection players={players} currentUser={currentUser} showToast={showToast} />
+          <MessagesSection currentUser={currentUser} showToast={showToast} />
         )}
       </div>
 
