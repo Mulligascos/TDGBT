@@ -142,7 +142,7 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
         }}>
           {/* Section label */}
           <div style={{
-            fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)',
+            fontSize: 10, fontWeight: 700, color: 'var(--text-muted)',
             textTransform: 'uppercase', letterSpacing: 1.5,
             padding: '8px 12px 6px',
           }}>More</div>
@@ -155,10 +155,10 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
                 <button key={id} onClick={() => handleMoreTab(id)} style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
                   gap: 6, padding: '14px 8px',
-                  background: active ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${active ? 'rgba(74,222,128,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                  background: active ? 'rgba(74,222,128,0.1)' : 'var(--text-muted)',
+                  border: `1px solid ${active ? 'rgba(74,222,128,0.25)' : 'var(--text-muted)'}`,
                   borderRadius: 14, cursor: 'pointer',
-                  color: active ? BRAND.light : 'rgba(255,255,255,0.6)',
+                  color: active ? BRAND.light : 'var(--text-secondary)',
                   transition: 'all 0.15s',
                   fontFamily: "'DM Sans', sans-serif",
                 }}>
@@ -175,7 +175,7 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
       <nav style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
         background: 'var(--bg-nav)',
-        borderTop: '1px solid rgba(255,255,255,0.08)',
+        borderTop: '1px solid var(--border)',
         backdropFilter: 'blur(20px)',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}>
@@ -188,7 +188,7 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
                 alignItems: 'center', justifyContent: 'center',
                 gap: 3, padding: '10px 4px',
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: active ? BRAND.light : 'rgba(255,255,255,0.35)',
+                color: active ? BRAND.light : 'var(--text-muted)',
                 transition: 'color 0.2s ease', position: 'relative',
               }}>
                 {active && (
@@ -214,7 +214,7 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
             alignItems: 'center', justifyContent: 'center',
             gap: 3, padding: '10px 4px',
             background: 'none', border: 'none', cursor: 'pointer',
-            color: (moreActive || moreOpen) ? BRAND.light : 'rgba(255,255,255,0.35)',
+            color: (moreActive || moreOpen) ? BRAND.light : 'var(--text-muted)',
             transition: 'color 0.2s ease', position: 'relative',
           }}>
             {(moreActive || moreOpen) && (

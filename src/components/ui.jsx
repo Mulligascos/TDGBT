@@ -107,11 +107,11 @@ export const Badge = ({ label, color = BRAND.light }) => (
 export const EmptyState = ({ icon, title, subtitle }) => (
   <div style={{
     textAlign: 'center', padding: '48px 20px',
-    color: 'rgba(255,255,255,0.3)',
+    color: 'var(--text-muted)',
     fontFamily: "'DM Sans', sans-serif",
   }}>
     {icon && <div style={{ fontSize: 40, marginBottom: 12 }}>{icon}</div>}
-    <p style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>{title}</p>
+    <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{title}</p>
     {subtitle && <p style={{ fontSize: 13 }}>{subtitle}</p>}
   </div>
 );
@@ -125,7 +125,7 @@ export const Button = ({ children, onClick, variant = 'primary', disabled, fullW
       color: 'var(--text-primary)',
     },
     secondary: {
-      background: 'rgba(255,255,255,0.07)',
+      background: 'var(--text-muted)',
       border: '1px solid var(--border-card)',
       color: 'var(--text-primary)',
     },
@@ -137,7 +137,7 @@ export const Button = ({ children, onClick, variant = 'primary', disabled, fullW
     ghost: {
       background: 'transparent',
       border: '1px solid var(--border)',
-      color: 'rgba(255,255,255,0.5)',
+      color: 'var(--text-secondary)',
     },
   };
 
@@ -173,7 +173,7 @@ export const Input = ({ label, ...props }) => (
     )}
     <input style={{
       width: '100%', padding: '13px 16px', borderRadius: 12,
-      background: 'rgba(255,255,255,0.07)',
+      background: 'var(--text-muted)',
       border: '1px solid var(--border-card)',
       color: 'var(--text-primary)', fontSize: 15,
       fontFamily: "'DM Sans', sans-serif",
@@ -195,7 +195,7 @@ export const Select = ({ label, children, ...props }) => (
     )}
     <select style={{
       width: '100%', padding: '13px 16px', borderRadius: 12,
-      background: 'rgba(255,255,255,0.07)',
+      background: 'var(--text-muted)',
       border: '1px solid var(--border-card)',
       color: 'var(--text-primary)', fontSize: 15,
       fontFamily: "'DM Sans', sans-serif",
@@ -220,7 +220,7 @@ export const SectionLabel = ({ children }) => (
 
 // ─── DIVIDER ──────────────────────────────────────────────────────────────────
 export const Divider = () => (
-  <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', margin: '16px 0' }} />
+  <div style={{ height: 1, background: 'var(--text-muted)', margin: '16px 0' }} />
 );
 
 // ─── LOGO WATERMARK ──────────────────────────────────────────────────────────
