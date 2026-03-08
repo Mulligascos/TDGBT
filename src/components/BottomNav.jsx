@@ -134,7 +134,7 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
       }}>
         <div style={{
           background: 'var(--bg-nav)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: '1px solid var(--border-card)',
           borderRadius: 20,
           padding: '8px',
           backdropFilter: 'blur(20px)',

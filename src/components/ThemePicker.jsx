@@ -122,7 +122,7 @@ export const ThemePicker = ({ onThemeChange }) => {
                     {selected && (
                       <div style={{
                         position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'white',
+                        color: 'var(--text-primary)',
                       }}>
                         <Check />
                       </div>

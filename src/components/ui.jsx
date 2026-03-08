@@ -24,7 +24,7 @@ export const Toast = ({ message, type = 'success', onClose }) => {
     }}>
       <div style={{
         background: colors[type] || colors.success,
-        color: 'white', padding: '12px 20px',
+        color: 'var(--text-primary)', padding: '12px 20px',
         borderRadius: 14, display: 'flex', alignItems: 'center',
         gap: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
         maxWidth: 340, fontFamily: "'DM Sans', sans-serif",
@@ -50,7 +50,7 @@ export const PageHeader = ({ title, subtitle, onBack, action }) => (
         position: 'absolute', top: 16, left: 16,
         background: 'rgba(255,255,255,0.15)', border: 'none',
         borderRadius: 10, padding: '6px 10px', cursor: 'pointer',
-        color: 'white', display: 'flex', alignItems: 'center', gap: 4,
+        color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 4,
         fontFamily: "'DM Sans', sans-serif", fontSize: 13,
       }}>
         <ChevronLeft size={16} /> Back
@@ -64,12 +64,12 @@ export const PageHeader = ({ title, subtitle, onBack, action }) => (
     <h1 style={{
       fontFamily: "'Syne', sans-serif",
       fontSize: 28, fontWeight: 800,
-      color: 'white', margin: 0,
+      color: 'var(--text-primary)', margin: 0,
       letterSpacing: -0.5,
     }}>{title}</h1>
     {subtitle && (
       <p style={{
-        color: 'rgba(255,255,255,0.6)',
+        color: 'var(--text-secondary)',
         fontSize: 13, marginTop: 4, fontFamily: "'DM Sans', sans-serif",
       }}>{subtitle}</p>
     )}
@@ -80,7 +80,7 @@ export const PageHeader = ({ title, subtitle, onBack, action }) => (
 export const Card = ({ children, onClick, style = {} }) => (
   <div onClick={onClick} style={{
     background: 'rgba(255,255,255,0.06)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid var(--border-card)',
     borderRadius: 16, overflow: 'hidden',
     cursor: onClick ? 'pointer' : 'default',
     transition: 'all 0.2s ease',
@@ -122,11 +122,11 @@ export const Button = ({ children, onClick, variant = 'primary', disabled, fullW
     primary: {
       background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
       border: `1px solid rgba(74,222,128,0.3)`,
-      color: 'white',
+      color: 'var(--text-primary)',
     },
     secondary: {
       background: 'rgba(255,255,255,0.07)',
-      border: '1px solid rgba(255,255,255,0.12)',
+      border: '1px solid var(--border-card)',
       color: 'rgba(255,255,255,0.8)',
     },
     danger: {
@@ -136,7 +136,7 @@ export const Button = ({ children, onClick, variant = 'primary', disabled, fullW
     },
     ghost: {
       background: 'transparent',
-      border: '1px solid rgba(255,255,255,0.08)',
+      border: '1px solid var(--border)',
       color: 'rgba(255,255,255,0.5)',
     },
   };
@@ -166,7 +166,7 @@ export const Input = ({ label, ...props }) => (
     {label && (
       <label style={{
         display: 'block', fontSize: 11, fontWeight: 700,
-        color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
+        color: 'var(--text-secondary)', textTransform: 'uppercase',
         letterSpacing: 1.5, marginBottom: 8,
         fontFamily: "'DM Sans', sans-serif",
       }}>{label}</label>
@@ -174,8 +174,8 @@ export const Input = ({ label, ...props }) => (
     <input style={{
       width: '100%', padding: '13px 16px', borderRadius: 12,
       background: 'rgba(255,255,255,0.07)',
-      border: '1px solid rgba(255,255,255,0.12)',
-      color: 'white', fontSize: 15,
+      border: '1px solid var(--border-card)',
+      color: 'var(--text-primary)', fontSize: 15,
       fontFamily: "'DM Sans', sans-serif",
       outline: 'none', boxSizing: 'border-box',
     }} {...props} />
@@ -188,7 +188,7 @@ export const Select = ({ label, children, ...props }) => (
     {label && (
       <label style={{
         display: 'block', fontSize: 11, fontWeight: 700,
-        color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
+        color: 'var(--text-secondary)', textTransform: 'uppercase',
         letterSpacing: 1.5, marginBottom: 8,
         fontFamily: "'DM Sans', sans-serif",
       }}>{label}</label>
@@ -196,8 +196,8 @@ export const Select = ({ label, children, ...props }) => (
     <select style={{
       width: '100%', padding: '13px 16px', borderRadius: 12,
       background: 'rgba(255,255,255,0.07)',
-      border: '1px solid rgba(255,255,255,0.12)',
-      color: 'white', fontSize: 15,
+      border: '1px solid var(--border-card)',
+      color: 'var(--text-primary)', fontSize: 15,
       fontFamily: "'DM Sans', sans-serif",
       outline: 'none', appearance: 'none',
       cursor: 'pointer', boxSizing: 'border-box',
@@ -211,7 +211,7 @@ export const Select = ({ label, children, ...props }) => (
 export const SectionLabel = ({ children }) => (
   <div style={{
     fontSize: 11, fontWeight: 700,
-    color: 'rgba(255,255,255,0.35)',
+    color: 'var(--text-muted)',
     textTransform: 'uppercase', letterSpacing: 1.5,
     marginBottom: 10, marginTop: 4,
     fontFamily: "'DM Sans', sans-serif",
@@ -226,7 +226,7 @@ export const Divider = () => (
 // ─── LOGO WATERMARK ──────────────────────────────────────────────────────────
 export const LogoWatermark = ({ size = 80, opacity = 0.08, style = {} }) => (
   <img
-    src="/assets/tdg_logo.gif"
+    src="/assets/tdg_logo.GIF"
     alt=""
     aria-hidden="true"
     style={{
