@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { BRAND, formatName, formatDate  } from '../utils';
 import { Badge, EmptyState, SectionLabel, LogoWatermark } from '../components/ui';
-import { vsParLabel } from '../utils/strokeplay';
+import { vsParLabel, vsParColor } from '../utils/strokeplay';
 import { ChevronLeft, ChevronRight, MapPin, AlertTriangle, Plus, Check, X, Flag } from 'lucide-react';
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -258,6 +258,159 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
   );
 };
 
+// ─── HOLE STATS ───────────────────────────────────────────────────────────────
+const HoleStats = ({ course, currentUser }) => {
+  const [allScores, setAllScores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState('club');
+
+  const pars = parsToArray(course.pars, course.holes || 18);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const { data: rounds } = await supabase
+        .from('rounds').select('id').eq('course_id', course.id).eq('status', 'complete');
+      if (!rounds || rounds.length === 0) { setLoading(false); return; }
+      const roundIds = rounds.map(r => r.id);
+      let query = supabase.from('round_scores').select('player_id, scores').in('round_id', roundIds).not('scores', 'is', null);
+      if (view === 'mine') query = query.eq('player_id', currentUser.id);
+      const { data } = await query;
+      setAllScores(data || []);
+      setLoading(false);
+    };
+    load();
+  }, [course.id, view, currentUser.id]);
+
+  const holeData = pars.map((par, i) => {
+    const holeScores = allScores.map(s => {
+      const arr = Array.isArray(s.scores) ? s.scores : (s.scores ? JSON.parse(s.scores) : []);
+      return arr[i];
+    }).filter(s => s != null && s > 0);
+
+    if (!holeScores.length) return { par, hole: i + 1, count: 0, avg: null, best: null, worst: null, aces: 0, eagles: 0, birdies: 0, parsCount: 0, bogeys: 0, double: 0 };
+    const avg = holeScores.reduce((a, b) => a + b, 0) / holeScores.length;
+    return {
+      par, hole: i + 1, count: holeScores.length,
+      avg, best: Math.min(...holeScores), worst: Math.max(...holeScores),
+      aces:      holeScores.filter(s => s === 1).length,
+      eagles:    holeScores.filter(s => s <= par - 2 && s > 1).length,
+      birdies:   holeScores.filter(s => s === par - 1).length,
+      parsCount: holeScores.filter(s => s === par).length,
+      bogeys:    holeScores.filter(s => s === par + 1).length,
+      double:    holeScores.filter(s => s >= par + 2).length,
+    };
+  });
+
+  const withData = holeData.filter(h => h.avg != null);
+  const hardest    = withData.length ? withData.reduce((a, b) => b.avg - b.par > a.avg - a.par ? b : a) : null;
+  const easiest    = withData.length ? withData.reduce((a, b) => b.avg - b.par < a.avg - a.par ? b : a) : null;
+  const mostBirdied = withData.length ? withData.reduce((a, b) => (b.birdies / b.count) > (a.birdies / a.count) ? b : a) : null;
+  const aceHole    = holeData.find(h => h.aces > 0);
+  const totalRounds = allScores.length;
+
+  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading stats...</div>;
+
+  if (totalRounds === 0) return (
+    <div style={{ textAlign: 'center', padding: '40px 0' }}>
+      <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
+      <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>
+        {view === 'mine' ? "You haven't played this course yet" : 'No completed rounds on this course yet'}
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      {/* Toggle */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
+        {[['club', '🏌️ Club'], ['mine', '👤 Mine']].map(([v, label]) => (
+          <button key={v} onClick={() => setView(v)} style={{
+            padding: '7px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            background: view === v ? BRAND.primary : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${view === v ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+            color: view === v ? '#4ade80' : 'rgba(255,255,255,0.4)',
+            fontFamily: "'DM Sans', sans-serif",
+          }}>{label}</button>
+        ))}
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
+          {totalRounds} round{totalRounds !== 1 ? 's' : ''}
+        </span>
+      </div>
+
+      {/* Summary cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
+        {[
+          { icon: '💀', label: 'Hardest Hole',  value: hardest     ? `Hole ${hardest.hole}`     : '—', sub: hardest     ? `avg ${hardest.avg.toFixed(1)} · par ${hardest.par}`       : '' },
+          { icon: '⭐', label: 'Easiest Hole',  value: easiest     ? `Hole ${easiest.hole}`     : '—', sub: easiest     ? `avg ${easiest.avg.toFixed(1)} · par ${easiest.par}`       : '' },
+          { icon: '🐦', label: 'Most Birdied',  value: mostBirdied ? `Hole ${mostBirdied.hole}` : '—', sub: mostBirdied ? `${Math.round(mostBirdied.birdies / mostBirdied.count * 100)}% birdie rate` : '' },
+          { icon: '🎳', label: 'Ace Recorded',  value: aceHole     ? `Hole ${aceHole.hole}`     : 'None yet', sub: aceHole ? `${aceHole.aces} ace${aceHole.aces !== 1 ? 's' : ''}` : '' },
+        ].map(({ icon, label, value, sub }) => (
+          <div key={label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px' }}>
+            <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{value}</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{label}</div>
+            {sub && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{sub}</div>}
+          </div>
+        ))}
+      </div>
+
+      {/* Per-hole table */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '36px 28px 44px 34px 34px 1fr', gap: 4, padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          {['Hole', 'Par', 'Avg', 'Best', 'Worst', 'Breakdown'].map(h => (
+            <div key={h} style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.8, textAlign: h === 'Breakdown' ? 'left' : 'center' }}>{h}</div>
+          ))}
+        </div>
+        {holeData.map((h, i) => {
+          const avgDiff = h.avg != null ? h.avg - h.par : null;
+          return (
+            <div key={h.hole} style={{
+              display: 'grid', gridTemplateColumns: '36px 28px 44px 34px 34px 1fr',
+              gap: 4, padding: '10px 12px', alignItems: 'center',
+              borderBottom: i < holeData.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+              background: hardest && h.hole === hardest.hole ? 'rgba(248,113,113,0.03)' : easiest && h.hole === easiest.hole ? 'rgba(74,222,128,0.03)' : 'transparent',
+            }}>
+              <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>
+                {h.hole}{h.aces > 0 && '🎳'}{hardest && h.hole === hardest.hole && '💀'}{easiest && h.hole === easiest.hole && '⭐'}
+              </div>
+              <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{h.par}</div>
+              <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 700, color: h.avg != null ? vsParColor(avgDiff) : 'rgba(255,255,255,0.2)', fontFamily: 'Arial, sans-serif' }}>
+                {h.avg != null ? h.avg.toFixed(1) : '—'}
+              </div>
+              <div style={{ textAlign: 'center', fontSize: 12, color: h.best != null ? '#4ade80' : 'rgba(255,255,255,0.2)' }}>{h.best ?? '—'}</div>
+              <div style={{ textAlign: 'center', fontSize: 12, color: h.worst != null ? '#f87171' : 'rgba(255,255,255,0.2)' }}>{h.worst ?? '—'}</div>
+              <div style={{ display: 'flex', height: 14, borderRadius: 4, overflow: 'hidden', gap: 1 }}>
+                {h.count === 0 ? <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', borderRadius: 4 }} /> :
+                  [
+                    { n: h.aces + h.eagles, color: '#a78bfa', label: 'Eagle+' },
+                    { n: h.birdies,         color: '#4ade80', label: 'Birdie' },
+                    { n: h.parsCount,       color: '#fbbf24', label: 'Par' },
+                    { n: h.bogeys,          color: '#fb923c', label: 'Bogey' },
+                    { n: h.double,          color: '#f87171', label: 'Double+' },
+                  ].filter(s => s.n > 0).map(s => (
+                    <div key={s.label} title={`${s.label}: ${s.n}`} style={{ flex: s.n / h.count, background: s.color, minWidth: 2 }} />
+                  ))
+                }
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10, paddingBottom: 8 }}>
+        {[['#a78bfa','Eagle+'],['#4ade80','Birdie'],['#fbbf24','Par'],['#fb923c','Bogey'],['#f87171','Double+']].map(([color, label]) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ─── COURSE DETAIL ────────────────────────────────────────────────────────────
 const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) => {
   const [hazards, setHazards] = useState([]);
@@ -266,6 +419,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState('');
+  const [detailTab, setDetailTab] = useState('info'); // 'info' | 'stats'
 
   const tp = totalPar(course.pars);
 
@@ -347,7 +501,25 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
         </div>
       </div>
 
+      {/* Detail tabs */}
+      <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
+        {[['info', '📋 Info'], ['stats', '📊 Hole Stats']].map(([id, label]) => (
+          <button key={id} onClick={() => setDetailTab(id)} style={{
+            flex: 1, padding: '12px 8px', background: 'none', border: 'none',
+            borderBottom: detailTab === id ? `2px solid ${BRAND.light}` : '2px solid transparent',
+            color: detailTab === id ? BRAND.light : 'rgba(255,255,255,0.35)',
+            fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 700, cursor: 'pointer',
+          }}>{label}</button>
+        ))}
+      </div>
+
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px 0' }}>
+
+        {detailTab === 'stats' && (
+          <HoleStats course={course} currentUser={currentUser} />
+        )}
+
+        {detailTab === 'info' && (<>
 
         {/* Par grid */}
         {course.pars && (
@@ -470,6 +642,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
           })}
         </div>
 
+        </>)}
       </div>
     </div>
   );
