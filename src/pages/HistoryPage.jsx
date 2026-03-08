@@ -33,7 +33,7 @@ const PersonalBests = ({ myScores }) => {
     }}>
       {stats.map(({ label, value, color }) => (
         <div key={label} style={{
-          background: 'rgba(255,255,255,0.04)',
+          background: 'var(--bg-card)',
           border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 14, padding: '14px 10px', textAlign: 'center',
         }}>
@@ -54,7 +54,7 @@ const PersonalBests = ({ myScores }) => {
 const HoleGrid = ({ scores, pars }) => {
   if (!scores || !pars || pars.length === 0) {
     return (
-      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', padding: '8px 0' }}>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '8px 0' }}>
         No hole-by-hole data available
       </div>
     );
@@ -67,15 +67,15 @@ const HoleGrid = ({ scores, pars }) => {
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr>
-            <td style={{ padding: '4px 6px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+            <td style={{ padding: '4px 6px', color: 'var(--text-muted)', fontWeight: 700, whiteSpace: 'nowrap' }}>
               Hole
             </td>
             {pars.map((_, i) => (
-              <td key={i} style={{ padding: '4px 3px', color: 'rgba(255,255,255,0.3)', textAlign: 'center', fontWeight: 700 }}>
+              <td key={i} style={{ padding: '4px 3px', color: 'var(--text-muted)', textAlign: 'center', fontWeight: 700 }}>
                 {i + 1}
               </td>
             ))}
-            <td style={{ padding: '4px 6px', color: 'rgba(255,255,255,0.3)', textAlign: 'right', fontWeight: 700 }}>
+            <td style={{ padding: '4px 6px', color: 'var(--text-muted)', textAlign: 'right', fontWeight: 700 }}>
               Tot
             </td>
           </tr>
@@ -164,7 +164,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.04)',
+      background: 'var(--bg-card)',
       border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: 16, marginBottom: 10, overflow: 'hidden',
     }}>
@@ -188,7 +188,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
           }}>
             {vsParLabel(myVsPar)}
           </div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
             {score.total_strokes}
           </div>
         </div>
@@ -205,7 +205,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
             )}
           </div>
           {others.length > 0 && (
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 3 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>
               with {others.slice(0, 3).map(o => formatName(o.name)).join(', ')}
               {others.length > 3 && ` +${others.length - 3}`}
             </div>
@@ -213,7 +213,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
         </div>
 
         {/* Expand toggle */}
-        <div style={{ color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>
+        <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
           {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
       </div>
@@ -228,7 +228,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
           {pars.length > 0 && holeScores.length > 0 ? (
             <HoleGrid scores={holeScores} pars={pars} />
           ) : (
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', padding: '4px 0' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '4px 0' }}>
               No hole-by-hole data for this round
             </div>
           )}
@@ -243,11 +243,11 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
                 }}>
                   {/* Player header */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
                       {formatName(o.name)}
                     </div>
                     <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>{o.total_strokes} strokes</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{o.total_strokes} strokes</span>
                       <span style={{ fontSize: 13, fontWeight: 800, color: vsParColor(o.vs_par), fontFamily: "'Syne', sans-serif" }}>
                         {vsParLabel(o.vs_par)}
                       </span>
@@ -277,21 +277,21 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
       {/* Search + toggle */}
       <div style={{ display: 'flex', gap: 8, marginBottom: showFilters ? 10 : 0 }}>
         <div style={{ flex: 1, position: 'relative' }}>
-          <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
+          <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <select
             value={playerFilter}
             onChange={e => setPlayerFilter(e.target.value)}
             style={{
               width: '100%', padding: '11px 12px 11px 34px', borderRadius: 12,
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
               color: playerFilter ? 'white' : 'rgba(255,255,255,0.4)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
               appearance: 'none',
             }}
           >
-            <option value="" style={{ background: '#0d2b0d', color: 'rgba(255,255,255,0.5)' }}>Filter by player...</option>
+            <option value="" style={{ background: 'var(--bg-nav)', color: 'var(--text-secondary)' }}>Filter by player...</option>
             {allPlayers.map(p => (
-              <option key={p.id} value={p.id} style={{ background: '#0d2b0d', color: 'white' }}>
+              <option key={p.id} value={p.id} style={{ background: 'var(--bg-nav)', color: 'white' }}>
                 {formatName(p.name)}
               </option>
             ))}
@@ -327,28 +327,28 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
       {showFilters && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>From</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>From</div>
             <input
               type="date"
               value={dateFrom}
               onChange={e => setDateFrom(e.target.value)}
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 10,
-                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
                 color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
                 colorScheme: 'dark',
               }}
             />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>To</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>To</div>
             <input
               type="date"
               value={dateTo}
               onChange={e => setDateTo(e.target.value)}
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 10,
-                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
                 color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
                 colorScheme: 'dark',
               }}
@@ -408,16 +408,16 @@ const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose 
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: 18, padding: '18px 16px', marginBottom: 24,
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <button onClick={prevMonth} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>‹</button>
+        <button onClick={prevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>‹</button>
         <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 800, color: 'white' }}>
           {monthNames[viewMonth]} {viewYear}
         </div>
-        <button onClick={nextMonth} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>›</button>
+        <button onClick={nextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>›</button>
       </div>
 
       {/* Day headers */}
@@ -493,7 +493,7 @@ const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose 
         ].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <div style={{ width: 10, height: 10, borderRadius: 3, background: color }} />
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</span>
           </div>
         ))}
       </div>
@@ -630,7 +630,7 @@ export const HistoryPage = ({ currentUser, players }) => {
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px 0' }}>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.3)' }}>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
             Loading history...
           </div>
         ) : myScores.length === 0 ? (
@@ -668,7 +668,7 @@ export const HistoryPage = ({ currentUser, players }) => {
 
             {/* Results count */}
             {hasFilters && (
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 14 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14 }}>
                 {filteredScores.length} round{filteredScores.length !== 1 ? 's' : ''} found
               </div>
             )}
@@ -706,7 +706,7 @@ export const HistoryPage = ({ currentUser, players }) => {
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 

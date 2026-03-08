@@ -4,7 +4,7 @@ import { BRAND } from '../utils';
 // ─── SHARED STYLES ────────────────────────────────────────────────────────────
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif",
   color: 'white',
   paddingBottom: 90,

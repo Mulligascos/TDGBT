@@ -6,7 +6,7 @@ import { vsParLabel, vsParColor } from '../utils/strokeplay';
 import { Tag, ChevronLeft, Trophy } from 'lucide-react';
 
 const SectionTitle = ({ children }) => (
-  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
+  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
     {children}
   </div>
 );
@@ -18,7 +18,7 @@ const LeaderboardTab = ({ players, currentUserId }) => {
     .sort((a, b) => a.bagTag - b.bagTag);
 
   if (tagged.length === 0) {
-    return <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)' }}>No bag tags assigned yet</div>;
+    return <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>No bag tags assigned yet</div>;
   }
 
   return (
@@ -34,7 +34,7 @@ const LeaderboardTab = ({ players, currentUserId }) => {
             borderRadius: 14,
           }}>
             {/* Rank */}
-            <div style={{ width: 28, textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+            <div style={{ width: 28, textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', fontWeight: 600 }}>
               {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}
             </div>
 
@@ -94,8 +94,8 @@ const HistoryTab = ({ currentUserId }) => {
     load();
   }, []);
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)' }}>Loading...</div>;
-  if (challenges.length === 0) return <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)' }}>No challenges recorded yet</div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>Loading...</div>;
+  if (challenges.length === 0) return <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>No challenges recorded yet</div>;
 
   return (
     <div>
@@ -143,11 +143,11 @@ const HistoryTab = ({ currentUserId }) => {
                   {tagChanged ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
                       <span style={{ color: '#f87171', fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>#{p.tag_before}</span>
-                      <span style={{ color: 'rgba(255,255,255,0.3)' }}>→</span>
+                      <span style={{ color: 'var(--text-muted)' }}>→</span>
                       <span style={{ color: '#4ade80', fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>#{p.tag_after}</span>
                     </div>
                   ) : (
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', fontFamily: "'Syne', sans-serif" }}>#{p.tag_before}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>#{p.tag_before}</div>
                   )}
                 </div>
               );
@@ -198,22 +198,22 @@ const MyTagTab = ({ currentUser }) => {
             <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 64, fontWeight: 800, color: '#fbbf24', lineHeight: 1 }}>
               #{currentTag}
             </div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 8 }}>Your current bag tag</div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 8 }}>Your current bag tag</div>
           </>
         ) : (
           <>
             <Tag size={28} color="rgba(255,255,255,0.2)" style={{ marginBottom: 8 }} />
             <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>No bag tag yet</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Win a challenge to earn one</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Win a challenge to earn one</div>
           </>
         )}
       </div>
 
       {/* Tag history */}
       <SectionTitle>Tag History</SectionTitle>
-      {loading && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Loading...</div>}
+      {loading && <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Loading...</div>}
       {!loading && history.length === 0 && (
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', padding: '8px 0' }}>No challenges played yet</div>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '8px 0' }}>No challenges played yet</div>
       )}
       {history.map((entry, i) => {
         const c = entry.bag_tag_challenges;
@@ -239,11 +239,11 @@ const MyTagTab = ({ currentUser }) => {
               {tagChanged ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
                   <span style={{ color: '#f87171', fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>#{entry.tag_before}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10 }}>→</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>→</span>
                   <span style={{ color: '#4ade80', fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>#{entry.tag_after}</span>
                 </div>
               ) : (
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', fontFamily: "'Syne', sans-serif" }}>#{entry.tag_before}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>#{entry.tag_before}</div>
               )}
             </div>
           </div>
@@ -310,7 +310,7 @@ export const BagTagsPage = ({ currentUser, players }) => {
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #1a0a00 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 

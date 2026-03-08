@@ -7,7 +7,7 @@ import { ChevronLeft, Plus, Check, X, Search } from 'lucide-react';
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 
@@ -16,7 +16,7 @@ const POPULAR_BRANDS = ['Innova', 'Discraft', 'Dynamic Discs', 'Latitude 64', 'W
 
 const inputStyle = {
   width: '100%', padding: '11px 14px', borderRadius: 12,
-  background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+  background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
   color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
 };
 
@@ -54,7 +54,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: 16, marginBottom: 10, overflow: 'hidden',
       opacity: disc.status === 'claimed' ? 0.6 : 1,
     }}>
@@ -84,7 +84,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
               ? `Lost near hole ${disc.hole} · ${formatDate(disc.found_date)}`
               : `Hole ${disc.hole} · ${formatDate(disc.found_date)}`}
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
             {disc.type === 'lost'
               ? `Reported missing by ${formatName(disc.finder_name || 'Unknown')}`
               : `Found by ${formatName(disc.finder_name || 'Unknown')}`}
@@ -115,7 +115,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
                 padding: '5px 10px', borderRadius: 8,
                 background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
               }}>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginTop: 1 }}>{value}</div>
               </div>
             ))}
@@ -175,7 +175,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
           )}
 
           {disc.status === 'claimed' && (
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>
               {disc.type === 'lost' ? 'Disc was found and returned 🎉' : 'Reunited with its owner 🎉'}
             </div>
           )}
@@ -233,7 +233,7 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ width: '100%', maxWidth: 520, margin: '0 auto', background: '#0d2b0d', borderRadius: '20px 20px 0 0', padding: '20px 20px 32px', maxHeight: '85vh', overflowY: 'auto' }}>
+      <div style={{ width: '100%', maxWidth: 520, margin: '0 auto', background: 'var(--bg-nav)', borderRadius: '20px 20px 0 0', padding: '20px 20px 32px', maxHeight: '85vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
           <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'white' }}>Report Found Disc</div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}><X size={20} /></button>
@@ -529,7 +529,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
 
         {/* Search */}
         <div style={{ position: 'relative', marginBottom: 10 }}>
-          <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
+          <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search brand, colour, course..."
@@ -578,7 +578,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
 
         {/* Content */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.3)' }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>Loading...</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon="🥏"

@@ -28,7 +28,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
       {/* Logo area */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <img
-          src="/assets/tdg_logo.gif"
+          src="/assets/tdg_logo.GIF"
           alt="Timaru Disc Golf Club"
           style={{
             width: 120, height: 120,
@@ -76,7 +76,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
                 required
                 style={{
                   width: '100%', padding: '13px 16px', borderRadius: 12,
-                  background: 'rgba(255,255,255,0.07)',
+                  background: 'var(--bg-input)',
                   border: '1px solid rgba(255,255,255,0.12)',
                   color: selectedName ? 'white' : 'rgba(255,255,255,0.3)',
                   fontSize: 15, fontFamily: "'DM Sans', sans-serif",
@@ -84,9 +84,9 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
                   boxSizing: 'border-box', 
                 }}
               >
-                <option value="" style={{ background: '#0d2b0d' }}>Choose your name...</option>
+                <option value="" style={{ background: 'var(--bg-nav)' }}>Choose your name...</option>
                 {players.map(p => (
-                  <option key={p.id} value={p.name} style={{ background: '#0d2b0d' }}>
+                  <option key={p.id} value={p.name} style={{ background: 'var(--bg-nav)' }}>
                     {p.name}
                   </option>
                 ))}
@@ -111,7 +111,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
               required
               style={{
                 width: '100%', padding: '13px 16px', borderRadius: 12,
-                background: 'rgba(255,255,255,0.07)',
+                background: 'var(--bg-input)',
                 border: loginError
                   ? '1px solid rgba(248,113,113,0.5)'
                   : '1px solid rgba(255,255,255,0.12)',

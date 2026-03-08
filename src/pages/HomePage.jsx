@@ -46,7 +46,7 @@ const renderMarkdown = (text) => {
 
 const SectionTitle = ({ children, action }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
       {children}
     </div>
     {action}
@@ -71,7 +71,7 @@ const QuickAction = ({ icon: Icon, label, onClick, accent = false }) => (
 const Top3 = ({ entries, currentUserId, onViewAll }) => {
   const medals = ['🥇', '🥈', '🥉'];
   return (
-    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
       {entries.map((entry, i) => {
         const isMe = entry.playerId === currentUserId;
         return (
@@ -87,7 +87,7 @@ const Top3 = ({ entries, currentUserId, onViewAll }) => {
                 {formatName(entry.player?.name || 'Unknown')}
                 {isMe && <span style={{ fontSize: 11, color: BRAND.light, marginLeft: 6 }}>you</span>}
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
                 {entry.roundsPlayed} round{entry.roundsPlayed !== 1 ? 's' : ''}
               </div>
             </div>
@@ -98,7 +98,7 @@ const Top3 = ({ entries, currentUserId, onViewAll }) => {
         );
       })}
       <button onClick={onViewAll} style={{
-        width: '100%', padding: '11px', background: 'rgba(255,255,255,0.03)',
+        width: '100%', padding: '11px', background: 'var(--bg-card)',
         border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)',
         color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif",
         fontSize: 13, cursor: 'pointer',
@@ -111,7 +111,7 @@ const Top3 = ({ entries, currentUserId, onViewAll }) => {
 
 // ─── MY RECENT SCORES ─────────────────────────────────────────────────────────
 const RecentScores = ({ scores, onViewAll }) => (
-  <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
+  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
     {scores.map((s, i) => (
       <div key={s.id} style={{
         display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
@@ -125,7 +125,7 @@ const RecentScores = ({ scores, onViewAll }) => (
           <div style={{ fontSize: 16, fontWeight: 700, color: vsParColor(s.vs_par), fontFamily: "Arial, sans-serif", lineHeight: 1 }}>
             {vsParLabel(s.vs_par)}
           </div>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{s.total_strokes}</div>
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 1 }}>{s.total_strokes}</div>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -136,7 +136,7 @@ const RecentScores = ({ scores, onViewAll }) => (
       </div>
     ))}
     <button onClick={onViewAll} style={{
-      width: '100%', padding: '11px', background: 'rgba(255,255,255,0.03)',
+      width: '100%', padding: '11px', background: 'var(--bg-card)',
       border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)',
       color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif",
       fontSize: 13, cursor: 'pointer',
@@ -149,7 +149,7 @@ const RecentScores = ({ scores, onViewAll }) => (
 // ─── ANNOUNCEMENT CARD ────────────────────────────────────────────────────────
 const AnnouncementCard = ({ announcement }) => (
   <div style={{
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+    background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: 14, padding: '14px 16px', marginBottom: 8,
   }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
@@ -159,7 +159,7 @@ const AnnouncementCard = ({ announcement }) => (
       )}
     </div>
     <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>{renderMarkdown(announcement.body)}</div>
-    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>
+    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8 }}>
       {formatDate(announcement.created_at)}
     </div>
   </div>
@@ -168,7 +168,7 @@ const AnnouncementCard = ({ announcement }) => (
 // ─── NO TOURNAMENT STATE ──────────────────────────────────────────────────────
 const NoTournamentBanner = ({ onScore }) => (
   <div style={{
-    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+    background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
     borderRadius: 12, padding: '12px 16px', marginBottom: 18,
     display: 'flex', alignItems: 'center', gap: 12,
   }}>
@@ -278,7 +278,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{greeting}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>{greeting}</div>
               <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800, color: 'white', letterSpacing: -0.5, marginBottom: 10 }}>
                 {formatName(currentUser.name)} 👋
               </div>
@@ -394,7 +394,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
           <div style={{ marginBottom: 28 }}>
             <SectionTitle
               action={
-                <button onClick={() => onNavigate('history')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 12, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
+                <button onClick={() => onNavigate('history')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
                   See all
                 </button>
               }
@@ -410,7 +410,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
           <div style={{ marginBottom: 28 }}>
             <SectionTitle>My Recent Scores</SectionTitle>
             <div style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+              background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: 14, padding: '20px', textAlign: 'center',
             }}>
               <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
@@ -443,7 +443,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 

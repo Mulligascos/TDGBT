@@ -6,7 +6,7 @@ import { MapPin, Plus, Check, X, Target, ChevronLeft, Trash2, Lock } from 'lucid
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 
@@ -29,7 +29,7 @@ const formatDistance = (m) => {
 const Inp = ({ style, ...props }) => (
   <input style={{
     width: '100%', padding: '10px 12px', borderRadius: 12,
-    background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+    background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
     color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
     outline: 'none', ...style,
   }} {...props} />
@@ -93,7 +93,7 @@ const GpsButton = ({ label, onCapture, captured, hint }) => {
           {captured ? (
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{hint}</div>
           ) : (
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Tap to capture your GPS position</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>Tap to capture your GPS position</div>
           )}
         </div>
       </button>
@@ -160,9 +160,9 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Course</div>
-            <select value={courseId} onChange={e => setCourseId(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>
+            <select value={courseId} onChange={e => setCourseId(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>
               <option value="">Any</option>
-              {courses.map(c => <option key={c.id} value={c.id} style={{ background: '#0d2b0d' }}>{c.name}</option>)}
+              {courses.map(c => <option key={c.id} value={c.id} style={{ background: 'var(--bg-nav)' }}>{c.name}</option>)}
             </select>
           </div>
           <div>
@@ -178,7 +178,7 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
         {/* Pin position capture */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Pin Position *</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 10, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.5 }}>
             📍 Stand at the basket and tap the button below to record the pin's GPS position.
           </div>
           <GpsButton
@@ -283,14 +283,14 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
                 {challenge.hole && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Hole {challenge.hole}</span>}
                 <span style={{ fontSize: 12, color: isClosed ? '#f87171' : '#4ade80', fontWeight: 700 }}>{isClosed ? '🔒 Closed' : '🟢 Active'}</span>
               </div>
-              {challenge.description && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>{challenge.description}</div>}
+              {challenge.description && <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>{challenge.description}</div>}
             </div>
             {myRank && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 14px', textAlign: 'center', flexShrink: 0 }}>
                 <div style={{ fontSize: 22, fontWeight: 800, color: myRank === 1 ? '#fbbf24' : BRAND.light, fontFamily: "'Syne', sans-serif" }}>
                   {myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : `#${myRank}`}
                 </div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Your Rank</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Your Rank</div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: BRAND.light, marginTop: 2 }}>{formatDistance(myEntry.distance_m)}</div>
               </div>
             )}
@@ -302,8 +302,8 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
 
         {/* Submit section */}
         {!isClosed && (
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px', marginBottom: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px', marginBottom: 24 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
               {myEntry ? '🔄 Update My Shot' : '📍 Record My Shot'}
             </div>
             {myEntry && (
@@ -311,7 +311,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
                 Current: <strong>{formatDistance(myEntry.distance_m)}</strong> from pin — rank #{myRank}
               </div>
             )}
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 12, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
               🥏 Throw your disc, walk to where it landed, then tap below.
             </div>
             <GpsButton
@@ -336,16 +336,16 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
         )}
 
         {/* Leaderboard */}
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
           Leaderboard · {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: 13 }}>Loading...</div>
         ) : entries.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px 0' }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>🎯</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>No entries yet — be the first!</div>
+            <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>No entries yet — be the first!</div>
           </div>
         ) : (
           entries.map((entry, i) => {
@@ -358,7 +358,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
                 border: `1px solid ${isMe ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.07)'}`,
                 borderRadius: 14,
               }}>
-                <div style={{ width: 28, textAlign: 'center', fontSize: i < 3 ? 20 : 13, color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>
+                <div style={{ width: 28, textAlign: 'center', fontSize: i < 3 ? 20 : 13, color: 'var(--text-muted)', fontWeight: 700 }}>
                   {medal || `${i + 1}`}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -366,13 +366,13 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
                     {formatName(entry.player_name)}
                     {isMe && <span style={{ fontSize: 11, color: BRAND.light, marginLeft: 6 }}>you</span>}
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{formatDate(entry.submitted_at)}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{formatDate(entry.submitted_at)}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: i === 0 ? '#fbbf24' : isMe ? BRAND.light : 'white', fontFamily: "'Syne', sans-serif" }}>
                     {formatDistance(entry.distance_m)}
                   </div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>from pin</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>from pin</div>
                 </div>
               </div>
             );
@@ -382,7 +382,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
         {/* Admin controls */}
         {isAdmin && (
           <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Admin</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Admin</div>
             <div style={{ display: 'flex', gap: 8 }}>
               {!isClosed && (
                 <Btn onClick={handleClose} variant="ghost" style={{ flex: 1 }}>
@@ -495,12 +495,12 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)', fontSize: 13 }}>Loading...</div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 6 }}>No challenges yet</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
               {isAdmin ? 'Tap + New to create the first CTP challenge' : 'Check back when an admin creates a challenge'}
             </div>
           </div>
@@ -510,7 +510,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
             const entryCount = c.entry_count?.[0]?.count || 0;
             return (
               <div key={c.id} onClick={() => { setSelected(c); setView('detail'); }} style={{
-                background: 'rgba(255,255,255,0.04)', border: `1px solid ${closed ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.1)'}`,
+                background: 'var(--bg-card)', border: `1px solid ${closed ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.1)'}`,
                 borderRadius: 16, padding: '16px', marginBottom: 10, cursor: 'pointer',
                 opacity: closed ? 0.7 : 1,
               }}>
@@ -530,7 +530,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <div style={{ fontSize: 20, fontWeight: 800, color: BRAND.light, fontFamily: "'Syne', sans-serif" }}>{entryCount}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>entries</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>entries</div>
                   </div>
                 </div>
               </div>

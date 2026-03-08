@@ -20,7 +20,7 @@ const parsToArray = (pars, holes = 18) => {
 
 // ─── SECTION TITLE ────────────────────────────────────────────────────────────
 const SectionTitle = ({ children }) => (
-  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
+  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
     {children}
   </div>
 );
@@ -35,12 +35,12 @@ const ParGrid = ({ pars, holes }) => {
   const HalfGrid = ({ arr, startHole, label }) => (
     <div style={{ marginBottom: hasBoth ? 12 : 0 }}>
       {hasBoth && (
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>
+        <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>
       )}
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${arr.length}, 1fr)`, gap: 4 }}>
         {arr.map((par, i) => (
           <div key={i} style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', marginBottom: 3 }}>{startHole + i}</div>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>{startHole + i}</div>
             <div style={{
               height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: par === 3 ? 'rgba(74,222,128,0.1)' : par === 4 ? 'rgba(251,191,36,0.1)' : 'rgba(248,113,113,0.1)',
@@ -54,7 +54,7 @@ const ParGrid = ({ pars, holes }) => {
           </div>
         ))}
       </div>
-      <div style={{ textAlign: 'right', fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 5 }}>
+      <div style={{ textAlign: 'right', fontSize: 11, color: 'var(--text-muted)', marginTop: 5 }}>
         Par {arr.reduce((a, b) => a + b, 0)}
       </div>
     </div>
@@ -81,7 +81,7 @@ const HazardCard = ({ hazard, isAdmin, onClear }) => (
         <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', marginBottom: 3 }}>Hole {hazard.hole}</div>
       )}
       <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>{hazard.description}</div>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
         Reported {formatDate(hazard.reported_at)}
       </div>
     </div>
@@ -122,31 +122,31 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
   };
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
       <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 14 }}>Report Temporary Hazard</div>
       <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 10, marginBottom: 12 }}>
         <div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole</div>
           <select value={hole} onChange={e => setHole(e.target.value)} style={{
             width: '100%', padding: '10px 8px', borderRadius: 10,
-            background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+            background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
             color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
           }}>
-            <option value="" style={{ background: '#0d2b0d' }}>Any</option>
+            <option value="" style={{ background: 'var(--bg-nav)' }}>Any</option>
             {Array.from({ length: holes }, (_, i) => (
-              <option key={i + 1} value={i + 1} style={{ background: '#0d2b0d' }}>{i + 1}</option>
+              <option key={i + 1} value={i + 1} style={{ background: 'var(--bg-nav)' }}>{i + 1}</option>
             ))}
           </select>
         </div>
         <div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Description</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Description</div>
           <input
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="e.g. Basket moved 10m left"
             style={{
               width: '100%', padding: '10px 12px', borderRadius: 10,
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
               color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
               boxSizing: 'border-box',
             }}
@@ -161,7 +161,7 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: '10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)',
+          border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-secondary)',
           fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
         }}>Cancel</button>
         <button onClick={handleSave} disabled={saving || !description.trim()} style={{
@@ -210,26 +210,26 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
   const inputStyle = {
     width: '100%', padding: '11px 12px', borderRadius: 10,
-    background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+    background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
     color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
     boxSizing: 'border-box', marginBottom: 10,
   };
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
       <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 14 }}>
         {courseName ? `Request Change — ${courseName}` : 'Request New Course'}
       </div>
 
-      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Type</div>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Type</div>
       <select value={form.request_type} onChange={e => f('request_type', e.target.value)} style={{ ...inputStyle }}>
-        {types.map(t => <option key={t.value} value={t.value} style={{ background: '#0d2b0d' }}>{t.label}</option>)}
+        {types.map(t => <option key={t.value} value={t.value} style={{ background: 'var(--bg-nav)' }}>{t.label}</option>)}
       </select>
 
-      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Title</div>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Title</div>
       <input value={form.title} onChange={e => f('title', e.target.value)} placeholder="Short summary" style={inputStyle} />
 
-      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Details</div>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Details</div>
       <textarea value={form.description} onChange={e => f('description', e.target.value)} placeholder="Describe the change or addition..." rows={3} style={{
         ...inputStyle, resize: 'vertical', lineHeight: 1.5,
       }} />
@@ -242,7 +242,7 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
       <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: '10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)',
+          border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-secondary)',
           fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
         }}>Cancel</button>
         <button onClick={handleSave} disabled={saving || !form.title.trim() || !form.description.trim()} style={{
@@ -309,12 +309,12 @@ const HoleStats = ({ course, currentUser }) => {
   const aceHole    = holeData.find(h => h.aces > 0);
   const totalRounds = allScores.length;
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading stats...</div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)', fontSize: 13 }}>Loading stats...</div>;
 
   if (totalRounds === 0) return (
     <div style={{ textAlign: 'center', padding: '40px 0' }}>
       <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-      <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>
+      <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>
         {view === 'mine' ? "You haven't played this course yet" : 'No completed rounds on this course yet'}
       </div>
     </div>
@@ -346,20 +346,20 @@ const HoleStats = ({ course, currentUser }) => {
           { icon: '🐦', label: 'Most Birdied',  value: mostBirdied ? `Hole ${mostBirdied.hole}` : '—', sub: mostBirdied ? `${Math.round(mostBirdied.birdies / mostBirdied.count * 100)}% birdie rate` : '' },
           { icon: '🎳', label: 'Ace Recorded',  value: aceHole     ? `Hole ${aceHole.hole}`     : 'None yet', sub: aceHole ? `${aceHole.aces} ace${aceHole.aces !== 1 ? 's' : ''}` : '' },
         ].map(({ icon, label, value, sub }) => (
-          <div key={label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px' }}>
+          <div key={label} style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px' }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{value}</div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{label}</div>
-            {sub && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{sub}</div>}
+            {sub && <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{sub}</div>}
           </div>
         ))}
       </div>
 
       {/* Per-hole table */}
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, overflow: 'hidden' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '36px 28px 44px 34px 34px 1fr', gap: 4, padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           {['Hole', 'Par', 'Avg', 'Best', 'Worst', 'Breakdown'].map(h => (
-            <div key={h} style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.8, textAlign: h === 'Breakdown' ? 'left' : 'center' }}>{h}</div>
+            <div key={h} style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, textAlign: h === 'Breakdown' ? 'left' : 'center' }}>{h}</div>
           ))}
         </div>
         {holeData.map((h, i) => {
@@ -371,10 +371,10 @@ const HoleStats = ({ course, currentUser }) => {
               borderBottom: i < holeData.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
               background: hardest && h.hole === hardest.hole ? 'rgba(248,113,113,0.03)' : easiest && h.hole === easiest.hole ? 'rgba(74,222,128,0.03)' : 'transparent',
             }}>
-              <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>
+              <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>
                 {h.hole}{h.aces > 0 && '🎳'}{hardest && h.hole === hardest.hole && '💀'}{easiest && h.hole === easiest.hole && '⭐'}
               </div>
-              <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{h.par}</div>
+              <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)' }}>{h.par}</div>
               <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 700, color: h.avg != null ? vsParColor(avgDiff) : 'rgba(255,255,255,0.2)', fontFamily: 'Arial, sans-serif' }}>
                 {h.avg != null ? h.avg.toFixed(1) : '—'}
               </div>
@@ -403,7 +403,7 @@ const HoleStats = ({ course, currentUser }) => {
         {[['#a78bfa','Eagle+'],['#4ade80','Birdie'],['#fbbf24','Par'],['#fb923c','Bogey'],['#f87171','Double+']].map(([color, label]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</span>
           </div>
         ))}
       </div>
@@ -475,13 +475,13 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
             {myRoundsCount > 0 && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: BRAND.light, fontFamily: "'Syne', sans-serif" }}>{myRoundsCount}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>My Rounds</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>My Rounds</div>
               </div>
             )}
             {hazards.length > 0 && (
               <div style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#fbbf24', fontFamily: "'Syne', sans-serif" }}>{hazards.length}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Hazard{hazards.length !== 1 ? 's' : ''}</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Hazard{hazards.length !== 1 ? 's' : ''}</div>
               </div>
             )}
           </div>
@@ -525,7 +525,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
         {course.pars && (
           <div style={{ marginBottom: 28 }}>
             <SectionTitle>Hole Pars</SectionTitle>
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px' }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px' }}>
               <ParGrid pars={course.pars} holes={course.holes || 18} />
             </div>
           </div>
@@ -535,7 +535,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
         {course.notes && (
           <div style={{ marginBottom: 28 }}>
             <SectionTitle>Layout Notes</SectionTitle>
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
               {course.notes}
             </div>
           </div>
@@ -545,7 +545,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
         {course.facilities && (
           <div style={{ marginBottom: 28 }}>
             <SectionTitle>Facilities</SectionTitle>
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
               {course.facilities}
             </div>
           </div>
@@ -578,9 +578,9 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
           )}
 
           {loading ? (
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', padding: '8px 0' }}>Loading...</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '8px 0' }}>Loading...</div>
           ) : hazards.length === 0 ? (
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', padding: '8px 0' }}>No active hazards reported</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '8px 0' }}>No active hazards reported</div>
           ) : (
             hazards.map(h => <HazardCard key={h.id} hazard={h} isAdmin={isAdmin} onClear={handleClearHazard} />)
           )}
@@ -593,7 +593,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
             {!showRequestForm && (
               <button onClick={() => setShowRequestForm(true)} style={{
                 display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 8,
-                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
                 color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
                 fontFamily: "'DM Sans', sans-serif",
               }}>
@@ -613,7 +613,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
           )}
 
           {!loading && requests.length === 0 && !showRequestForm && (
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', padding: '8px 0' }}>No requests yet</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '8px 0' }}>No requests yet</div>
           )}
 
           {requests.map(r => {
@@ -629,8 +629,8 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{r.title}</div>
                   <span style={{ fontSize: 11, fontWeight: 700, color: ss.color, whiteSpace: 'nowrap', marginLeft: 8 }}>{ss.label}</span>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 4 }}>{r.description}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Submitted {formatDate(r.submitted_at)}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 4 }}>{r.description}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Submitted {formatDate(r.submitted_at)}</div>
                 {r.admin_notes && (
                   <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Admin Notes</div>
@@ -653,7 +653,7 @@ const CourseCard = ({ course, myRoundsCount, activeHazards, onClick }) => {
   const tp = totalPar(course.pars);
   return (
     <div onClick={onClick} style={{
-      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: 16, padding: '16px 18px', marginBottom: 10, cursor: 'pointer',
       display: 'flex', alignItems: 'center', gap: 12,
     }}>
@@ -777,7 +777,7 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px 0' }}>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)' }}>Loading courses...</div>
+          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>Loading courses...</div>
         ) : courses.length === 0 ? (
           <EmptyState icon="⛳" title="No courses yet" subtitle="Courses will appear here once added by an admin" />
         ) : (
@@ -797,7 +797,7 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
           {!showRequestForm ? (
             <button onClick={() => setShowRequestForm(true)} style={{
               width: '100%', padding: '13px', borderRadius: 14,
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
               color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
               cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
@@ -822,7 +822,7 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 

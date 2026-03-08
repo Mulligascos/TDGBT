@@ -19,19 +19,19 @@ const Field = ({ label, value, onChange, type = 'text', placeholder = '', hint =
       placeholder={placeholder}
       style={{
         width: '100%', padding: '13px 14px', borderRadius: 12,
-        background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+        background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
         color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
         outline: 'none', boxSizing: 'border-box',
       }}
     />
-    {hint && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 5 }}>{hint}</div>}
+    {hint && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 5 }}>{hint}</div>}
   </div>
 );
 
 // ─── SECTION TITLE ────────────────────────────────────────────────────────────
 const SectionTitle = ({ children }) => (
   <div style={{
-    fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)',
+    fontSize: 10, fontWeight: 700, color: 'var(--text-muted)',
     textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8,
   }}>
     {children}
@@ -51,7 +51,7 @@ const MenuItem = ({ icon, label, sub, onClick, danger = false }) => (
     <span style={{ fontSize: 20 }}>{icon}</span>
     <div style={{ flex: 1 }}>
       <div style={{ fontSize: 14, fontWeight: 600, color: danger ? '#f87171' : 'rgba(255,255,255,0.9)' }}>{label}</div>
-      {sub && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>{sub}</div>}
     </div>
     {!danger && <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 18 }}>›</span>}
   </button>
@@ -123,7 +123,7 @@ const EditProfileView = ({ currentUser, onBack, onSaved }) => {
   return (
     <div style={{ padding: '0 20px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, paddingTop: 8 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
         <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
@@ -226,7 +226,7 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
 
   const inputStyle = {
     width: '100%', padding: '13px 14px', borderRadius: 12,
-    background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+    background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
     color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 15,
     outline: 'none', letterSpacing: 4, boxSizing: 'border-box',
   };
@@ -234,13 +234,13 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
   return (
     <div style={{ padding: '0 20px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, paddingTop: 8 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
         <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
           Change PIN
         </div>
-        <button onClick={() => setShowPins(s => !s)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer' }}>
+        <button onClick={() => setShowPins(s => !s)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
           {showPins ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       </div>
@@ -287,19 +287,19 @@ const SeasonStats = ({ stats, onViewHistory }) => {
     { label: 'Under Par', value: stats.underParRounds, color: '#4ade80' },
   ];
   return (
-    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px', marginBottom: 8 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px', marginBottom: 8 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
         {items.map(({ label, value, color }) => (
-          <div key={label} style={{ textAlign: 'center', padding: '10px 8px', background: 'rgba(255,255,255,0.03)', borderRadius: 12 }}>
+          <div key={label} style={{ textAlign: 'center', padding: '10px 8px', background: 'var(--bg-card)', borderRadius: 12 }}>
             <div style={{ fontSize: 22, fontWeight: 800, color, fontFamily: "'Syne', sans-serif", lineHeight: 1, marginBottom: 4 }}>{value}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
           </div>
         ))}
       </div>
       <button onClick={onViewHistory} style={{
         width: '100%', padding: '10px', borderRadius: 10,
         background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-        color: 'rgba(255,255,255,0.5)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
+        color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
       }}>
         View full history →
       </button>
@@ -512,7 +512,7 @@ const AchievementsSection = ({ currentUser }) => {
           padding: '0 24px',
         }}>
           <div onClick={e => e.stopPropagation()} style={{
-            background: '#0d2b0d', borderRadius: 20, padding: '24px 20px',
+            background: 'var(--bg-nav)', borderRadius: 20, padding: '24px 20px',
             maxWidth: 320, width: '100%', textAlign: 'center',
             border: `1px solid ${popup.earned ? TIER_COLORS[popup.tier].border : 'rgba(255,255,255,0.1)'}`,
           }}>
@@ -525,7 +525,7 @@ const AchievementsSection = ({ currentUser }) => {
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 10, lineHeight: 1.5 }}>
                   {popup.earnedData.detail}
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                   Earned {formatDate(popup.earnedData.date)}
                 </div>
                 <div style={{
@@ -548,8 +548,8 @@ const AchievementsSection = ({ currentUser }) => {
             )}
             <button onClick={() => setPopup(null)} style={{
               marginTop: 18, padding: '9px 24px', borderRadius: 10,
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
-              color: 'rgba(255,255,255,0.5)', fontFamily: "'DM Sans', sans-serif",
+              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
               fontSize: 13, cursor: 'pointer',
             }}>Close</button>
           </div>
@@ -563,7 +563,7 @@ const AchievementsSection = ({ currentUser }) => {
           { icon: '📈', label: 'Under Par Streak', value: streaks.underPar, sub: streaks.bestUnderPar > 0 ? `best: ${streaks.bestUnderPar}` : 'keep going!' },
         ].map(({ icon, label, value, sub }) => (
           <div key={label} style={{
-            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 14, padding: '14px',
           }}>
             <div style={{ fontSize: 24, marginBottom: 6 }}>{icon}</div>
@@ -571,7 +571,7 @@ const AchievementsSection = ({ currentUser }) => {
               {value}
             </div>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{label}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{sub}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>
           </div>
         ))}
       </div>
@@ -579,7 +579,7 @@ const AchievementsSection = ({ currentUser }) => {
       {/* Earned badges */}
       {earnedList.length > 0 && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Earned · {earnedList.length}/{ACHIEVEMENTS.length}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
@@ -617,12 +617,12 @@ const AchievementsSection = ({ currentUser }) => {
               <div key={a.id} onClick={() => setPopup({ ...a, earned: false })} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 textAlign: 'center', gap: 5,
-                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: 12, padding: '12px 8px',
                 opacity: 0.4, cursor: 'pointer',
               }}>
                 <span style={{ fontSize: 22, filter: 'grayscale(1)' }}>{a.icon}</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.2 }}>{a.label}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.2 }}>{a.label}</span>
               </div>
             ))}
           </div>
@@ -632,7 +632,7 @@ const AchievementsSection = ({ currentUser }) => {
       {scores.length === 0 && (
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🎯</div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>Play your first round to start earning achievements</div>
+          <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>Play your first round to start earning achievements</div>
         </div>
       )}
     </div>
@@ -731,25 +731,25 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
             {currentUser.bagTag && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 17, fontWeight: 800, color: BRAND.light, fontFamily: "'Syne', sans-serif" }}>#{currentUser.bagTag}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Bag Tag</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Bag Tag</div>
               </div>
             )}
             {currentUser.pdgaNumber && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'white', fontFamily: "'Syne', sans-serif" }}>{currentUser.pdgaNumber}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>PDGA</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>PDGA</div>
               </div>
             )}
             {currentUser.udiscUsername && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'white', fontFamily: "'Syne', sans-serif" }}>{currentUser.udiscUsername}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>UDisc</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>UDisc</div>
               </div>
             )}
             {currentUser.email && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px' }}>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{currentUser.email}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Email</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Email</div>
               </div>
             )}
           </div>
@@ -802,7 +802,7 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 
