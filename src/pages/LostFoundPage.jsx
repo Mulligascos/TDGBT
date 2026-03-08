@@ -128,7 +128,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
                 <button onClick={() => onClaim(disc)} style={{
                   flex: 1, padding: '10px', borderRadius: 12,
                   background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-                  border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
+                  border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
                   fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}>
@@ -541,7 +541,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           <button onClick={() => setShowForm(true)} style={{
             flex: 1, padding: '10px 14px', borderRadius: 12,
             background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-            border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
+            border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
             fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
           }}>

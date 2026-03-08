@@ -267,7 +267,7 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
       <button onClick={handleSave} disabled={saving || !currentPin || !newPin || !confirmPin} style={{
         width: '100%', padding: '14px', borderRadius: 14,
         background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-        border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
+        border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
         fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: 'pointer', opacity: (!currentPin || !newPin || !confirmPin) ? 0.5 : 1,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

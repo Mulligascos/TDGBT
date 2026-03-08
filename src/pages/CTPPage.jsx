@@ -472,7 +472,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
             <button onClick={() => setView('create')} style={{
               display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
               background: BRAND.primary, border: 'none', borderRadius: 12,
-              color: '#052e0f', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
+              color: 'var(--text-on-brand)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}>
               <Plus size={15} /> New
             </button>
