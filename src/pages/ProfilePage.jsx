@@ -298,7 +298,7 @@ const SeasonStats = ({ stats, onViewHistory }) => {
       </div>
       <button onClick={onViewHistory} style={{
         width: '100%', padding: '10px', borderRadius: 10,
-        background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
+        background: 'var(--bg-card)', border: '1px solid var(--border)',
         color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
       }}>
         View full history →
@@ -517,7 +517,7 @@ const AchievementsSection = ({ currentUser }) => {
             border: `1px solid ${popup.earned ? TIER_COLORS[popup.tier].border : 'rgba(255,255,255,0.1)'}`,
           }}>
             <div style={{ fontSize: 52, marginBottom: 12 }}>{popup.icon}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: popup.earned ? TIER_COLORS[popup.tier].color : 'rgba(255,255,255,0.4)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: popup.earned ? TIER_COLORS[popup.tier].color : 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>
               {popup.label}
             </div>
             {popup.earned ? (
@@ -639,7 +639,7 @@ const AchievementsSection = ({ currentUser }) => {
   );
 };
 
-export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, seasonStats }) => {
+export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, seasonStats, onThemeChange }) => {
   const [view, setView] = useState('main'); // main | edit | change-pin
   const [toast, setToast] = useState(null);
 
@@ -687,7 +687,7 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
         background: 'var(--bg-header)',
         padding: '36px 20px 16px',
         position: 'relative', overflow: 'hidden',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--border)',
       }}>
         <LogoWatermark size={110} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
 
@@ -711,15 +711,15 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
               <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                 <Badge label={currentUser.role === 'admin' ? 'Admin' : currentUser.role === 'committee' ? 'Committee' : 'Member'} color={currentUser.role === 'admin' ? '#fbbf24' : BRAND.light} />
                 <Badge label={currentUser.status || 'Active'} color={currentUser.status === 'Active' ? BRAND.light : '#f87171'} />
-                {currentUser.division && <Badge label={divisionLabel[currentUser.division] || currentUser.division} color="rgba(255,255,255,0.4)" />}
+                {currentUser.division && <Badge label={divisionLabel[currentUser.division] || currentUser.division} color="var(--text-secondary)" />}
               </div>
             </div>
 
             {/* Edit button */}
             <button onClick={() => setView('edit')} style={{
               width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
-              color: 'rgba(255,255,255,0.7)', cursor: 'pointer',
+              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.15)',
+              color: 'var(--text-secondary)', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <Edit2 size={16} />
@@ -729,25 +729,25 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
           {/* Details row */}
           <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
             {currentUser.bagTag && (
-              <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
+              <div style={{ background: 'var(--bg-input)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 17, fontWeight: 800, color: BRAND.light, fontFamily: "'Syne', sans-serif" }}>#{currentUser.bagTag}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Bag Tag</div>
               </div>
             )}
             {currentUser.pdgaNumber && (
-              <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
+              <div style={{ background: 'var(--bg-input)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{currentUser.pdgaNumber}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>PDGA</div>
               </div>
             )}
             {currentUser.udiscUsername && (
-              <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
+              <div style={{ background: 'var(--bg-input)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{currentUser.udiscUsername}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>UDisc</div>
               </div>
             )}
             {currentUser.email && (
-              <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px' }}>
+              <div style={{ background: 'var(--bg-input)', borderRadius: 10, padding: '8px 14px' }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{currentUser.email}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Email</div>
               </div>
@@ -777,7 +777,7 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
         {/* Account */}
         <div style={{ marginBottom: 20 }}>
           <SectionTitle>Appearance</SectionTitle>
-          <ThemePicker onThemeChange={() => {}} />
+          <ThemePicker onThemeChange={onThemeChange} />
 
           <SectionTitle>Account</SectionTitle>
           <MenuItem icon="✏️" label="Edit Profile" sub="Name, email, phone, PDGA & UDisc" onClick={() => setView('edit')} />

@@ -51,7 +51,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
       {/* Login form */}
       <div style={{
         width: '100%', maxWidth: 380,
-        background: 'rgba(255,255,255,0.05)',
+        background: 'var(--bg-card)',
         border: '1px solid var(--border-card)',
         borderRadius: 24, padding: 28,
       }}>
@@ -65,7 +65,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
             {isLoadingPlayers ? (
               <div style={{
                 height: 48, borderRadius: 12,
-                background: 'rgba(255,255,255,0.05)',
+                background: 'var(--bg-card)',
                 animation: 'shimmer 1.5s infinite',
                 backgroundSize: '200% 100%',
               }} />

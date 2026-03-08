@@ -138,10 +138,10 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
 
   return (
     <div>
-      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 14px', borderBottom: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
-          <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
+          <button onClick={onBack} style={{ background: 'var(--bg-input)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
             <ChevronLeft size={15} /> CTP Challenges
           </button>
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>New CTP Challenge</div>
@@ -269,24 +269,24 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
       )}
 
       {/* Header */}
-      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 20px', borderBottom: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
-          <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
+          <button onClick={onBack} style={{ background: 'var(--bg-input)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
             <ChevronLeft size={15} /> CTP Challenges
           </button>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 4 }}>{challenge.name}</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {challenge.course_name && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}><MapPin size={11} style={{ display: 'inline', marginRight: 3 }} />{challenge.course_name}</span>}
-                {challenge.hole && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Hole {challenge.hole}</span>}
+                {challenge.course_name && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}><MapPin size={11} style={{ display: 'inline', marginRight: 3 }} />{challenge.course_name}</span>}
+                {challenge.hole && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Hole {challenge.hole}</span>}
                 <span style={{ fontSize: 12, color: isClosed ? '#f87171' : '#4ade80', fontWeight: 700 }}>{isClosed ? '🔒 Closed' : '🟢 Active'}</span>
               </div>
               {challenge.description && <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>{challenge.description}</div>}
             </div>
             {myRank && (
-              <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 14px', textAlign: 'center', flexShrink: 0 }}>
+              <div style={{ background: 'var(--bg-input)', borderRadius: 12, padding: '10px 14px', textAlign: 'center', flexShrink: 0 }}>
                 <div style={{ fontSize: 22, fontWeight: 800, color: myRank === 1 ? '#fbbf24' : BRAND.light, fontFamily: "'Syne', sans-serif" }}>
                   {myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : `#${myRank}`}
                 </div>
@@ -381,7 +381,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
 
         {/* Admin controls */}
         {isAdmin && (
-          <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Admin</div>
             <div style={{ display: 'flex', gap: 8 }}>
               {!isClosed && (
@@ -460,7 +460,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
   return (
     <div style={pageStyle}>
       {/* Header */}
-      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 20px', borderBottom: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <div>
@@ -488,7 +488,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
               padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
               background: filter === val ? BRAND.primary : 'rgba(255,255,255,0.05)',
               border: `1px solid ${filter === val ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
-              color: filter === val ? '#4ade80' : 'rgba(255,255,255,0.4)',
+              color: filter === val ? '#4ade80' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif",
             }}>{label}</button>
           ))}

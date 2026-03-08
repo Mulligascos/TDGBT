@@ -158,7 +158,7 @@ const AnnouncementCard = ({ announcement }) => (
         <span style={{ fontSize: 10, background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24', borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap' }}>📌 Pinned</span>
       )}
     </div>
-    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>{renderMarkdown(announcement.body)}</div>
+    <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{renderMarkdown(announcement.body)}</div>
     <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8 }}>
       {formatDate(announcement.created_at)}
     </div>
@@ -174,7 +174,7 @@ const NoTournamentBanner = ({ onScore }) => (
   }}>
     <span style={{ fontSize: 22, flexShrink: 0 }}>🥏</span>
     <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>No active tournament</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)' }}>No active tournament</div>
       <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Play a casual round</div>
     </div>
     <button onClick={onScore} style={{
@@ -271,7 +271,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
         background: `linear-gradient(160deg, ${BRAND.primary}cc, ${BRAND.accent}88)`,
         padding: '36px 20px 16px',
         position: 'relative', overflow: 'hidden',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--border)',
       }}>
         <LogoWatermark size={110} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
 

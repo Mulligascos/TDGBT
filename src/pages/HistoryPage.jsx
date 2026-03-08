@@ -112,7 +112,7 @@ const HoleGrid = ({ scores, pars }) => {
             })}
             <td style={{
               padding: '5px 6px', textAlign: 'right', fontWeight: 700,
-              color: 'rgba(255,255,255,0.7)',
+              color: 'var(--text-secondary)',
             }}>
               {holeScores.filter(s => s != null).reduce((a, b) => a + b, 0) || '—'}
             </td>
@@ -221,7 +221,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
       {/* Expanded detail */}
       {expanded && (
         <div style={{
-          borderTop: '1px solid rgba(255,255,255,0.06)',
+          borderTop: '1px solid var(--border)',
           padding: '12px 16px 16px',
         }}>
           {/* Hole grid */}
@@ -239,7 +239,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
               {others.map(o => (
                 <div key={o.name} style={{
                   marginBottom: 14, paddingTop: 14,
-                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                  borderTop: '1px solid var(--border)',
                 }}>
                   {/* Player header */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
@@ -284,7 +284,7 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
             style={{
               width: '100%', padding: '11px 12px 11px 34px', borderRadius: 12,
               background: 'var(--bg-input)', border: '1px solid var(--border-card)',
-              color: playerFilter ? 'white' : 'rgba(255,255,255,0.4)',
+              color: playerFilter ? 'white' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
               appearance: 'none',
             }}
@@ -304,7 +304,7 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
             padding: '11px 14px', borderRadius: 12,
             background: showFilters ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.06)',
             border: showFilters ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.1)',
-            color: showFilters ? BRAND.light : 'rgba(255,255,255,0.4)',
+            color: showFilters ? BRAND.light : 'var(--text-secondary)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
             fontFamily: "'DM Sans', sans-serif", fontSize: 13,
           }}
@@ -597,7 +597,7 @@ export const HistoryPage = ({ currentUser, players }) => {
       <div style={{
         background: 'var(--bg-header)',
         padding: '36px 20px 14px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--border)',
         position: 'relative', overflow: 'hidden',
       }}>
         <LogoWatermark size={110} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />

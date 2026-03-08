@@ -212,7 +212,7 @@ const TournamentDetail = ({ tournament, rounds, courses, players, onBack, onRoun
         {tournament.status === 'complete' && (
           <button onClick={() => handleStatusChange('active')} disabled={updatingStatus} style={{
             flex: 1, padding: '10px', borderRadius: 12,
-            background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-card)',
+            background: 'var(--bg-card)', border: '1px solid var(--border-card)',
             color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", fontSize: 13, cursor: 'pointer',
           }}>↩ Reopen</button>
         )}
@@ -228,7 +228,7 @@ const TournamentDetail = ({ tournament, rounds, courses, players, onBack, onRoun
             const course = courses.find(c => c.id === r.course_id);
             return (
               <div key={r.id} style={{
-                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
+                background: 'var(--bg-card)', border: '1px solid var(--border)',
                 borderRadius: 12, padding: '12px 16px',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
@@ -341,7 +341,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players,
                 <div key={t.id}
                   onClick={() => { setSelectedTournament(t); setView('tournament-detail'); }}
                   style={{
-                    background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-card)',
+                    background: 'var(--bg-card)', border: '1px solid var(--border-card)',
                     borderRadius: 14, padding: '14px 16px', cursor: 'pointer',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     transition: 'all 0.2s',

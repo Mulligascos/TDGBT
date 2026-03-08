@@ -63,7 +63,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
         {/* Colour dot */}
         <div style={{
           width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-          background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-card)',
+          background: 'var(--bg-card)', border: '1px solid var(--border-card)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
         }}>
           <span style={{ fontSize: 20 }}>🥏</span>
@@ -99,9 +99,9 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
 
       {/* Expanded */}
       {expanded && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '12px 16px 14px' }}>
+        <div style={{ borderTop: '1px solid var(--border)', padding: '12px 16px 14px' }}>
           {disc.description && (
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 12, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>
               {disc.description}
             </div>
           )}
@@ -113,10 +113,10 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
             ].map(({ label, value }) => (
               <div key={label} style={{
                 padding: '5px 10px', borderRadius: 8,
-                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
+                background: 'var(--bg-card)', border: '1px solid var(--border)',
               }}>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginTop: 1 }}>{value}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginTop: 1 }}>{value}</div>
               </div>
             ))}
           </div>
@@ -508,7 +508,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
       <div style={{
         background: 'var(--bg-header)',
         padding: '36px 20px 14px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--border)',
         position: 'relative', overflow: 'hidden',
       }}>
         <LogoWatermark size={110} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
@@ -570,7 +570,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
               padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
               background: filter === tab.id ? BRAND.primary : 'rgba(255,255,255,0.05)',
               border: `1px solid ${filter === tab.id ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
-              color: filter === tab.id ? '#4ade80' : 'rgba(255,255,255,0.4)',
+              color: filter === tab.id ? '#4ade80' : 'var(--text-secondary)',
               cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
             }}>{tab.label}</button>
           ))}
