@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { BRAND, formatName, formatDate } from '../utils';
 import { Badge, LogoWatermark } from '../components/ui';
+import { ThemePicker } from '../components/ThemePicker';
 import { vsParLabel, vsParColor } from '../utils/strokeplay';
 import { ChevronLeft, Eye, EyeOff, Check, X, Edit2 } from 'lucide-react';
 
@@ -775,6 +776,9 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
 
         {/* Account */}
         <div style={{ marginBottom: 20 }}>
+          <SectionTitle>Appearance</SectionTitle>
+          <ThemePicker onThemeChange={() => {}} />
+
           <SectionTitle>Account</SectionTitle>
           <MenuItem icon="✏️" label="Edit Profile" sub="Name, email, phone, PDGA & UDisc" onClick={() => setView('edit')} />
           <MenuItem icon="🔑" label="Change PIN" sub="Update your 4-digit login PIN" onClick={() => setView('change-pin')} />
