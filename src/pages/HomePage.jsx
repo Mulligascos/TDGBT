@@ -56,14 +56,14 @@ const SectionTitle = ({ children, action }) => (
 // ─── QUICK ACTION BUTTON ──────────────────────────────────────────────────────
 const QuickAction = ({ icon: Icon, label, onClick, accent = false }) => (
   <button onClick={onClick} style={{
-    background: accent ? `linear-gradient(135deg, ${BRAND.primary}60, ${BRAND.accent}40)` : 'rgba(255,255,255,0.05)',
-    border: `1px solid ${accent ? BRAND.light + '30' : 'rgba(255,255,255,0.08)'}`,
+    background: accent ? `linear-gradient(135deg, ${BRAND.primary}60, ${BRAND.accent}40)` : 'var(--text-muted)',
+    border: `1px solid ${accent ? BRAND.light + '30' : 'var(--text-muted)'}`,
     borderRadius: 12, padding: '10px 6px', cursor: 'pointer', textAlign: 'center',
     fontFamily: "'DM Sans', sans-serif", display: 'flex', flexDirection: 'column',
     alignItems: 'center', gap: 5, flex: 1,
   }}>
-    <Icon size={18} color={accent ? BRAND.light : 'rgba(255,255,255,0.5)'} />
-    <div style={{ fontSize: 11, fontWeight: 600, color: accent ? 'white' : 'rgba(255,255,255,0.6)', lineHeight: 1.2 }}>{label}</div>
+    <Icon size={18} color={accent ? BRAND.light : 'var(--text-secondary)'} />
+    <div style={{ fontSize: 11, fontWeight: 600, color: accent ? 'white' : 'var(--text-secondary)', lineHeight: 1.2 }}>{label}</div>
   </button>
 );
 
@@ -79,7 +79,7 @@ const Top3 = ({ entries, currentUserId, onViewAll }) => {
             display: 'flex', alignItems: 'center', gap: 12,
             padding: '12px 16px',
             background: isMe ? 'rgba(74,222,128,0.06)' : 'transparent',
-            borderBottom: i < entries.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+            borderBottom: i < entries.length - 1 ? '1px solid var(--border)' : 'none',
           }}>
             <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{medals[i]}</span>
             <div style={{ flex: 1 }}>
@@ -99,7 +99,7 @@ const Top3 = ({ entries, currentUserId, onViewAll }) => {
       })}
       <button onClick={onViewAll} style={{
         width: '100%', padding: '11px', background: 'var(--bg-card)',
-        border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)',
+        border: 'none', borderTop: '1px solid var(--border)',
         color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
         fontSize: 13, cursor: 'pointer',
       }}>
@@ -115,7 +115,7 @@ const RecentScores = ({ scores, onViewAll }) => (
     {scores.map((s, i) => (
       <div key={s.id} style={{
         display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-        borderBottom: i < scores.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+        borderBottom: i < scores.length - 1 ? '1px solid var(--border)' : 'none',
       }}>
         <div style={{
           width: 44, height: 44, borderRadius: 12, flexShrink: 0,
@@ -137,7 +137,7 @@ const RecentScores = ({ scores, onViewAll }) => (
     ))}
     <button onClick={onViewAll} style={{
       width: '100%', padding: '11px', background: 'var(--bg-card)',
-      border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)',
+      border: 'none', borderTop: '1px solid var(--border)',
       color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
       fontSize: 13, cursor: 'pointer',
     }}>
@@ -168,7 +168,7 @@ const AnnouncementCard = ({ announcement }) => (
 // ─── NO TOURNAMENT STATE ──────────────────────────────────────────────────────
 const NoTournamentBanner = ({ onScore }) => (
   <div style={{
-    background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+    background: 'var(--bg-card)', border: '1px solid var(--border)',
     borderRadius: 12, padding: '12px 16px', marginBottom: 18,
     display: 'flex', alignItems: 'center', gap: 12,
   }}>
@@ -410,7 +410,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
           <div style={{ marginBottom: 28 }}>
             <SectionTitle>My Recent Scores</SectionTitle>
             <div style={{
-              background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
               borderRadius: 14, padding: '20px', textAlign: 'center',
             }}>
               <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>

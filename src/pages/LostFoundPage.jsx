@@ -36,7 +36,7 @@ const StatusBadge = ({ status }) => {
     found:   { label: 'Unclaimed', bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.3)',  color: '#fbbf24' },
     claimed: { label: 'Claimed',   bg: 'rgba(74,222,128,0.12)',  border: 'rgba(74,222,128,0.25)', color: '#4ade80' },
     lost:    { label: 'Lost',      bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.25)', color: '#f87171' },
-  }[status] || { label: status, bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.1)', color: 'var(--text-secondary)' };
+  }[status] || { label: status, bg: 'var(--text-muted)', border: 'var(--text-muted)', color: 'var(--text-secondary)' };
   return (
     <div style={{
       display: 'inline-flex', alignItems: 'center',
@@ -261,9 +261,9 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
             {DISC_COLOURS.map(c => (
               <button key={c} onClick={() => set('colour', c)} style={{
                 padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-                background: form.colour === c ? BRAND.primary : 'rgba(255,255,255,0.06)',
-                border: `1px solid ${form.colour === c ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color: form.colour === c ? '#4ade80' : 'rgba(255,255,255,0.5)', cursor: 'pointer',
+                background: form.colour === c ? BRAND.primary : 'var(--text-muted)',
+                border: `1px solid ${form.colour === c ? 'rgba(74,222,128,0.4)' : 'var(--text-muted)'}`,
+                color: form.colour === c ? '#4ade80' : 'var(--text-secondary)', cursor: 'pointer',
                 fontFamily: "'DM Sans', sans-serif",
               }}>{c}</button>
             ))}
@@ -301,8 +301,8 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
 
         <button onClick={handleSubmit} disabled={!valid || saving} style={{
           width: '100%', padding: '14px', borderRadius: 14,
-          background: valid ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
-          border: valid ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.1)',
+          background: valid ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
+          border: valid ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
           color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
           cursor: valid ? 'pointer' : 'not-allowed', opacity: saving ? 0.6 : 1,
         }}>
@@ -381,9 +381,9 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
             {DISC_COLOURS.map(col => (
               <button key={col} onClick={() => set('colour', col)} style={{
                 padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-                background: form.colour === col ? 'rgba(248,113,113,0.2)' : 'rgba(255,255,255,0.06)',
-                border: `1px solid ${form.colour === col ? 'rgba(248,113,113,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color: form.colour === col ? '#f87171' : 'rgba(255,255,255,0.5)', cursor: 'pointer',
+                background: form.colour === col ? 'rgba(248,113,113,0.2)' : 'var(--text-muted)',
+                border: `1px solid ${form.colour === col ? 'rgba(248,113,113,0.4)' : 'var(--text-muted)'}`,
+                color: form.colour === col ? '#f87171' : 'var(--text-secondary)', cursor: 'pointer',
                 fontFamily: "'DM Sans', sans-serif",
               }}>{col}</button>
             ))}
@@ -419,8 +419,8 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
 
         <button onClick={handleSubmit} disabled={!valid || saving} style={{
           width: '100%', padding: '14px', borderRadius: 14,
-          background: valid ? 'linear-gradient(135deg, #92400e, #b45309)' : 'rgba(255,255,255,0.06)',
-          border: valid ? '1px solid rgba(251,191,36,0.3)' : '1px solid rgba(255,255,255,0.1)',
+          background: valid ? 'linear-gradient(135deg, #92400e, #b45309)' : 'var(--text-muted)',
+          border: valid ? '1px solid rgba(251,191,36,0.3)' : '1px solid var(--border)',
           color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
           cursor: valid ? 'pointer' : 'not-allowed', opacity: saving ? 0.6 : 1,
         }}>
@@ -568,8 +568,8 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           ].map(tab => (
             <button key={tab.id} onClick={() => setFilter(tab.id)} style={{
               padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
-              background: filter === tab.id ? BRAND.primary : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${filter === tab.id ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+              background: filter === tab.id ? BRAND.primary : 'var(--text-muted)',
+              border: `1px solid ${filter === tab.id ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
               color: filter === tab.id ? '#4ade80' : 'var(--text-secondary)',
               cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
             }}>{tab.label}</button>

@@ -302,8 +302,8 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
           onClick={() => setShowFilters(s => !s)}
           style={{
             padding: '11px 14px', borderRadius: 12,
-            background: showFilters ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.06)',
-            border: showFilters ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.1)',
+            background: showFilters ? 'rgba(74,222,128,0.1)' : 'var(--text-muted)',
+            border: showFilters ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
             color: showFilters ? BRAND.light : 'var(--text-secondary)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
             fontFamily: "'DM Sans', sans-serif", fontSize: 13,
@@ -461,7 +461,7 @@ const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose 
             }}>
               <span style={{
                 fontSize: 12, fontWeight: isToday || hasPlayed ? 700 : 400,
-                color: hasPlayed ? '#4ade80' : isToday ? BRAND.light : isScheduled || isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
+                color: hasPlayed ? '#4ade80' : isToday ? BRAND.light : isScheduled || isActive ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)',
                 lineHeight: 1,
               }}>
                 {day}
@@ -615,9 +615,9 @@ export const HistoryPage = ({ currentUser, players }) => {
             </div>
             <button onClick={() => setShowCalendar(c => !c)} style={{
               padding: '6px 12px', borderRadius: 10, cursor: 'pointer',
-              background: showCalendar ? BRAND.primary + '40' : 'rgba(255,255,255,0.07)',
-              border: showCalendar ? `1px solid ${BRAND.light}50` : '1px solid rgba(255,255,255,0.1)',
-              color: showCalendar ? BRAND.light : 'rgba(255,255,255,0.5)',
+              background: showCalendar ? BRAND.primary + '40' : 'var(--text-muted)',
+              border: showCalendar ? `1px solid ${BRAND.light}50` : '1px solid var(--border)',
+              color: showCalendar ? BRAND.light : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
               display: 'flex', alignItems: 'center', gap: 5,
             }}>

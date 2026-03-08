@@ -167,7 +167,7 @@ const TournamentDetail = ({ tournament, rounds, courses, players, onBack, onRoun
     }
   };
 
-  const statusColor = { upcoming: '#fbbf24', active: '#4ade80', complete: 'rgba(255,255,255,0.3)' };
+  const statusColor = { upcoming: '#fbbf24', active: '#4ade80', complete: 'var(--text-muted)' };
 
   if (view === 'add-round') {
     return <CreateRoundForm tournament={tournament} courses={courses}
@@ -310,7 +310,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players,
     );
   }
 
-  const statusColor = { upcoming: '#fbbf24', active: '#4ade80', complete: 'rgba(255,255,255,0.3)' };
+  const statusColor = { upcoming: '#fbbf24', active: '#4ade80', complete: 'var(--text-muted)' };
 
   return (
     <div style={containerStyle}>
@@ -379,7 +379,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players,
             { label: 'Tournaments', value: localTournaments.length, icon: '🏆' },
           ].map(({ label, value, icon }) => (
             <div key={label} style={{
-              background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
               borderRadius: 12, padding: '12px', textAlign: 'center',
             }}>
               <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>

@@ -78,7 +78,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
                   width: '100%', padding: '13px 16px', borderRadius: 12,
                   background: 'var(--bg-input)',
                   border: '1px solid var(--border-card)',
-                  color: selectedName ? 'white' : 'rgba(255,255,255,0.3)',
+                  color: selectedName ? 'white' : 'var(--text-muted)',
                   fontSize: 15, fontFamily: "'DM Sans', sans-serif",
                   outline: 'none', appearance: 'none', cursor: 'pointer',
                   boxSizing: 'border-box', 
@@ -114,7 +114,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
                 background: 'var(--bg-input)',
                 border: loginError
                   ? '1px solid rgba(248,113,113,0.5)'
-                  : '1px solid rgba(255,255,255,0.12)',
+                  : '1px solid var(--border)',
                 color: 'var(--text-primary)', fontSize: 15,
                 fontFamily: "'DM Sans', sans-serif",
                 outline: 'none', boxSizing: 'border-box',

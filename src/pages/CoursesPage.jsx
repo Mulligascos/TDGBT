@@ -166,7 +166,7 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
         }}>Cancel</button>
         <button onClick={handleSave} disabled={saving || !description.trim()} style={{
           flex: 2, padding: '10px', borderRadius: 10,
-          background: description.trim() ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
+          background: description.trim() ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
           border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
           fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
         }}>
@@ -247,7 +247,7 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
         }}>Cancel</button>
         <button onClick={handleSave} disabled={saving || !form.title.trim() || !form.description.trim()} style={{
           flex: 2, padding: '10px', borderRadius: 10,
-          background: (form.title.trim() && form.description.trim()) ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
+          background: (form.title.trim() && form.description.trim()) ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
           border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
           fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
         }}>
@@ -327,8 +327,8 @@ const HoleStats = ({ course, currentUser }) => {
         {[['club', '🏌️ Club'], ['mine', '👤 Mine']].map(([v, label]) => (
           <button key={v} onClick={() => setView(v)} style={{
             padding: '7px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-            background: view === v ? BRAND.primary : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${view === v ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+            background: view === v ? BRAND.primary : 'var(--text-muted)',
+            border: `1px solid ${view === v ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
             color: view === v ? '#4ade80' : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
@@ -356,7 +356,7 @@ const HoleStats = ({ course, currentUser }) => {
       </div>
 
       {/* Per-hole table */}
-      <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '36px 28px 44px 34px 34px 1fr', gap: 4, padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid var(--border)' }}>
           {['Hole', 'Par', 'Avg', 'Best', 'Worst', 'Breakdown'].map(h => (
             <div key={h} style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, textAlign: h === 'Breakdown' ? 'left' : 'center' }}>{h}</div>
@@ -368,18 +368,18 @@ const HoleStats = ({ course, currentUser }) => {
             <div key={h.hole} style={{
               display: 'grid', gridTemplateColumns: '36px 28px 44px 34px 34px 1fr',
               gap: 4, padding: '10px 12px', alignItems: 'center',
-              borderBottom: i < holeData.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+              borderBottom: i < holeData.length - 1 ? '1px solid var(--border)' : 'none',
               background: hardest && h.hole === hardest.hole ? 'rgba(248,113,113,0.03)' : easiest && h.hole === easiest.hole ? 'rgba(74,222,128,0.03)' : 'transparent',
             }}>
               <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>
                 {h.hole}{h.aces > 0 && '🎳'}{hardest && h.hole === hardest.hole && '💀'}{easiest && h.hole === easiest.hole && '⭐'}
               </div>
               <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)' }}>{h.par}</div>
-              <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 700, color: h.avg != null ? vsParColor(avgDiff) : 'rgba(255,255,255,0.2)', fontFamily: 'Arial, sans-serif' }}>
+              <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 700, color: h.avg != null ? vsParColor(avgDiff) : 'var(--text-muted)', fontFamily: 'Arial, sans-serif' }}>
                 {h.avg != null ? h.avg.toFixed(1) : '—'}
               </div>
-              <div style={{ textAlign: 'center', fontSize: 12, color: h.best != null ? '#4ade80' : 'rgba(255,255,255,0.2)' }}>{h.best ?? '—'}</div>
-              <div style={{ textAlign: 'center', fontSize: 12, color: h.worst != null ? '#f87171' : 'rgba(255,255,255,0.2)' }}>{h.worst ?? '—'}</div>
+              <div style={{ textAlign: 'center', fontSize: 12, color: h.best != null ? '#4ade80' : 'var(--text-muted)' }}>{h.best ?? '—'}</div>
+              <div style={{ textAlign: 'center', fontSize: 12, color: h.worst != null ? '#f87171' : 'var(--text-muted)' }}>{h.worst ?? '—'}</div>
               <div style={{ display: 'flex', height: 14, borderRadius: 4, overflow: 'hidden', gap: 1 }}>
                 {h.count === 0 ? <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 4 }} /> :
                   [
@@ -507,7 +507,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
           <button key={id} onClick={() => setDetailTab(id)} style={{
             flex: 1, padding: '12px 8px', background: 'none', border: 'none',
             borderBottom: detailTab === id ? `2px solid ${BRAND.light}` : '2px solid transparent',
-            color: detailTab === id ? BRAND.light : 'rgba(255,255,255,0.35)',
+            color: detailTab === id ? BRAND.light : 'var(--text-muted)',
             fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 700, cursor: 'pointer',
           }}>{label}</button>
         ))}

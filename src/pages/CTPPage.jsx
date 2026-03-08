@@ -42,7 +42,7 @@ const Btn = ({ children, onClick, disabled, variant = 'primary', style }) => (
     fontSize: 14, fontWeight: 700, cursor: disabled ? 'not-allowed' : 'pointer',
     opacity: disabled ? 0.5 : 1, border: 'none',
     background: variant === 'danger' ? 'rgba(248,113,113,0.15)' :
-                variant === 'ghost'  ? 'rgba(255,255,255,0.07)' : BRAND.primary,
+                variant === 'ghost'  ? 'var(--bg-card)' : BRAND.primary,
     color: variant === 'danger' ? '#f87171' :
            variant === 'ghost'  ? 'rgba(255,255,255,0.6)' : '#052e0f',
     ...style,
@@ -73,14 +73,14 @@ const GpsButton = ({ label, onCapture, captured, hint }) => {
     <div style={{ marginBottom: 14 }}>
       <button onClick={capture} disabled={loading} style={{
         width: '100%', padding: '14px', borderRadius: 14, cursor: loading ? 'wait' : 'pointer',
-        background: captured ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.05)',
-        border: `2px solid ${captured ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.12)'}`,
+        background: captured ? 'rgba(74,222,128,0.1)' : 'var(--text-muted)',
+        border: `2px solid ${captured ? 'rgba(74,222,128,0.4)' : 'var(--text-muted)'}`,
         color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
         <div style={{
           width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-          background: captured ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.08)',
+          background: captured ? 'rgba(74,222,128,0.2)' : 'var(--text-muted)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           {loading ? <div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> :
@@ -354,8 +354,8 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
             return (
               <div key={entry.id} style={{
                 display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', marginBottom: 8,
-                background: isMe ? 'rgba(74,222,128,0.06)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${isMe ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.07)'}`,
+                background: isMe ? 'rgba(74,222,128,0.06)' : 'var(--text-muted)',
+                border: `1px solid ${isMe ? 'rgba(74,222,128,0.2)' : 'var(--text-muted)'}`,
                 borderRadius: 14,
               }}>
                 <div style={{ width: 28, textAlign: 'center', fontSize: i < 3 ? 20 : 13, color: 'var(--text-muted)', fontWeight: 700 }}>
@@ -486,8 +486,8 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
           {[['active', '🟢 Active'], ['closed', '🔒 Closed'], ['all', 'All']].map(([val, label]) => (
             <button key={val} onClick={() => setFilter(val)} style={{
               padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              background: filter === val ? BRAND.primary : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${filter === val ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+              background: filter === val ? BRAND.primary : 'var(--text-muted)',
+              border: `1px solid ${filter === val ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
               color: filter === val ? '#4ade80' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif",
             }}>{label}</button>
@@ -510,7 +510,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
             const entryCount = c.entry_count?.[0]?.count || 0;
             return (
               <div key={c.id} onClick={() => { setSelected(c); setView('detail'); }} style={{
-                background: 'var(--bg-card)', border: `1px solid ${closed ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.1)'}`,
+                background: 'var(--bg-card)', border: `1px solid ${closed ? 'var(--bg-card)' : 'var(--text-muted)'}`,
                 borderRadius: 16, padding: '16px', marginBottom: 10, cursor: 'pointer',
                 opacity: closed ? 0.7 : 1,
               }}>

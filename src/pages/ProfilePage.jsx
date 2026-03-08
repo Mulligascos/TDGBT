@@ -42,15 +42,15 @@ const SectionTitle = ({ children }) => (
 const MenuItem = ({ icon, label, sub, onClick, danger = false }) => (
   <button onClick={onClick} style={{
     width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-    background: danger ? 'rgba(248,113,113,0.06)' : 'rgba(255,255,255,0.04)',
-    border: `1px solid ${danger ? 'rgba(248,113,113,0.2)' : 'rgba(255,255,255,0.08)'}`,
+    background: danger ? 'rgba(248,113,113,0.06)' : 'var(--text-muted)',
+    border: `1px solid ${danger ? 'rgba(248,113,113,0.2)' : 'var(--text-muted)'}`,
     borderRadius: 14, padding: '14px 16px',
     cursor: 'pointer', marginBottom: 8, textAlign: 'left',
     fontFamily: "'DM Sans', sans-serif",
   }}>
     <span style={{ fontSize: 20 }}>{icon}</span>
     <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 14, fontWeight: 600, color: danger ? '#f87171' : 'rgba(255,255,255,0.9)' }}>{label}</div>
+      <div style={{ fontSize: 14, fontWeight: 600, color: danger ? '#f87171' : 'var(--text-primary)' }}>{label}</div>
       {sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>{sub}</div>}
     </div>
     {!danger && <span style={{ color: 'var(--text-muted)', fontSize: 18 }}>›</span>}
@@ -188,8 +188,8 @@ const EditProfileView = ({ currentUser, onBack, onSaved }) => {
           width: '100%', padding: '14px', borderRadius: 14,
           background: isDirty
             ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
-            : 'rgba(255,255,255,0.06)',
-          border: isDirty ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.08)',
+            : 'var(--text-muted)',
+          border: isDirty ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
           color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
           cursor: isDirty ? 'pointer' : 'not-allowed',
           opacity: saving ? 0.6 : 1,
@@ -282,8 +282,8 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
 const SeasonStats = ({ stats, onViewHistory }) => {
   const items = [
     { label: 'Rounds', value: stats.roundsPlayed, color: 'var(--text-primary)' },
-    { label: 'Best Round', value: stats.bestRound != null ? vsParLabel(stats.bestRound) : '—', color: stats.bestRound != null ? vsParColor(stats.bestRound) : 'rgba(255,255,255,0.3)' },
-    { label: 'Avg Score', value: stats.avgScore != null ? vsParLabel(stats.avgScore) : '—', color: stats.avgScore != null ? vsParColor(stats.avgScore) : 'rgba(255,255,255,0.3)' },
+    { label: 'Best Round', value: stats.bestRound != null ? vsParLabel(stats.bestRound) : '—', color: stats.bestRound != null ? vsParColor(stats.bestRound) : 'var(--text-muted)' },
+    { label: 'Avg Score', value: stats.avgScore != null ? vsParLabel(stats.avgScore) : '—', color: stats.avgScore != null ? vsParColor(stats.avgScore) : 'var(--text-muted)' },
     { label: 'Under Par', value: stats.underParRounds, color: '#4ade80' },
   ];
   return (
@@ -514,7 +514,7 @@ const AchievementsSection = ({ currentUser }) => {
           <div onClick={e => e.stopPropagation()} style={{
             background: 'var(--bg-nav)', borderRadius: 20, padding: '24px 20px',
             maxWidth: 320, width: '100%', textAlign: 'center',
-            border: `1px solid ${popup.earned ? TIER_COLORS[popup.tier].border : 'rgba(255,255,255,0.1)'}`,
+            border: `1px solid ${popup.earned ? TIER_COLORS[popup.tier].border : 'var(--text-muted)'}`,
           }}>
             <div style={{ fontSize: 52, marginBottom: 12 }}>{popup.icon}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: popup.earned ? TIER_COLORS[popup.tier].color : 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>
@@ -617,7 +617,7 @@ const AchievementsSection = ({ currentUser }) => {
               <div key={a.id} onClick={() => setPopup({ ...a, earned: false })} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 textAlign: 'center', gap: 5,
-                background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--bg-card)', border: '1px solid var(--border)',
                 borderRadius: 12, padding: '12px 8px',
                 opacity: 0.4, cursor: 'pointer',
               }}>
@@ -718,7 +718,7 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
             {/* Edit button */}
             <button onClick={() => setView('edit')} style={{
               width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.15)',
+              background: 'var(--bg-input)', border: '1px solid var(--border)',
               color: 'var(--text-secondary)', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
