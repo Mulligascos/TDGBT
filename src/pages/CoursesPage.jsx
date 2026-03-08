@@ -122,15 +122,15 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
   };
 
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 14 }}>Report Temporary Hazard</div>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>Report Temporary Hazard</div>
       <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 10, marginBottom: 12 }}>
         <div>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole</div>
           <select value={hole} onChange={e => setHole(e.target.value)} style={{
             width: '100%', padding: '10px 8px', borderRadius: 10,
-            background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
-            color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
+            background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+            color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
           }}>
             <option value="" style={{ background: 'var(--bg-nav)' }}>Any</option>
             {Array.from({ length: holes }, (_, i) => (
@@ -146,8 +146,8 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
             placeholder="e.g. Basket moved 10m left"
             style={{
               width: '100%', padding: '10px 12px', borderRadius: 10,
-              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
-              color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
+              background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+              color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
               boxSizing: 'border-box',
             }}
           />
@@ -161,13 +161,13 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: '10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-secondary)',
+          border: '1px solid var(--border)', color: 'var(--text-secondary)',
           fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
         }}>Cancel</button>
         <button onClick={handleSave} disabled={saving || !description.trim()} style={{
           flex: 2, padding: '10px', borderRadius: 10,
           background: description.trim() ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(74,222,128,0.3)', color: 'white',
+          border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
           fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
         }}>
           {saving ? 'Reporting...' : 'Report Hazard'}
@@ -210,14 +210,14 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
   const inputStyle = {
     width: '100%', padding: '11px 12px', borderRadius: 10,
-    background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
+    background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+    color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
     boxSizing: 'border-box', marginBottom: 10,
   };
 
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 14 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>
         {courseName ? `Request Change — ${courseName}` : 'Request New Course'}
       </div>
 
@@ -242,13 +242,13 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
       <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: '10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-secondary)',
+          border: '1px solid var(--border)', color: 'var(--text-secondary)',
           fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
         }}>Cancel</button>
         <button onClick={handleSave} disabled={saving || !form.title.trim() || !form.description.trim()} style={{
           flex: 2, padding: '10px', borderRadius: 10,
           background: (form.title.trim() && form.description.trim()) ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(74,222,128,0.3)', color: 'white',
+          border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
           fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
         }}>
           {saving ? 'Submitting...' : 'Submit Request'}
@@ -333,7 +333,7 @@ const HoleStats = ({ course, currentUser }) => {
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
         ))}
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted)' }}>
           {totalRounds} round{totalRounds !== 1 ? 's' : ''}
         </span>
       </div>
@@ -346,10 +346,10 @@ const HoleStats = ({ course, currentUser }) => {
           { icon: '🐦', label: 'Most Birdied',  value: mostBirdied ? `Hole ${mostBirdied.hole}` : '—', sub: mostBirdied ? `${Math.round(mostBirdied.birdies / mostBirdied.count * 100)}% birdie rate` : '' },
           { icon: '🎳', label: 'Ace Recorded',  value: aceHole     ? `Hole ${aceHole.hole}`     : 'None yet', sub: aceHole ? `${aceHole.aces} ace${aceHole.aces !== 1 ? 's' : ''}` : '' },
         ].map(({ icon, label, value, sub }) => (
-          <div key={label} style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px' }}>
+          <div key={label} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px' }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{value}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{label}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{value}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{label}</div>
             {sub && <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{sub}</div>}
           </div>
         ))}
@@ -446,19 +446,19 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
   return (
     <div style={{ paddingBottom: 20 }}>
       {toast && (
-        <div style={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: '#16a34a', color: 'white', padding: '12px 20px', borderRadius: 14, fontFamily: "'DM Sans', sans-serif", fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: '#16a34a', color: 'var(--text-primary)', padding: '12px 20px', borderRadius: 14, fontFamily: "'DM Sans', sans-serif", fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
           <Check size={15} /> {toast}
         </div>
       )}
 
       {/* Header */}
-      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '36px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
             <ChevronLeft size={15} /> Courses
           </button>
-          <div style={{ fontSize: 24, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>{course.name}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>{course.name}</div>
 
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             {course.location && (
@@ -491,7 +491,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
             <a href={course.directions_url} target="_blank" rel="noopener noreferrer" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14,
               padding: '8px 14px', borderRadius: 10,
-              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+              background: 'rgba(255,255,255,0.08)', border: '1px solid var(--border-card)',
               color: 'rgba(255,255,255,0.7)', fontSize: 13, textDecoration: 'none',
               fontFamily: "'DM Sans', sans-serif",
             }}>
@@ -525,7 +525,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
         {course.pars && (
           <div style={{ marginBottom: 28 }}>
             <SectionTitle>Hole Pars</SectionTitle>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px' }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '14px' }}>
               <ParGrid pars={course.pars} holes={course.holes || 18} />
             </div>
           </div>
@@ -535,7 +535,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
         {course.notes && (
           <div style={{ marginBottom: 28 }}>
             <SectionTitle>Layout Notes</SectionTitle>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '14px', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
               {course.notes}
             </div>
           </div>
@@ -545,7 +545,7 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
         {course.facilities && (
           <div style={{ marginBottom: 28 }}>
             <SectionTitle>Facilities</SectionTitle>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '14px', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
               {course.facilities}
             </div>
           </div>
@@ -593,8 +593,8 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
             {!showRequestForm && (
               <button onClick={() => setShowRequestForm(true)} style={{
                 display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 8,
-                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-                color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
                 fontFamily: "'DM Sans', sans-serif",
               }}>
                 <Plus size={13} /> Request
@@ -626,14 +626,14 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
             return (
               <div key={r.id} style={{ background: ss.bg, border: `1px solid ${ss.border}`, borderRadius: 12, padding: '12px 14px', marginBottom: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{r.title}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{r.title}</div>
                   <span style={{ fontSize: 11, fontWeight: 700, color: ss.color, whiteSpace: 'nowrap', marginLeft: 8 }}>{ss.label}</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 4 }}>{r.description}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Submitted {formatDate(r.submitted_at)}</div>
                 {r.admin_notes && (
-                  <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Admin Notes</div>
+                  <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-card)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Admin Notes</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{r.admin_notes}</div>
                   </div>
                 )}
@@ -653,19 +653,19 @@ const CourseCard = ({ course, myRoundsCount, activeHazards, onClick }) => {
   const tp = totalPar(course.pars);
   return (
     <div onClick={onClick} style={{
-      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-card)', border: '1px solid var(--border)',
       borderRadius: 16, padding: '16px 18px', marginBottom: 10, cursor: 'pointer',
       display: 'flex', alignItems: 'center', gap: 12,
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: 'white', marginBottom: 4 }}>{course.name}</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{course.name}</div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {course.location && (
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 3 }}>
               <MapPin size={11} /> {course.location}
             </span>
           )}
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{course.holes || 18} holes{tp ? ` · Par ${tp}` : ''}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{course.holes || 18} holes{tp ? ` · Par ${tp}` : ''}</span>
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
           {myRoundsCount > 0 && (
@@ -759,18 +759,18 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
   return (
     <div style={pageStyle}>
       {toast && (
-        <div style={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: '#16a34a', color: 'white', padding: '12px 20px', borderRadius: 14, fontFamily: "'DM Sans', sans-serif", fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: '#16a34a', color: 'var(--text-primary)', padding: '12px 20px', borderRadius: 14, fontFamily: "'DM Sans', sans-serif", fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
           <Check size={15} /> {toast}
         </div>
       )}
 
       {/* Header */}
-      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '36px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>⛳ Courses</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>Local Courses</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{courses.length} course{courses.length !== 1 ? 's' : ''}</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>Local Courses</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{courses.length} course{courses.length !== 1 ? 's' : ''}</div>
         </div>
       </div>
 
@@ -797,8 +797,8 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
           {!showRequestForm ? (
             <button onClick={() => setShowRequestForm(true)} style={{
               width: '100%', padding: '13px', borderRadius: 14,
-              background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
+              color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
               cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
               <Plus size={14} /> Suggest a new course
@@ -823,13 +823,13 @@ export const CoursesPage = ({ currentUser, isAdmin, courses: initialCourses }) =
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
     textarea { font-family: 'DM Sans', sans-serif; }

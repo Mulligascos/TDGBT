@@ -41,9 +41,9 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
         <h1 style={{
           fontFamily: "'Syne', sans-serif",
           fontSize: 32, fontWeight: 800,
-          color: 'white', margin: 0, letterSpacing: -1,
+          color: 'var(--text-primary)', margin: 0, letterSpacing: -1,
         }}>TDG Members</h1>
-        <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, marginTop: 6 }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 6 }}>
           Timaru Disc Golf Club
         </p>
       </div>
@@ -52,14 +52,14 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
       <div style={{
         width: '100%', maxWidth: 380,
         background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        border: '1px solid var(--border-card)',
         borderRadius: 24, padding: 28,
       }}>
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 16 }}>
             <label style={{
               display: 'block', fontSize: 11, fontWeight: 700,
-              color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
+              color: 'var(--text-secondary)', textTransform: 'uppercase',
               letterSpacing: 1.5, marginBottom: 8,
             }}>Select your name</label>
             {isLoadingPlayers ? (
@@ -77,7 +77,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
                 style={{
                   width: '100%', padding: '13px 16px', borderRadius: 12,
                   background: 'var(--bg-input)',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  border: '1px solid var(--border-card)',
                   color: selectedName ? 'white' : 'rgba(255,255,255,0.3)',
                   fontSize: 15, fontFamily: "'DM Sans', sans-serif",
                   outline: 'none', appearance: 'none', cursor: 'pointer',
@@ -97,7 +97,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
           <div style={{ marginBottom: 20 }}>
             <label style={{
               display: 'block', fontSize: 11, fontWeight: 700,
-              color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
+              color: 'var(--text-secondary)', textTransform: 'uppercase',
               letterSpacing: 1.5, marginBottom: 8,
             }}>PIN</label>
             <input
@@ -115,7 +115,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
                 border: loginError
                   ? '1px solid rgba(248,113,113,0.5)'
                   : '1px solid rgba(255,255,255,0.12)',
-                color: 'white', fontSize: 15,
+                color: 'var(--text-primary)', fontSize: 15,
                 fontFamily: "'DM Sans', sans-serif",
                 outline: 'none', boxSizing: 'border-box',
                 letterSpacing: 8,
@@ -141,7 +141,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
               width: '100%', padding: '14px',
               background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
               border: '1px solid rgba(74,222,128,0.3)',
-              borderRadius: 14, color: 'white',
+              borderRadius: 14, color: 'var(--text-primary)',
               fontFamily: "'Syne', sans-serif",
               fontSize: 15, fontWeight: 700,
               cursor: loading || !selectedName || pin.length !== 4 ? 'not-allowed' : 'pointer',
@@ -154,7 +154,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
         </form>
       </div>
 
-      <p style={{ color: 'rgba(255,255,255,0.15)', fontSize: 12, marginTop: 32, textAlign: 'center' }}>
+      <p style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 32, textAlign: 'center' }}>
         TDG Members App · Timaru Disc Golf Club
       </p>
 

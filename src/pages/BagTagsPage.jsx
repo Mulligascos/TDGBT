@@ -58,7 +58,7 @@ const LeaderboardTab = ({ players, currentUserId }) => {
                 {formatName(p.name)}
                 {isMe && <span style={{ fontSize: 11, color: BRAND.light, marginLeft: 6 }}>you</span>}
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
                 {p.division} · {p.status}
               </div>
             </div>
@@ -114,8 +114,8 @@ const HistoryTab = ({ currentUserId }) => {
             {/* Challenge header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{c.courses?.name || 'Unknown course'}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{formatDate(c.challenge_date)}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{c.courses?.name || 'Unknown course'}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{formatDate(c.challenge_date)}</div>
               </div>
               {myEntry && (
                 <span style={{ fontSize: 11, background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)', color: BRAND.light, borderRadius: 8, padding: '3px 8px', fontWeight: 700 }}>
@@ -137,7 +137,7 @@ const HistoryTab = ({ currentUserId }) => {
                   <div style={{ flex: 1, fontSize: 13, color: isWinner ? 'white' : 'rgba(255,255,255,0.6)', fontWeight: isWinner ? 700 : 400 }}>
                     {formatName(p.players?.player_name || 'Unknown')}
                   </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', width: 40, textAlign: 'center' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', width: 40, textAlign: 'center' }}>
                     {p.vs_par != null ? (p.vs_par === 0 ? 'E' : p.vs_par > 0 ? `+${p.vs_par}` : p.vs_par) : '—'}
                   </div>
                   {tagChanged ? (
@@ -203,7 +203,7 @@ const MyTagTab = ({ currentUser }) => {
         ) : (
           <>
             <Tag size={28} color="rgba(255,255,255,0.2)" style={{ marginBottom: 8 }} />
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>No bag tag yet</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)' }}>No bag tag yet</div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Win a challenge to earn one</div>
           </>
         )}
@@ -229,11 +229,11 @@ const MyTagTab = ({ currentUser }) => {
               {entry.won ? '🏆' : tagChanged ? '📉' : '—'}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{c?.courses?.name || 'Unknown course'}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{formatDate(c?.challenge_date)}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{c?.courses?.name || 'Unknown course'}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{formatDate(c?.challenge_date)}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                 {entry.vs_par != null ? (entry.vs_par === 0 ? 'E' : entry.vs_par > 0 ? `+${entry.vs_par}` : entry.vs_par) : '—'}
               </div>
               {tagChanged ? (
@@ -276,7 +276,7 @@ export const BagTagsPage = ({ currentUser, players }) => {
           <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
             🏷️ Bag Tags
           </div>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: 'white', marginBottom: 20 }}>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 20 }}>
             Tag Challenge
           </div>
 
@@ -311,13 +311,13 @@ export const BagTagsPage = ({ currentUser, players }) => {
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
   `}</style>

@@ -8,7 +8,7 @@ import { ChevronLeft, Plus, Check, X, Search } from 'lucide-react';
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const DISC_COLOURS = ['White', 'Yellow', 'Orange', 'Red', 'Pink', 'Purple', 'Blue', 'Green', 'Black', 'Grey', 'Swirly', 'Other'];
@@ -16,8 +16,8 @@ const POPULAR_BRANDS = ['Innova', 'Discraft', 'Dynamic Discs', 'Latitude 64', 'W
 
 const inputStyle = {
   width: '100%', padding: '11px 14px', borderRadius: 12,
-  background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-  color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
+  background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+  color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
 };
 
 const GlobalStyles = () => (
@@ -36,7 +36,7 @@ const StatusBadge = ({ status }) => {
     found:   { label: 'Unclaimed', bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.3)',  color: '#fbbf24' },
     claimed: { label: 'Claimed',   bg: 'rgba(74,222,128,0.12)',  border: 'rgba(74,222,128,0.25)', color: '#4ade80' },
     lost:    { label: 'Lost',      bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.25)', color: '#f87171' },
-  }[status] || { label: status, bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' };
+  }[status] || { label: status, bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.1)', color: 'var(--text-secondary)' };
   return (
     <div style={{
       display: 'inline-flex', alignItems: 'center',
@@ -54,7 +54,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
 
   return (
     <div style={{
-      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-card)', border: '1px solid var(--border)',
       borderRadius: 16, marginBottom: 10, overflow: 'hidden',
       opacity: disc.status === 'claimed' ? 0.6 : 1,
     }}>
@@ -63,12 +63,12 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
         {/* Colour dot */}
         <div style={{
           width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+          background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-card)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
         }}>
           <span style={{ fontSize: 20 }}>🥏</span>
           <span style={{
-            fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)',
+            fontSize: 9, fontWeight: 700, color: 'var(--text-secondary)',
             textTransform: 'uppercase', letterSpacing: 0.5,
             maxWidth: 40, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>{disc.colour}</span>
@@ -76,10 +76,10 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
 
         {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>
             {disc.brand} {disc.mould ? `· ${disc.mould}` : ''}
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
             {disc.type === 'lost'
               ? `Lost near hole ${disc.hole} · ${formatDate(disc.found_date)}`
               : `Hole ${disc.hole} · ${formatDate(disc.found_date)}`}
@@ -93,7 +93,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
           <StatusBadge status={disc.status} />
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>{expanded ? '▲' : '▼'}</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{expanded ? '▲' : '▼'}</span>
         </div>
       </div>
 
@@ -113,7 +113,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
             ].map(({ label, value }) => (
               <div key={label} style={{
                 padding: '5px 10px', borderRadius: 8,
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
               }}>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginTop: 1 }}>{value}</div>
@@ -128,7 +128,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
                 <button onClick={() => onClaim(disc)} style={{
                   flex: 1, padding: '10px', borderRadius: 12,
                   background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-                  border: '1px solid rgba(74,222,128,0.3)', color: 'white',
+                  border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
                   fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}>
@@ -154,7 +154,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
                 <button onClick={() => onFoundIt(disc)} style={{
                   flex: 1, padding: '10px', borderRadius: 12,
                   background: 'linear-gradient(135deg, #92400e, #b45309)',
-                  border: '1px solid rgba(251,191,36,0.3)', color: 'white',
+                  border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
                   fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}>
@@ -235,13 +235,13 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
       <div style={{ width: '100%', maxWidth: 520, margin: '0 auto', background: 'var(--bg-nav)', borderRadius: '20px 20px 0 0', padding: '20px 20px 32px', maxHeight: '85vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'white' }}>Report Found Disc</div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}><X size={20} /></button>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' }}>Report Found Disc</div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={20} /></button>
         </div>
 
         {/* Brand */}
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Brand *</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Brand *</div>
           <select value={form.brand} onChange={e => set('brand', e.target.value)} style={{ ...inputStyle, appearance: 'none' }}>
             <option value="">Select brand...</option>
             {POPULAR_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
@@ -250,13 +250,13 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
 
         {/* Mould */}
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Mould / Model</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Mould / Model</div>
           <input value={form.mould} onChange={e => set('mould', e.target.value)} placeholder="e.g. Destroyer, Buzzz, Judge..." style={inputStyle} />
         </div>
 
         {/* Colour */}
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Colour *</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Colour *</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {DISC_COLOURS.map(c => (
               <button key={c} onClick={() => set('colour', c)} style={{
@@ -273,21 +273,21 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
         {/* Course + Hole */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px', gap: 10, marginBottom: 14 }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Course *</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Course *</div>
             <select value={form.course_id} onChange={e => set('course_id', e.target.value)} style={{ ...inputStyle, appearance: 'none' }}>
               <option value="">Select...</option>
               {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole *</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole *</div>
             <input type="number" min="1" max="27" value={form.hole} onChange={e => set('hole', e.target.value)} placeholder="1" style={inputStyle} />
           </div>
         </div>
 
         {/* Description */}
         <div style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Extra details</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Extra details</div>
           <textarea value={form.description} onChange={e => set('description', e.target.value)}
             placeholder="Any markings, name on disc, condition..." rows={2}
             style={{ ...inputStyle, resize: 'none', lineHeight: 1.5 }} />
@@ -303,7 +303,7 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
           width: '100%', padding: '14px', borderRadius: 14,
           background: valid ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
           border: valid ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.1)',
-          color: 'white', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+          color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
           cursor: valid ? 'pointer' : 'not-allowed', opacity: saving ? 0.6 : 1,
         }}>
           {saving ? 'Reporting...' : '🥏 Report Found Disc'}
@@ -354,8 +354,8 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
       <div style={{ width: '100%', maxWidth: 520, margin: '0 auto', background: '#1a0a00', borderRadius: '20px 20px 0 0', padding: '20px 20px 32px', maxHeight: '85vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'white' }}>Report Lost Disc</div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}><X size={20} /></button>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' }}>Report Lost Disc</div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={20} /></button>
         </div>
 
         <div style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 12, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#f87171' }}>
@@ -363,7 +363,7 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Brand *</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Brand *</div>
           <select value={form.brand} onChange={e => set('brand', e.target.value)} style={{ ...inputStyle, appearance: 'none' }}>
             <option value="">Select brand...</option>
             {POPULAR_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
@@ -371,12 +371,12 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Mould / Model</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Mould / Model</div>
           <input value={form.mould} onChange={e => set('mould', e.target.value)} placeholder="e.g. Destroyer, Buzzz, Judge..." style={inputStyle} />
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Colour *</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Colour *</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {DISC_COLOURS.map(col => (
               <button key={col} onClick={() => set('colour', col)} style={{
@@ -392,20 +392,20 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px', gap: 10, marginBottom: 14 }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Course *</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Course *</div>
             <select value={form.course_id} onChange={e => set('course_id', e.target.value)} style={{ ...inputStyle, appearance: 'none' }}>
               <option value="">Select...</option>
               {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole</div>
             <input type="number" min="1" max="27" value={form.hole} onChange={e => set('hole', e.target.value)} placeholder="?" style={inputStyle} />
           </div>
         </div>
 
         <div style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Extra details</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Extra details</div>
           <textarea value={form.description} onChange={e => set('description', e.target.value)}
             placeholder="Any markings, name on disc, stamp details, approximate area lost..." rows={2}
             style={{ ...inputStyle, resize: 'none', lineHeight: 1.5 }} />
@@ -421,7 +421,7 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
           width: '100%', padding: '14px', borderRadius: 14,
           background: valid ? 'linear-gradient(135deg, #92400e, #b45309)' : 'rgba(255,255,255,0.06)',
           border: valid ? '1px solid rgba(251,191,36,0.3)' : '1px solid rgba(255,255,255,0.1)',
-          color: 'white', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+          color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
           cursor: valid ? 'pointer' : 'not-allowed', opacity: saving ? 0.6 : 1,
         }}>
           {saving ? 'Reporting...' : '🔍 Report Lost Disc'}
@@ -506,7 +506,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
     <div style={pageStyle}>
       {/* Header */}
       <div style={{
-        background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`,
+        background: 'var(--bg-header)',
         padding: '36px 20px 14px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         position: 'relative', overflow: 'hidden',
@@ -516,10 +516,10 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
             🥏 Lost & Found
           </div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
             Disc Registry
           </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 3 }}>
             {[unclaimed > 0 && `${unclaimed} found`, lostCount > 0 && `${lostCount} lost`].filter(Boolean).join(' · ') || 'No active listings'}
           </div>
         </div>
@@ -541,7 +541,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           <button onClick={() => setShowForm(true)} style={{
             flex: 1, padding: '10px 14px', borderRadius: 12,
             background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-            border: '1px solid rgba(74,222,128,0.3)', color: 'white',
+            border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
             fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
           }}>
@@ -550,7 +550,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           <button onClick={() => setShowLostForm(true)} style={{
             flex: 1, padding: '10px 14px', borderRadius: 12,
             background: 'linear-gradient(135deg, #92400e, #b45309)',
-            border: '1px solid rgba(251,191,36,0.3)', color: 'white',
+            border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
             fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
           }}>

@@ -71,7 +71,7 @@ const QuickAction = ({ icon: Icon, label, onClick, accent = false }) => (
 const Top3 = ({ entries, currentUserId, onViewAll }) => {
   const medals = ['🥇', '🥈', '🥉'];
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
       {entries.map((entry, i) => {
         const isMe = entry.playerId === currentUserId;
         return (
@@ -100,7 +100,7 @@ const Top3 = ({ entries, currentUserId, onViewAll }) => {
       <button onClick={onViewAll} style={{
         width: '100%', padding: '11px', background: 'var(--bg-card)',
         border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)',
-        color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif",
+        color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
         fontSize: 13, cursor: 'pointer',
       }}>
         Full standings →
@@ -111,7 +111,7 @@ const Top3 = ({ entries, currentUserId, onViewAll }) => {
 
 // ─── MY RECENT SCORES ─────────────────────────────────────────────────────────
 const RecentScores = ({ scores, onViewAll }) => (
-  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
+  <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
     {scores.map((s, i) => (
       <div key={s.id} style={{
         display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
@@ -128,17 +128,17 @@ const RecentScores = ({ scores, onViewAll }) => (
           <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 1 }}>{s.total_strokes}</div>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {s.courseName || 'Unknown course'}
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{formatDate(s.roundDate)}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>{formatDate(s.roundDate)}</div>
         </div>
       </div>
     ))}
     <button onClick={onViewAll} style={{
       width: '100%', padding: '11px', background: 'var(--bg-card)',
       border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)',
-      color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif",
+      color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
       fontSize: 13, cursor: 'pointer',
     }}>
       Full history →
@@ -149,11 +149,11 @@ const RecentScores = ({ scores, onViewAll }) => (
 // ─── ANNOUNCEMENT CARD ────────────────────────────────────────────────────────
 const AnnouncementCard = ({ announcement }) => (
   <div style={{
-    background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
+    background: 'var(--bg-card)', border: '1px solid var(--border)',
     borderRadius: 14, padding: '14px 16px', marginBottom: 8,
   }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: 'white', flex: 1, paddingRight: 8 }}>{announcement.title}</div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', flex: 1, paddingRight: 8 }}>{announcement.title}</div>
       {announcement.pinned && (
         <span style={{ fontSize: 10, background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24', borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap' }}>📌 Pinned</span>
       )}
@@ -175,12 +175,12 @@ const NoTournamentBanner = ({ onScore }) => (
     <span style={{ fontSize: 22, flexShrink: 0 }}>🥏</span>
     <div style={{ flex: 1 }}>
       <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>No active tournament</div>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Play a casual round</div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Play a casual round</div>
     </div>
     <button onClick={onScore} style={{
       padding: '7px 14px', borderRadius: 9, flexShrink: 0,
       background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-      border: '1px solid rgba(74,222,128,0.3)', color: 'white',
+      border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
       fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, cursor: 'pointer',
     }}>
       Score →
@@ -279,7 +279,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>{greeting}</div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800, color: 'white', letterSpacing: -0.5, marginBottom: 10 }}>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: -0.5, marginBottom: 10 }}>
                 {formatName(currentUser.name)} 👋
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -310,7 +310,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
                 {pendingRequestsCount > 0 && (
                   <span style={{
                     position: 'absolute', top: -6, right: -6,
-                    background: '#f87171', color: 'white',
+                    background: '#f87171', color: 'var(--text-primary)',
                     borderRadius: '50%', width: 18, height: 18,
                     fontSize: 10, fontWeight: 800,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -339,10 +339,10 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
                 <div style={{ fontSize: 10, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>
                   🏆 Active Tournament
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                   {activeTournament.name}
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 3 }}>
                   {formatDate(activeTournament.start_date)} – {formatDate(activeTournament.end_date)}
                 </div>
               </div>
@@ -358,7 +358,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
             {/* Top 3 inline leaderboard */}
             {!loading && leaderboard.length > 0 && (
               <>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
                   Standings
                 </div>
                 <Top3
@@ -370,7 +370,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
             )}
 
             {!loading && leaderboard.length === 0 && (
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '8px 0' }}>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', padding: '8px 0' }}>
                 No scores submitted yet — be the first!
               </div>
             )}
@@ -414,7 +414,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
               borderRadius: 14, padding: '20px', textAlign: 'center',
             }}>
               <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>No rounds scored yet</div>
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>No rounds scored yet</div>
               <button onClick={() => onNavigate('matches')} style={{
                 marginTop: 12, padding: '8px 20px', borderRadius: 10,
                 background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)',
@@ -444,13 +444,13 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
   `}</style>

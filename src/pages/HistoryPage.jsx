@@ -34,14 +34,14 @@ const PersonalBests = ({ myScores }) => {
       {stats.map(({ label, value, color }) => (
         <div key={label} style={{
           background: 'var(--bg-card)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: '1px solid var(--border)',
           borderRadius: 14, padding: '14px 10px', textAlign: 'center',
         }}>
           <div style={{
             fontSize: 22, fontWeight: 800, color,
             fontFamily: "'Syne', sans-serif", lineHeight: 1, marginBottom: 4,
           }}>{value}</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
             {label}
           </div>
         </div>
@@ -80,20 +80,20 @@ const HoleGrid = ({ scores, pars }) => {
             </td>
           </tr>
           <tr>
-            <td style={{ padding: '3px 6px', color: 'rgba(255,255,255,0.2)', fontSize: 10 }}>Par</td>
+            <td style={{ padding: '3px 6px', color: 'var(--text-muted)', fontSize: 10 }}>Par</td>
             {pars.map((p, i) => (
-              <td key={i} style={{ padding: '3px', color: 'rgba(255,255,255,0.2)', textAlign: 'center', fontSize: 10 }}>
+              <td key={i} style={{ padding: '3px', color: 'var(--text-muted)', textAlign: 'center', fontSize: 10 }}>
                 {p}
               </td>
             ))}
-            <td style={{ padding: '3px 6px', color: 'rgba(255,255,255,0.2)', textAlign: 'right', fontSize: 10 }}>
+            <td style={{ padding: '3px 6px', color: 'var(--text-muted)', textAlign: 'right', fontSize: 10 }}>
               {totalPar(pars)}
             </td>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td style={{ padding: '5px 6px', color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Score</td>
+            <td style={{ padding: '5px 6px', color: 'var(--text-secondary)', fontWeight: 600 }}>Score</td>
             {pars.map((par, i) => {
               const s = holeScores[i];
               const diff = s != null ? s - par : null;
@@ -165,7 +165,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
   return (
     <div style={{
       background: 'var(--bg-card)',
-      border: '1px solid rgba(255,255,255,0.08)',
+      border: '1px solid var(--border)',
       borderRadius: 16, marginBottom: 10, overflow: 'hidden',
     }}>
       {/* Main row */}
@@ -195,10 +195,10 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
 
         {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 3 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3 }}>
             {course?.name || 'Unknown course'}
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
             {formatDate(round?.scheduled_date)}
             {tournament && (
               <span style={{ marginLeft: 6, color: BRAND.light + '99' }}>· {tournament.name}</span>
@@ -256,7 +256,7 @@ const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlay
                   {/* Hole grid */}
                   {pars.length > 0 && o.holeScores.length > 0
                     ? <HoleGrid scores={o.holeScores} pars={pars} />
-                    : <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', padding: '4px 0' }}>No hole data</div>
+                    : <div style={{ fontSize: 11, color: 'var(--text-muted)', padding: '4px 0' }}>No hole data</div>
                   }
                 </div>
               ))}
@@ -283,7 +283,7 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
             onChange={e => setPlayerFilter(e.target.value)}
             style={{
               width: '100%', padding: '11px 12px 11px 34px', borderRadius: 12,
-              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--bg-input)', border: '1px solid var(--border-card)',
               color: playerFilter ? 'white' : 'rgba(255,255,255,0.4)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
               appearance: 'none',
@@ -291,7 +291,7 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
           >
             <option value="" style={{ background: 'var(--bg-nav)', color: 'var(--text-secondary)' }}>Filter by player...</option>
             {allPlayers.map(p => (
-              <option key={p.id} value={p.id} style={{ background: 'var(--bg-nav)', color: 'white' }}>
+              <option key={p.id} value={p.id} style={{ background: 'var(--bg-nav)', color: 'var(--text-primary)' }}>
                 {formatName(p.name)}
               </option>
             ))}
@@ -334,8 +334,8 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
               onChange={e => setDateFrom(e.target.value)}
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 10,
-                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
-                color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
                 colorScheme: 'dark',
               }}
             />
@@ -348,8 +348,8 @@ const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateT
               onChange={e => setDateTo(e.target.value)}
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 10,
-                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
-                color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
                 colorScheme: 'dark',
               }}
             />
@@ -408,13 +408,13 @@ const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose 
 
   return (
     <div style={{
-      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-card)', border: '1px solid var(--border)',
       borderRadius: 18, padding: '18px 16px', marginBottom: 24,
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <button onClick={prevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>‹</button>
-        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 800, color: 'white' }}>
+        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 800, color: 'var(--text-primary)' }}>
           {monthNames[viewMonth]} {viewYear}
         </div>
         <button onClick={nextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>›</button>
@@ -423,7 +423,7 @@ const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose 
       {/* Day headers */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
         {dayNames.map(d => (
-          <div key={d} style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)', padding: '4px 0', textTransform: 'uppercase', letterSpacing: 0.5 }}>{d}</div>
+          <div key={d} style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', padding: '4px 0', textTransform: 'uppercase', letterSpacing: 0.5 }}>{d}</div>
         ))}
       </div>
 
@@ -595,7 +595,7 @@ export const HistoryPage = ({ currentUser, players }) => {
     <div style={pageStyle}>
       {/* Header */}
       <div style={{
-        background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`,
+        background: 'var(--bg-header)',
         padding: '36px 20px 14px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         position: 'relative', overflow: 'hidden',
@@ -606,11 +606,11 @@ export const HistoryPage = ({ currentUser, players }) => {
           <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
             📋 History
           </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
             My Rounds
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
               {formatName(currentUser.name)} · all completed rounds
             </div>
             <button onClick={() => setShowCalendar(c => !c)} style={{
@@ -707,13 +707,13 @@ export const HistoryPage = ({ currentUser, players }) => {
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
     ::-webkit-scrollbar { display: none; }

@@ -35,7 +35,7 @@ const CreateTournamentForm = ({ onSave, onCancel }) => {
         <button onClick={onCancel} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
-        <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'white', margin: 0 }}>
+        <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
           New Tournament
         </h2>
       </div>
@@ -109,7 +109,7 @@ const CreateRoundForm = ({ tournament, courses, onSave, onCancel }) => {
         <button onClick={onCancel} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
-        <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'white', margin: 0 }}>
+        <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
           New Round — {tournament.name}
         </h2>
       </div>
@@ -183,10 +183,10 @@ const TournamentDetail = ({ tournament, rounds, courses, players, onBack, onRoun
           <ChevronLeft size={22} />
         </button>
         <div style={{ flex: 1 }}>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'white', margin: 0 }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
             {tournament.name}
           </h2>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
             {formatDate(tournament.start_date)} {tournament.end_date ? `– ${formatDate(tournament.end_date)}` : ''}
           </div>
         </div>
@@ -212,8 +212,8 @@ const TournamentDetail = ({ tournament, rounds, courses, players, onBack, onRoun
         {tournament.status === 'complete' && (
           <button onClick={() => handleStatusChange('active')} disabled={updatingStatus} style={{
             flex: 1, padding: '10px', borderRadius: 12,
-            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-            color: 'rgba(255,255,255,0.4)', fontFamily: "'Syne', sans-serif", fontSize: 13, cursor: 'pointer',
+            background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-card)',
+            color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", fontSize: 13, cursor: 'pointer',
           }}>↩ Reopen</button>
         )}
       </div>
@@ -228,13 +228,13 @@ const TournamentDetail = ({ tournament, rounds, courses, players, onBack, onRoun
             const course = courses.find(c => c.id === r.course_id);
             return (
               <div key={r.id} style={{
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
                 borderRadius: 12, padding: '12px 16px',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>Round {i + 1}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Round {i + 1}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                     {formatDate(r.scheduled_date)} · {course?.name || 'Unknown'} · {r.total_holes} holes
                   </div>
                 </div>
@@ -319,7 +319,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players,
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, paddingTop: 8 }}>
           <div>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 22, fontWeight: 800, color: 'white', margin: 0 }}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
               Admin Panel
             </h2>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
@@ -341,22 +341,22 @@ export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players,
                 <div key={t.id}
                   onClick={() => { setSelectedTournament(t); setView('tournament-detail'); }}
                   style={{
-                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-card)',
                     borderRadius: 14, padding: '14px 16px', cursor: 'pointer',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     transition: 'all 0.2s',
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 4 }}>{t.name}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{t.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                       {t.format} · {tRounds.length} round{tRounds.length !== 1 ? 's' : ''}
                       {t.start_date ? ` · ${formatDate(t.start_date)}` : ''}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Badge label={t.status} color={statusColor[t.status] || '#fbbf24'} />
-                    <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 18 }}>›</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: 18 }}>›</span>
                   </div>
                 </div>
               );
@@ -383,7 +383,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players,
               borderRadius: 12, padding: '12px', textAlign: 'center',
             }}>
               <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>{value}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{value}</div>
               <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
             </div>
           ))}
@@ -397,7 +397,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds, courses, players,
 const containerStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const GlobalStyles = () => (

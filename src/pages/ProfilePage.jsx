@@ -9,7 +9,7 @@ import { ChevronLeft, Eye, EyeOff, Check, X, Edit2 } from 'lucide-react';
 // ─── SHARED INPUT ─────────────────────────────────────────────────────────────
 const Field = ({ label, value, onChange, type = 'text', placeholder = '', hint = '' }) => (
   <div style={{ marginBottom: 16 }}>
-    <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>
+    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>
       {label}
     </div>
     <input
@@ -19,8 +19,8 @@ const Field = ({ label, value, onChange, type = 'text', placeholder = '', hint =
       placeholder={placeholder}
       style={{
         width: '100%', padding: '13px 14px', borderRadius: 12,
-        background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-        color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
+        background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+        color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
         outline: 'none', boxSizing: 'border-box',
       }}
     />
@@ -53,7 +53,7 @@ const MenuItem = ({ icon, label, sub, onClick, danger = false }) => (
       <div style={{ fontSize: 14, fontWeight: 600, color: danger ? '#f87171' : 'rgba(255,255,255,0.9)' }}>{label}</div>
       {sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>{sub}</div>}
     </div>
-    {!danger && <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 18 }}>›</span>}
+    {!danger && <span style={{ color: 'var(--text-muted)', fontSize: 18 }}>›</span>}
   </button>
 );
 
@@ -63,7 +63,7 @@ const Toast = ({ message, type = 'success' }) => (
     position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)',
     zIndex: 200,
     background: type === 'error' ? '#dc2626' : '#16a34a',
-    color: 'white', padding: '12px 20px', borderRadius: 14,
+    color: 'var(--text-primary)', padding: '12px 20px', borderRadius: 14,
     display: 'flex', alignItems: 'center', gap: 8,
     fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
     boxShadow: '0 8px 32px rgba(0,0,0,0.3)', whiteSpace: 'nowrap',
@@ -126,7 +126,7 @@ const EditProfileView = ({ currentUser, onBack, onSaved }) => {
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
-        <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
           Edit Profile
         </div>
       </div>
@@ -138,7 +138,7 @@ const EditProfileView = ({ currentUser, onBack, onSaved }) => {
           background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
           border: `2px solid ${BRAND.light}40`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 32, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif",
+          fontSize: 32, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif",
         }}>
           {form.name[0]?.toUpperCase() || '?'}
         </div>
@@ -190,7 +190,7 @@ const EditProfileView = ({ currentUser, onBack, onSaved }) => {
             ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
             : 'rgba(255,255,255,0.06)',
           border: isDirty ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.08)',
-          color: 'white', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
+          color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
           cursor: isDirty ? 'pointer' : 'not-allowed',
           opacity: saving ? 0.6 : 1,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -226,8 +226,8 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
 
   const inputStyle = {
     width: '100%', padding: '13px 14px', borderRadius: 12,
-    background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-    color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 15,
+    background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+    color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 15,
     outline: 'none', letterSpacing: 4, boxSizing: 'border-box',
   };
 
@@ -237,7 +237,7 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
-        <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
           Change PIN
         </div>
         <button onClick={() => setShowPins(s => !s)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
@@ -246,15 +246,15 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
       </div>
 
       <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>Current PIN</div>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>Current PIN</div>
         <input type={showPins ? 'text' : 'password'} maxLength={4} inputMode="numeric" value={currentPin} onChange={e => setCurrentPin(e.target.value.replace(/\D/g, ''))} placeholder="••••" style={inputStyle} />
       </div>
       <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>New PIN</div>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>New PIN</div>
         <input type={showPins ? 'text' : 'password'} maxLength={4} inputMode="numeric" value={newPin} onChange={e => setNewPin(e.target.value.replace(/\D/g, ''))} placeholder="••••" style={inputStyle} />
       </div>
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>Confirm New PIN</div>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 7 }}>Confirm New PIN</div>
         <input type={showPins ? 'text' : 'password'} maxLength={4} inputMode="numeric" value={confirmPin} onChange={e => setConfirmPin(e.target.value.replace(/\D/g, ''))} placeholder="••••" style={inputStyle} />
       </div>
 
@@ -267,7 +267,7 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
       <button onClick={handleSave} disabled={saving || !currentPin || !newPin || !confirmPin} style={{
         width: '100%', padding: '14px', borderRadius: 14,
         background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-        border: '1px solid rgba(74,222,128,0.3)', color: 'white',
+        border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
         fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: 'pointer', opacity: (!currentPin || !newPin || !confirmPin) ? 0.5 : 1,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -281,13 +281,13 @@ const ChangePinView = ({ currentUser, onBack, onSuccess }) => {
 // ─── SEASON STATS ─────────────────────────────────────────────────────────────
 const SeasonStats = ({ stats, onViewHistory }) => {
   const items = [
-    { label: 'Rounds', value: stats.roundsPlayed, color: 'white' },
+    { label: 'Rounds', value: stats.roundsPlayed, color: 'var(--text-primary)' },
     { label: 'Best Round', value: stats.bestRound != null ? vsParLabel(stats.bestRound) : '—', color: stats.bestRound != null ? vsParColor(stats.bestRound) : 'rgba(255,255,255,0.3)' },
     { label: 'Avg Score', value: stats.avgScore != null ? vsParLabel(stats.avgScore) : '—', color: stats.avgScore != null ? vsParColor(stats.avgScore) : 'rgba(255,255,255,0.3)' },
     { label: 'Under Par', value: stats.underParRounds, color: '#4ade80' },
   ];
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px', marginBottom: 8 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, padding: '16px', marginBottom: 8 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
         {items.map(({ label, value, color }) => (
           <div key={label} style={{ textAlign: 'center', padding: '10px 8px', background: 'var(--bg-card)', borderRadius: 12 }}>
@@ -298,7 +298,7 @@ const SeasonStats = ({ stats, onViewHistory }) => {
       </div>
       <button onClick={onViewHistory} style={{
         width: '100%', padding: '10px', borderRadius: 10,
-        background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
         color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
       }}>
         View full history →
@@ -478,7 +478,7 @@ const AchievementsSection = ({ currentUser }) => {
   useEffect(() => { load(); }, [load]);
 
   if (loading) return (
-    <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
+    <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--text-muted)', fontSize: 13 }}>
       Loading achievements...
     </div>
   );
@@ -522,7 +522,7 @@ const AchievementsSection = ({ currentUser }) => {
             </div>
             {popup.earned ? (
               <>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 10, lineHeight: 1.5 }}>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.5 }}>
                   {popup.earnedData.detail}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
@@ -538,17 +538,17 @@ const AchievementsSection = ({ currentUser }) => {
               </>
             ) : (
               <>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 10, lineHeight: 1.5 }}>
+                <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.5 }}>
                   {popup.desc}
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>
                   🔒 Not yet earned
                 </div>
               </>
             )}
             <button onClick={() => setPopup(null)} style={{
               marginTop: 18, padding: '9px 24px', borderRadius: 10,
-              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--bg-input)', border: '1px solid var(--border-card)',
               color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
               fontSize: 13, cursor: 'pointer',
             }}>Close</button>
@@ -563,14 +563,14 @@ const AchievementsSection = ({ currentUser }) => {
           { icon: '📈', label: 'Under Par Streak', value: streaks.underPar, sub: streaks.bestUnderPar > 0 ? `best: ${streaks.bestUnderPar}` : 'keep going!' },
         ].map(({ icon, label, value, sub }) => (
           <div key={label} style={{
-            background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
             borderRadius: 14, padding: '14px',
           }}>
             <div style={{ fontSize: 24, marginBottom: 6 }}>{icon}</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
+            <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
               {value}
             </div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{label}</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', marginTop: 4 }}>{label}</div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>
           </div>
         ))}
@@ -609,7 +609,7 @@ const AchievementsSection = ({ currentUser }) => {
       {/* Locked badges */}
       {lockedList.length > 0 && (
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Locked
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
@@ -684,7 +684,7 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
 
       {/* Header */}
       <div style={{
-        background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`,
+        background: 'var(--bg-header)',
         padding: '36px 20px 16px',
         position: 'relative', overflow: 'hidden',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -699,13 +699,13 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
               background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
               border: `2px solid ${BRAND.light}40`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 26, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif",
+              fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif",
             }}>
               {currentUser.name[0].toUpperCase()}
             </div>
 
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                 {formatName(currentUser.name)}
               </div>
               <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
@@ -736,19 +736,19 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
             )}
             {currentUser.pdgaNumber && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'white', fontFamily: "'Syne', sans-serif" }}>{currentUser.pdgaNumber}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{currentUser.pdgaNumber}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>PDGA</div>
               </div>
             )}
             {currentUser.udiscUsername && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'white', fontFamily: "'Syne', sans-serif" }}>{currentUser.udiscUsername}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{currentUser.udiscUsername}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>UDisc</div>
               </div>
             )}
             {currentUser.email && (
               <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px' }}>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{currentUser.email}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{currentUser.email}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Email</div>
               </div>
             )}
@@ -803,15 +803,15 @@ export const ProfilePage = ({ currentUser, onLogout, onNavigate, updateUser, sea
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
-    input::placeholder { color: rgba(255,255,255,0.2); }
+    input::placeholder { color: var(--text-muted); }
   `}</style>
 );

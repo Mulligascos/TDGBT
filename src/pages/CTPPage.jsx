@@ -7,7 +7,7 @@ import { MapPin, Plus, Check, X, Target, ChevronLeft, Trash2, Lock } from 'lucid
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
 };
 
 // Calculate distance between two GPS coords in metres (Haversine formula)
@@ -29,8 +29,8 @@ const formatDistance = (m) => {
 const Inp = ({ style, ...props }) => (
   <input style={{
     width: '100%', padding: '10px 12px', borderRadius: 12,
-    background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-    color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
+    background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+    color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
     outline: 'none', ...style,
   }} {...props} />
 );
@@ -75,7 +75,7 @@ const GpsButton = ({ label, onCapture, captured, hint }) => {
         width: '100%', padding: '14px', borderRadius: 14, cursor: loading ? 'wait' : 'pointer',
         background: captured ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.05)',
         border: `2px solid ${captured ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.12)'}`,
-        color: 'white', fontFamily: "'DM Sans', sans-serif",
+        color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
         <div style={{
@@ -91,7 +91,7 @@ const GpsButton = ({ label, onCapture, captured, hint }) => {
             {loading ? 'Getting location...' : captured ? `✓ ${label} captured` : label}
           </div>
           {captured ? (
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{hint}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{hint}</div>
           ) : (
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>Tap to capture your GPS position</div>
           )}
@@ -138,46 +138,46 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
 
   return (
     <div>
-      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '36px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
             <ChevronLeft size={15} /> CTP Challenges
           </button>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>New CTP Challenge</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>New CTP Challenge</div>
         </div>
       </div>
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px' }}>
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Challenge Name *</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Challenge Name *</div>
           <Inp value={name} onChange={e => setName(e.target.value)} placeholder="e.g. October CTP — Hole 7" />
         </div>
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Description</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Description</div>
           <Inp value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional details..." />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Course</div>
-            <select value={courseId} onChange={e => setCourseId(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Course</div>
+            <select value={courseId} onChange={e => setCourseId(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>
               <option value="">Any</option>
               {courses.map(c => <option key={c.id} value={c.id} style={{ background: 'var(--bg-nav)' }}>{c.name}</option>)}
             </select>
           </div>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hole</div>
             <Inp type="number" value={hole} onChange={e => setHole(e.target.value)} placeholder="e.g. 7" min="1" max="27" />
           </div>
         </div>
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Ends (optional)</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Ends (optional)</div>
           <Inp type="datetime-local" value={endsAt} onChange={e => setEndsAt(e.target.value)} />
         </div>
 
         {/* Pin position capture */}
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Pin Position *</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Pin Position *</div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.5 }}>
             📍 Stand at the basket and tap the button below to record the pin's GPS position.
           </div>
@@ -263,13 +263,13 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
   return (
     <div style={pageStyle}>
       {toast && (
-        <div style={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: '#16a34a', color: 'white', padding: '12px 20px', borderRadius: 14, fontFamily: "'DM Sans', sans-serif", fontSize: 14, whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: '#16a34a', color: 'var(--text-primary)', padding: '12px 20px', borderRadius: 14, fontFamily: "'DM Sans', sans-serif", fontSize: 14, whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
           {toast}
         </div>
       )}
 
       {/* Header */}
-      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '36px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
@@ -277,7 +277,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
           </button>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif", marginBottom: 4 }}>{challenge.name}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 4 }}>{challenge.name}</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {challenge.course_name && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}><MapPin size={11} style={{ display: 'inline', marginRight: 3 }} />{challenge.course_name}</span>}
                 {challenge.hole && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Hole {challenge.hole}</span>}
@@ -302,7 +302,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
 
         {/* Submit section */}
         {!isClosed && (
-          <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px', marginBottom: 24 }}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, padding: '16px', marginBottom: 24 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
               {myEntry ? '🔄 Update My Shot' : '📍 Record My Shot'}
             </div>
@@ -460,13 +460,13 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
   return (
     <div style={pageStyle}>
       {/* Header */}
-      <div style={{ background: `linear-gradient(160deg, ${BRAND.primary}dd, #071407)`, padding: '36px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-header)', padding: '36px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>🎯 CTP</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>Closest to Pin</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{activeCount} active challenge{activeCount !== 1 ? 's' : ''}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>Closest to Pin</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{activeCount} active challenge{activeCount !== 1 ? 's' : ''}</div>
           </div>
           {isAdmin && (
             <button onClick={() => setView('create')} style={{
@@ -499,7 +499,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 6 }}>No challenges yet</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>No challenges yet</div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
               {isAdmin ? 'Tap + New to create the first CTP challenge' : 'Check back when an admin creates a challenge'}
             </div>
@@ -521,10 +521,10 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
                         {closed ? '🔒 Closed' : '🟢 Active'}
                       </span>
                     </div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 4 }}>{c.name}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{c.name}</div>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                      {c.course_name && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>📍 {c.course_name}</span>}
-                      {c.hole && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Hole {c.hole}</span>}
+                      {c.course_name && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>📍 {c.course_name}</span>}
+                      {c.hole && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Hole {c.hole}</span>}
                       {c.ends_at && !closed && <span style={{ fontSize: 12, color: '#fbbf24' }}>⏱ Ends {formatDate(c.ends_at)}</span>}
                     </div>
                   </div>
