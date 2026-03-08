@@ -1006,6 +1006,78 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       </div>
 
       <GlobalStyles />
+
+      {/* CTP Toast */}
+      {ctpToast && (
+        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 300,
+          background: '#15803d', color: 'white', padding: '12px 20px', borderRadius: 14,
+          fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600,
+          whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+          {ctpToast}
+        </div>
+      )}
+
+      {/* CTP Bottom Sheet */}
+      {ctpSheet && ctpForHole && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div onClick={() => setCtpSheet(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          <div style={{ position: 'relative', background: '#0d2b0d', borderRadius: '20px 20px 0 0',
+            padding: '24px 20px 40px', maxWidth: 520, width: '100%', margin: '0 auto',
+            border: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+                  🎯 {ctpForHole.name}
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Hole {ctpForHole.hole} · Closest to Pin</div>
+              </div>
+              <button onClick={() => setCtpSheet(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', color: 'rgba(255,255,255,0.5)' }}>
+                <X size={16} />
+              </button>
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16, lineHeight: 1.5 }}>
+              🥏 Throw your disc, walk to where it landed, then tap the button below.
+            </div>
+            <button onClick={captureCtpGps} disabled={ctpGpsLoading} style={{
+              width: '100%', padding: '14px', borderRadius: 14, cursor: ctpGpsLoading ? 'wait' : 'pointer',
+              background: ctpPos ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.05)',
+              border: '2px solid ' + (ctpPos ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.12)'),
+              color: 'white', fontFamily: "'DM Sans', sans-serif",
+              display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12,
+            }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                background: ctpPos ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.08)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {ctpGpsLoading
+                  ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  : ctpPos ? <Check size={16} color="#4ade80" /> : <MapPin size={16} color="rgba(255,255,255,0.5)" />}
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: ctpPos ? '#4ade80' : 'white' }}>
+                  {ctpGpsLoading ? 'Getting location...' : ctpPos ? 'Position captured' : "I'm standing at my disc"}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
+                  {ctpPos
+                    ? ('+-' + Math.round(ctpPos.acc) + 'm accuracy · ' + fmtDist(haversineDistance(ctpForHole.pin_lat, ctpForHole.pin_lng, ctpPos.lat, ctpPos.lng)) + ' from pin')
+                    : 'Tap to capture GPS position'}
+                </div>
+              </div>
+            </button>
+            {ctpGpsError && <div style={{ fontSize: 12, color: '#f87171', marginBottom: 10 }}>⚠️ {ctpGpsError}</div>}
+            {ctpPos && (
+              <button onClick={submitCtpShot} disabled={ctpSubmitting} style={{
+                width: '100%', padding: '14px', borderRadius: 14, border: 'none',
+                background: BRAND.primary, color: '#052e0f', fontFamily: "'DM Sans', sans-serif",
+                fontSize: 15, fontWeight: 800, cursor: ctpSubmitting ? 'wait' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+                <Target size={16} />
+                {ctpSubmitting ? 'Submitting...' : ('Submit ' + fmtDist(haversineDistance(ctpForHole.pin_lat, ctpForHole.pin_lng, ctpPos.lat, ctpPos.lng)) + ' from pin')}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
