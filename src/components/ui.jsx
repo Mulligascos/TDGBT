@@ -48,7 +48,7 @@ export const PageHeader = ({ title, subtitle, onBack, action }) => (
     {onBack && (
       <button onClick={onBack} style={{
         position: 'absolute', top: 16, left: 16,
-        background: 'rgba(255,255,255,0.15)', border: 'none',
+        background: 'var(--bg-input)', border: 'none',
         borderRadius: 10, padding: '6px 10px', cursor: 'pointer',
         color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 4,
         fontFamily: "'DM Sans', sans-serif", fontSize: 13,
@@ -79,7 +79,7 @@ export const PageHeader = ({ title, subtitle, onBack, action }) => (
 // ─── CARD ─────────────────────────────────────────────────────────────────────
 export const Card = ({ children, onClick, style = {} }) => (
   <div onClick={onClick} style={{
-    background: 'rgba(255,255,255,0.06)',
+    background: 'var(--bg-card)',
     border: '1px solid var(--border-card)',
     borderRadius: 16, overflow: 'hidden',
     cursor: onClick ? 'pointer' : 'default',
@@ -127,7 +127,7 @@ export const Button = ({ children, onClick, variant = 'primary', disabled, fullW
     secondary: {
       background: 'rgba(255,255,255,0.07)',
       border: '1px solid var(--border-card)',
-      color: 'rgba(255,255,255,0.8)',
+      color: 'var(--text-primary)',
     },
     danger: {
       background: 'rgba(220,38,38,0.15)',
