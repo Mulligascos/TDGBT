@@ -6,6 +6,7 @@ const tabs = [
   { id: 'matches', label: 'Matches', icon: DiscIcon },
   { id: 'bagtags', label: 'Tags',    icon: TagIcon },
   { id: 'courses',    label: 'Courses',   icon: CourseIcon },
+  { id: 'ctp',        label: 'CTP',        icon: CTPIcon },
   { id: 'lostfound',  label: 'Lost+Found', icon: LostFoundIcon },
   { id: 'profile',    label: 'Profile',    icon: ProfileIcon },
 ];
@@ -62,6 +63,19 @@ function TagIcon({ active }) {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
       <line x1="7" y1="7" x2="7.01" y2="7"/>
+    </svg>
+  );
+}
+
+function CTPIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? BRAND.light : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="3"/>
+      <line x1="12" y1="2" x2="12" y2="5"/>
+      <line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="5" y2="12"/>
+      <line x1="19" y1="12" x2="22" y2="12"/>
     </svg>
   );
 }
