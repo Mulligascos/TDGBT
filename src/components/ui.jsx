@@ -226,7 +226,7 @@ export const Divider = () => (
 // ─── LOGO WATERMARK ──────────────────────────────────────────────────────────
 export const LogoWatermark = ({ size = 80, opacity = 0.08, style = {} }) => (
   <img
-    src="/assets/tdg_logo.gif"
+    src="/assets/TDG_LogoSmall.PNG"
     alt=""
     aria-hidden="true"
     style={{
