@@ -22,7 +22,7 @@ const RoundCard = ({ round, index, course, myScore, isAdmin, onStart, onStatusCh
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: 16, padding: '16px', marginBottom: 10,
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -43,9 +43,9 @@ const RoundCard = ({ round, index, course, myScore, isAdmin, onStart, onStatusCh
           borderRadius: 10, padding: '10px 14px',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Your score</span>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Your score</span>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{myScore.total_strokes} strokes</span>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{myScore.total_strokes} strokes</span>
             <span style={{ fontSize: 16, fontWeight: 800, color: vsParColor(myScore.vs_par), fontFamily: "'Syne', sans-serif" }}>
               {vsParLabel(myScore.vs_par)}
             </span>
@@ -62,7 +62,7 @@ const RoundCard = ({ round, index, course, myScore, isAdmin, onStart, onStatusCh
           <Play size={15} fill="currentColor" /> Score This Round
         </button>
       ) : status === 'complete' ? (
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', textAlign: 'center', padding: '4px 0' }}>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', padding: '4px 0' }}>
           No score recorded for you this round
         </div>
       ) : null /* upcoming — admin controls below handle opening */}
@@ -105,7 +105,7 @@ const LeaderboardTable = ({ entries, countRounds, totalRounds }) => {
   return (
     <div>
       <div style={{
-        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+        background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 14, overflow: 'hidden',
       }}>
         <div style={{
@@ -114,7 +114,7 @@ const LeaderboardTable = ({ entries, countRounds, totalRounds }) => {
           borderBottom: '1px solid rgba(255,255,255,0.07)',
         }}>
           {['#', 'Player', 'Rnds', 'Stk', '+/-'].map(h => (
-            <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>
+            <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>
               {h}
             </div>
           ))}
@@ -134,7 +134,7 @@ const LeaderboardTable = ({ entries, countRounds, totalRounds }) => {
                   {formatName(entry.player?.name || 'Unknown')}
                 </div>
                 {entry.roundsCounted < entry.roundsPlayed && (
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
                     best {entry.roundsCounted} of {entry.roundsPlayed}
                   </div>
                 )}
@@ -166,7 +166,7 @@ const RoundResults = ({ round, roundScores, players, course, onBack }) => {
   return (
     <div style={{ padding: '0 20px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingTop: 8 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 22 }}>‹</button>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 22 }}>‹</button>
         <div>
           <div style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>Round Results</div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{formatDate(round.scheduled_date)} · {course?.name}</div>
@@ -175,10 +175,10 @@ const RoundResults = ({ round, roundScores, players, course, onBack }) => {
       {sorted.length === 0 ? (
         <EmptyState icon="📋" title="No scores yet" subtitle="Scores will appear here once submitted" />
       ) : (
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 52px 52px', gap: 4, padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
             {['#', 'Player', 'Strokes', '+/-'].map(h => (
-              <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>{h}</div>
+              <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>{h}</div>
             ))}
           </div>
           {sorted.map((rs, i) => {
@@ -192,7 +192,7 @@ const RoundResults = ({ round, roundScores, players, course, onBack }) => {
               }}>
                 <div style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? ['#fbbf24','rgba(255,255,255,0.5)','#cd7f32'][i] : 'rgba(255,255,255,0.25)', fontFamily: "'Syne', sans-serif" }}>{i + 1}</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>{formatName(player?.name || 'Unknown')}</div>
-                <div style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{rs.total_strokes}</div>
+                <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>{rs.total_strokes}</div>
                 <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 800, color: vsParColor(rs.vs_par), fontFamily: "'Syne', sans-serif" }}>{vsParLabel(rs.vs_par)}</div>
               </div>
             );
@@ -228,7 +228,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
 
   const selectStyle = {
     width: '100%', padding: '12px 14px', borderRadius: 12,
-    background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+    background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
     color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
   };
   const labelStyle = { fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, display: 'block' };
@@ -236,7 +236,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
   return (
     <div style={{ padding: '0 20px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, paddingTop: 8 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
         <div>
@@ -248,7 +248,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
       <div style={{ marginBottom: 16 }}>
         <label style={labelStyle}>Course</label>
         <select value={courseId} onChange={e => setCourseId(e.target.value)} style={selectStyle}>
-          {courses.map(c => <option key={c.id} value={c.id} style={{ background: '#0d2b0d' }}>{c.name}</option>)}
+          {courses.map(c => <option key={c.id} value={c.id} style={{ background: 'var(--bg-nav)' }}>{c.name}</option>)}
         </select>
       </div>
 
@@ -256,14 +256,14 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
         <div>
           <label style={labelStyle}>Holes</label>
           <select value={totalHoles} onChange={e => setTotalHoles(parseInt(e.target.value))} style={selectStyle}>
-            <option value={9} style={{ background: '#0d2b0d' }}>9 holes</option>
-            <option value={18} style={{ background: '#0d2b0d' }}>18 holes</option>
+            <option value={9} style={{ background: 'var(--bg-nav)' }}>9 holes</option>
+            <option value={18} style={{ background: 'var(--bg-nav)' }}>18 holes</option>
           </select>
         </div>
         <div>
           <label style={labelStyle}>Start Hole</label>
           <select value={startingHole} onChange={e => setStartingHole(parseInt(e.target.value))} style={selectStyle}>
-            {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n} style={{ background: '#0d2b0d' }}>Hole {n}</option>)}
+            {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n} style={{ background: 'var(--bg-nav)' }}>Hole {n}</option>)}
           </select>
         </div>
       </div>
@@ -350,7 +350,7 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
   if (activeRounds.length === 0) {
     return (
       <div style={{
-        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+        background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 16, padding: '32px 20px', textAlign: 'center', marginTop: 8,
       }}>
         <div style={{ fontSize: 32, marginBottom: 10 }}>🏌️</div>
@@ -417,12 +417,12 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
                     LIVE · {course?.name || 'Unknown course'}
                   </span>
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 3, paddingLeft: 16 }}>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, paddingLeft: 16 }}>
                   {round.total_holes} holes · Par {totalParVal} · {entries.length} player{entries.length !== 1 ? 's' : ''}
                   {lastUpdated && <span> · updated {Math.round((new Date() - lastUpdated) / 1000)}s ago</span>}
                 </div>
               </div>
-              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 16 }}>{isExpanded ? '▲' : '▼'}</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: 16 }}>{isExpanded ? '▲' : '▼'}</span>
             </div>
 
             {isExpanded && (
@@ -786,7 +786,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
         {activeTab === 'rounds' && (
           <>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)' }}>Loading rounds...</div>
+              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>Loading rounds...</div>
             ) : !activeTournament ? (
               <EmptyState icon="🏆" title="No tournament found" subtitle={isAdmin ? "Create a tournament in the Admin panel" : "Check back soon for the next season"} />
             ) : rounds.length === 0 ? (
@@ -816,7 +816,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
                           width: '100%', marginTop: -4, marginBottom: 14,
                           padding: '8px', borderRadius: '0 0 12px 12px',
                           background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
-                          borderTop: 'none', color: 'rgba(255,255,255,0.3)',
+                          borderTop: 'none', color: 'var(--text-muted)',
                           fontFamily: "'DM Sans', sans-serif", fontSize: 12,
                           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                         }}
@@ -858,7 +858,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <SectionLabel>Live Scores</SectionLabel>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Auto-refreshes · tap 🔋 to pause</span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Auto-refreshes · tap 🔋 to pause</span>
             </div>
             <LiveLeaderboard
               rounds={rounds}
@@ -874,7 +874,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <SectionLabel>Season Standings</SectionLabel>
               {activeTournament && (
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                   Best {countRounds} of {rounds.length} rounds
                 </span>
               )}
@@ -917,7 +917,7 @@ const SubTabBar = ({ activeTab, setActiveTab, isAdmin }) => (
 
 const pageStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 

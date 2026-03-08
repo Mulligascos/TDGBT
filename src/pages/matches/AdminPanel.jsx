@@ -104,7 +104,7 @@ const RichTextToolbar = ({ value, onChange, textareaRef }) => {
   });
 
   return (
-    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6, padding: '6px 8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px 10px 0 0', borderBottom: 'none' }}>
+    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6, padding: '6px 8px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px 10px 0 0', borderBottom: 'none' }}>
       <button type="button" onClick={() => wrap('**', '**', 'bold text')} style={btnStyle(false)}><strong>B</strong></button>
       <button type="button" onClick={() => wrap('*', '*', 'italic text')} style={btnStyle(false)}><em>I</em></button>
       <button type="button" onClick={() => insertList('- ')} style={btnStyle(false)}>• List</button>
@@ -120,13 +120,13 @@ const Field = ({ label, children, hint }) => (
   <div style={{ marginBottom: 14 }}>
     {label && <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>}
     {children}
-    {hint && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>{hint}</div>}
+    {hint && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>{hint}</div>}
   </div>
 );
 
 const inputStyle = {
   width: '100%', padding: '11px 13px', borderRadius: 10,
-  background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+  background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
   color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
   boxSizing: 'border-box',
 };
@@ -167,12 +167,12 @@ const ErrMsg = ({ msg }) => msg ? (
 ) : null;
 
 const SectionHead = ({ children }) => (
-  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>{children}</div>
+  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>{children}</div>
 );
 
 const Card = ({ children, onClick, style = {} }) => (
   <div onClick={onClick} style={{
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+    background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: 14, padding: '14px 16px', marginBottom: 8,
     cursor: onClick ? 'pointer' : 'default', ...style,
   }}>
@@ -185,7 +185,7 @@ const statusColor = { upcoming: '#fbbf24', active: '#4ade80', complete: 'rgba(25
 // ─── BACK HEADER ──────────────────────────────────────────────────────────────
 const BackHeader = ({ title, onBack }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, paddingTop: 4 }}>
-    <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
+    <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
       <ChevronLeft size={22} />
     </button>
     <div style={{ fontSize: 20, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>{title}</div>
@@ -228,9 +228,9 @@ const TournamentForm = ({ existing, courses, onSave, onBack }) => {
       <Field label="Name"><Inp value={form.name} onChange={e => f('name', e.target.value)} placeholder="e.g. Winter League 2026" /></Field>
       <Field label="Format">
         <Sel value={form.format} onChange={e => f('format', e.target.value)}>
-          <option value="strokeplay" style={{ background: '#0d2b0d' }}>Stroke Play</option>
-          <option value="matchplay" style={{ background: '#0d2b0d' }}>Match Play</option>
-          <option value="mixed" style={{ background: '#0d2b0d' }}>Mixed</option>
+          <option value="strokeplay" style={{ background: 'var(--bg-nav)' }}>Stroke Play</option>
+          <option value="matchplay" style={{ background: 'var(--bg-nav)' }}>Match Play</option>
+          <option value="mixed" style={{ background: 'var(--bg-nav)' }}>Mixed</option>
         </Sel>
       </Field>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -242,9 +242,9 @@ const TournamentForm = ({ existing, courses, onSave, onBack }) => {
       </Field>
       <Field label="Status">
         <Sel value={form.status} onChange={e => f('status', e.target.value)}>
-          <option value="upcoming" style={{ background: '#0d2b0d' }}>Upcoming</option>
-          <option value="active" style={{ background: '#0d2b0d' }}>Active</option>
-          <option value="complete" style={{ background: '#0d2b0d' }}>Complete</option>
+          <option value="upcoming" style={{ background: 'var(--bg-nav)' }}>Upcoming</option>
+          <option value="active" style={{ background: 'var(--bg-nav)' }}>Active</option>
+          <option value="complete" style={{ background: 'var(--bg-nav)' }}>Complete</option>
         </Sel>
       </Field>
       <Field label="Description (optional)">
@@ -286,28 +286,28 @@ const RoundForm = ({ tournament, courses, existing, onSave, onBack }) => {
       <BackHeader title={existing ? 'Edit Round' : `New Round — ${tournament.name}`} onBack={onBack} />
       <Field label="Course">
         <Sel value={form.course_id} onChange={e => f('course_id', e.target.value)}>
-          {courses.map(c => <option key={c.id} value={c.id} style={{ background: '#0d2b0d' }}>{c.name}</option>)}
+          {courses.map(c => <option key={c.id} value={c.id} style={{ background: 'var(--bg-nav)' }}>{c.name}</option>)}
         </Sel>
       </Field>
       <Field label="Date"><Inp type="date" value={form.scheduled_date} onChange={e => f('scheduled_date', e.target.value)} /></Field>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <Field label="Holes">
           <Sel value={form.total_holes} onChange={e => f('total_holes', e.target.value)}>
-            <option value={9} style={{ background: '#0d2b0d' }}>9 holes</option>
-            <option value={18} style={{ background: '#0d2b0d' }}>18 holes</option>
+            <option value={9} style={{ background: 'var(--bg-nav)' }}>9 holes</option>
+            <option value={18} style={{ background: 'var(--bg-nav)' }}>18 holes</option>
           </Sel>
         </Field>
         <Field label="Starting Hole">
           <Sel value={form.starting_hole} onChange={e => f('starting_hole', e.target.value)}>
-            {Array.from({ length: 10 }, (_, i) => <option key={i + 1} value={i + 1} style={{ background: '#0d2b0d' }}>Hole {i + 1}</option>)}
+            {Array.from({ length: 10 }, (_, i) => <option key={i + 1} value={i + 1} style={{ background: 'var(--bg-nav)' }}>Hole {i + 1}</option>)}
           </Sel>
         </Field>
       </div>
       <Field label="Status">
         <Sel value={form.status} onChange={e => f('status', e.target.value)}>
-          <option value="upcoming" style={{ background: '#0d2b0d' }}>Upcoming</option>
-          <option value="active" style={{ background: '#0d2b0d' }}>Active</option>
-          <option value="complete" style={{ background: '#0d2b0d' }}>Complete</option>
+          <option value="upcoming" style={{ background: 'var(--bg-nav)' }}>Upcoming</option>
+          <option value="active" style={{ background: 'var(--bg-nav)' }}>Active</option>
+          <option value="complete" style={{ background: 'var(--bg-nav)' }}>Complete</option>
         </Sel>
       </Field>
       <Field label="Notes (optional)">
@@ -350,13 +350,13 @@ const TournamentsSection = ({ tournaments, rounds, courses, onRefresh, showToast
           <Badge label={t.format} color="rgba(255,255,255,0.3)" />
           {t.start_date && <Badge label={formatDate(t.start_date)} color="rgba(255,255,255,0.3)" />}
         </div>
-        {t.description && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>{t.description}</div>}
+        {t.description && <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>{t.description}</div>}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           <Btn small variant="ghost" onClick={() => setView('edit-t')}><Edit2 size={13} /> Edit</Btn>
           <Btn small variant="primary" onClick={() => setView('new-r')}><Plus size={13} /> Add Round</Btn>
         </div>
         <SectionHead>Rounds ({rs.length})</SectionHead>
-        {rs.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginBottom: 16 }}>No rounds yet</div>}
+        {rs.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>No rounds yet</div>}
         {rs.map(r => {
           const c = courses.find(x => x.id === r.course_id);
           return (
@@ -466,13 +466,13 @@ const MemberForm = ({ existing, onSave, onBack }) => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <Field label="Division">
           <Sel value={form.player_division} onChange={e => f('player_division', e.target.value)}>
-            {divisions.map(d => <option key={d} value={d} style={{ background: '#0d2b0d' }}>{d}</option>)}
+            {divisions.map(d => <option key={d} value={d} style={{ background: 'var(--bg-nav)' }}>{d}</option>)}
           </Sel>
         </Field>
         <Field label="Status">
           <Sel value={form.player_status} onChange={e => f('player_status', e.target.value)}>
-            <option value="Active" style={{ background: '#0d2b0d' }}>Active</option>
-            <option value="Inactive" style={{ background: '#0d2b0d' }}>Inactive</option>
+            <option value="Active" style={{ background: 'var(--bg-nav)' }}>Active</option>
+            <option value="Inactive" style={{ background: 'var(--bg-nav)' }}>Inactive</option>
           </Sel>
         </Field>
       </div>
@@ -483,7 +483,7 @@ const MemberForm = ({ existing, onSave, onBack }) => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <Field label="Role">
           <Sel value={form.role} onChange={e => f('role', e.target.value)}>
-            {roles.map(r => <option key={r} value={r} style={{ background: '#0d2b0d' }}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+            {roles.map(r => <option key={r} value={r} style={{ background: 'var(--bg-nav)' }}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
           </Sel>
         </Field>
         <Field label="Bag Tag #"><Inp type="number" value={form.bag_tag} onChange={e => f('bag_tag', e.target.value)} placeholder="e.g. 7" /></Field>
@@ -604,9 +604,9 @@ const MembersSection = ({ players: propPlayers, onRefresh, showToast }) => {
       </div>
 
       {loadingAll ? (
-        <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading...</div>
+        <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: 13 }}>Loading...</div>
       ) : filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>No members found</div>
+        <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: 13 }}>No members found</div>
       ) : (
         filtered.map(p => (
           <Card key={p.id} onClick={() => { setSelected(p); setView('edit'); }}>
@@ -720,8 +720,8 @@ const CourseForm = ({ existing, onSave, onBack }) => {
         <Field label="Location"><Inp value={form.location} onChange={e => f('location', e.target.value)} placeholder="Suburb or city" /></Field>
         <Field label="Holes">
           <Sel value={form.holes} onChange={e => f('holes', parseInt(e.target.value))}>
-            <option value={9} style={{ background: '#0d2b0d' }}>9</option>
-            <option value={18} style={{ background: '#0d2b0d' }}>18</option>
+            <option value={9} style={{ background: 'var(--bg-nav)' }}>9</option>
+            <option value={18} style={{ background: 'var(--bg-nav)' }}>18</option>
           </Sel>
         </Field>
       </div>
@@ -733,7 +733,7 @@ const CourseForm = ({ existing, onSave, onBack }) => {
             const p = parsObj?.[String(h)] ?? 3;
             return (
               <div key={h} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginBottom: 3 }}>{h}</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>{h}</div>
                 <select value={p} onChange={e => setPar(h, e.target.value)} style={{
                   width: '100%', padding: '6px 2px', borderRadius: 7, textAlign: 'center',
                   background: p === 3 ? 'rgba(74,222,128,0.15)' : p === 4 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
@@ -741,15 +741,15 @@ const CourseForm = ({ existing, onSave, onBack }) => {
                   color: 'white', fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, outline: 'none',
                   appearance: 'none',
                 }}>
-                  <option value={3} style={{ background: '#0d2b0d' }}>3</option>
-                  <option value={4} style={{ background: '#0d2b0d' }}>4</option>
-                  <option value={5} style={{ background: '#0d2b0d' }}>5</option>
+                  <option value={3} style={{ background: 'var(--bg-nav)' }}>3</option>
+                  <option value={4} style={{ background: 'var(--bg-nav)' }}>4</option>
+                  <option value={5} style={{ background: 'var(--bg-nav)' }}>5</option>
                 </select>
               </div>
             );
           })}
         </div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
           Total par: {parsObj ? Object.values(parsObj).slice(0, parseInt(form.holes)).reduce((a, b) => a + b, 0) : '—'}
         </div>
       </Field>
@@ -887,9 +887,9 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
           </button>
         ))}
       </div>
-      {loading && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Loading...</div>}
+      {loading && <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Loading...</div>}
       {error && <div style={{ fontSize: 13, color: '#f87171', padding: '8px 0' }}>⚠️ {error}</div>}
-      {!loading && !error && requests.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>No {filter} requests</div>}
+      {!loading && !error && requests.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>No {filter} requests</div>}
       {requests.map(r => {
         const course = courses.find(c => c.id === r.course_id);
         const action = resolving[r.id];
@@ -903,7 +903,7 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
             </div>
             {course && <div style={{ fontSize: 11, color: BRAND.light, marginBottom: 4 }}>📍 {course.name}</div>}
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: 6 }}>{r.description}</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 12 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12 }}>
               By {allPlayers?.find(p => p.id === r.submitted_by)?.name || 'Unknown'} · {formatDate(r.submitted_at)}
             </div>
 
@@ -926,7 +926,7 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
                   rows={2}
                   style={{
                     width: '100%', padding: '10px 12px', borderRadius: 10, resize: 'vertical',
-                    background: 'rgba(255,255,255,0.07)',
+                    background: 'var(--bg-input)',
                     border: `1px solid ${isApproving ? 'rgba(74,222,128,0.25)' : 'rgba(248,113,113,0.25)'}`,
                     color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
                     outline: 'none', boxSizing: 'border-box', marginBottom: 10,
@@ -948,8 +948,8 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
 
             {/* Show admin notes on resolved requests */}
             {filter !== 'pending' && r.admin_notes && (
-              <div style={{ marginTop: 6, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Admin Notes</div>
+              <div style={{ marginTop: 6, padding: '8px 12px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Admin Notes</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{r.admin_notes}</div>
               </div>
             )}
@@ -1071,8 +1071,8 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
         </Card>
       )}
 
-      {loading && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Loading...</div>}
-      {!loading && announcements.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>No announcements yet</div>}
+      {loading && <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Loading...</div>}
+      {!loading && announcements.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>No announcements yet</div>}
       {announcements.map(a => (
         <Card key={a.id}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
@@ -1080,7 +1080,7 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
             {a.pinned && <span style={{ fontSize: 10, color: '#fbbf24', marginLeft: 8 }}>📌</span>}
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginBottom: 8 }}>{renderMarkdown(a.body)}</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 10 }}>{formatDate(a.created_at)}</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>{formatDate(a.created_at)}</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <Btn small variant="ghost" onClick={() => togglePin(a)}>{a.pinned ? 'Unpin' : '📌 Pin'}</Btn>
             <Btn small variant="danger" onClick={() => handleDelete(a.id)}><Trash2 size={12} /> Delete</Btn>
@@ -1265,10 +1265,10 @@ const AchievementsSection = ({ players, showToast }) => {
       <BackHeader title={`${selected.icon} ${selected.label}`} onBack={() => { setView('list'); setSelected(null); }} />
 
       {/* Manual award */}
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', marginBottom: 20 }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px', marginBottom: 20 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Grant to player</div>
         <select value={awardingPlayer} onChange={e => setAwardingPlayer(e.target.value)}
-          style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, marginBottom: 8 }}>
+          style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14, marginBottom: 8 }}>
           <option value="">Select player...</option>
           {(players || []).filter(p => p.status === 'Active').map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
@@ -1287,23 +1287,23 @@ const AchievementsSection = ({ players, showToast }) => {
       </button>
 
       {/* Current awardees */}
-      <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
         Earned by {awards.length} player{awards.length !== 1 ? 's' : ''}
       </div>
       {awards.length === 0 ? (
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', textAlign: 'center', padding: '20px 0' }}>No one has earned this yet</div>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>No one has earned this yet</div>
       ) : (
         awards.map(award => (
           <div key={award.id} style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px',
-            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+            background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: 12, marginBottom: 8,
           }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>
                 {formatName(award.player?.player_name || 'Unknown')}
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
                 {award.detail} · {formatDate(award.earned_at)}
               </div>
             </div>
@@ -1326,7 +1326,7 @@ const AchievementsSection = ({ players, showToast }) => {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading...</div>
+        <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: 13 }}>Loading...</div>
       ) : (
         achievements.map(a => {
           const tier = TIER_COLORS[a.tier];
@@ -1341,10 +1341,10 @@ const AchievementsSection = ({ players, showToast }) => {
               <span style={{ fontSize: 24, flexShrink: 0 }}>{a.icon}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: tier.color }}>{a.label}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{a.description}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{a.description}</div>
                 <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                   <span style={{ fontSize: 9, fontWeight: 700, color: tier.color, textTransform: 'uppercase', letterSpacing: 1, background: tier.bg, border: `1px solid ${tier.border}`, padding: '1px 5px', borderRadius: 4 }}>{a.tier}</span>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', padding: '1px 5px' }}>{a.auto_award ? 'Auto' : 'Manual'}</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', padding: '1px 5px' }}>{a.auto_award ? 'Auto' : 'Manual'}</span>
                   {!a.active && <span style={{ fontSize: 9, color: '#f87171', padding: '1px 5px' }}>Inactive</span>}
                 </div>
               </div>
@@ -1356,7 +1356,7 @@ const AchievementsSection = ({ players, showToast }) => {
                 }}>Awards</button>
                 <button onClick={() => { setSelected(a); setView('edit'); }} style={{
                   padding: '5px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)',
+                  border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-secondary)',
                   cursor: 'pointer',
                 }}><Edit2 size={12} /></button>
                 <button onClick={() => handleToggleActive(a)} style={{
@@ -1471,8 +1471,9 @@ const MessagesSection = ({ currentUser, showToast }) => {
         console.error('Edge function error:', fnError);
         throw new Error(`Edge function error: ${fnError.message || JSON.stringify(fnError)}`);
       }
-      const sent   = result.sent   || 0;
-      const failed = result.failed || 0;
+      const sent   = result?.sent   || 0;
+      const failed = result?.failed || 0;
+      if (result?.resendError) console.error('Resend rejected:', result.resendStatus, result.resendError);
 
       // Log to DB
       await supabase.from('club_messages').insert({
@@ -1491,7 +1492,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
         showToast(`✉️ Sent to ${sent} member${sent !== 1 ? 's' : ''}`);
         setSubject(''); setBody(''); setSelected(new Set());
       } else {
-        showToast(`Sent ${sent}, failed ${failed}`, 'error');
+        showToast(`Sent ${sent}, failed ${failed}${result?.resendError ? ` — ${JSON.parse(result.resendError)?.message || result.resendError}` : ''}`, 'error');
       }
     } catch (err) {
       console.error('Send error:', err);
@@ -1524,7 +1525,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
         <div>
           {/* Quick templates */}
           <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Quick Templates</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Quick Templates</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {QUICK_TEMPLATES.map(t => (
                 <button key={t.label} onClick={() => applyTemplate(t)} style={{
@@ -1550,7 +1551,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
               rows={6}
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 12,
-                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
                 color: 'white', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
                 resize: 'vertical', lineHeight: 1.5,
               }}
@@ -1560,7 +1561,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
           {/* Recipients */}
           <div style={{ marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
                 Recipients ({selected.size} selected)
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
@@ -1581,7 +1582,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
 
             <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
               {filtered.length === 0 ? (
-                <div style={{ padding: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.25)', fontSize: 13 }}>No members with email addresses</div>
+                <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No members with email addresses</div>
               ) : (
                 filtered.map(p => {
                   const isSelected = selected.has(p.id);
@@ -1601,7 +1602,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{formatName(p.name)}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.email}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.email}</div>
                       </div>
                     </div>
                   );
@@ -1620,18 +1621,18 @@ const MessagesSection = ({ currentUser, showToast }) => {
       {view === 'history' && (
         <div>
           {loadingHistory ? (
-            <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading...</div>
+            <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: 13 }}>Loading...</div>
           ) : history.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>No messages sent yet</div>
+              <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>No messages sent yet</div>
             </div>
           ) : (
             history.map(msg => {
               const isExpanded = expandedMsg === msg.id;
               return (
                 <div key={msg.id} style={{
-                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+                  background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: 14, marginBottom: 10, overflow: 'hidden',
                 }}>
                   <div onClick={() => setExpandedMsg(isExpanded ? null : msg.id)} style={{ padding: '14px 16px', cursor: 'pointer' }}>
@@ -1649,7 +1650,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
                           <span style={{ fontSize: 11, color: statusColor[msg.status] }}>
                             {msg.sent_count} sent{msg.failed_count > 0 ? `, ${msg.failed_count} failed` : ''}
                           </span>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>{formatDate(msg.sent_at)}</span>
+                          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{formatDate(msg.sent_at)}</span>
                         </div>
                       </div>
                       <ChevronRight size={14} color="rgba(255,255,255,0.2)" style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
@@ -1660,7 +1661,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
                       <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 10 }}>
                         {msg.body}
                       </div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
                         Sent to ({msg.recipient_names?.length || 0})
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -1761,9 +1762,9 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
             background: '#0a1f0a', borderLeft: '1px solid rgba(255,255,255,0.1)',
             zIndex: 100, paddingTop: 60, display: 'flex', flexDirection: 'column',
           }}>
-            <div style={{ padding: '0 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 }}>
+            <div style={{ padding: '0 16px 16px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1 }}>Admin Panel</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{formatName(currentUser.name)}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>{formatName(currentUser.name)}</div>
             </div>
             {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
               const hasBadge = id === 'requests' && pendingRequestsCount > 0;
@@ -1826,7 +1827,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
 
 const containerStyle = {
   minHeight: '100vh',
-  background: 'linear-gradient(160deg, #071407 0%, #0a1f0a 60%, #071407 100%)',
+  background: 'var(--bg-page)',
   fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 90,
 };
 
