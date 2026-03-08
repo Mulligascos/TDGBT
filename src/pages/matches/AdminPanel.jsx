@@ -97,9 +97,9 @@ const RichTextToolbar = ({ value, onChange, textareaRef }) => {
 
   const btnStyle = (active) => ({
     padding: '5px 9px', borderRadius: 7, cursor: 'pointer', fontSize: 13, fontWeight: 700,
-    background: active ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)',
-    border: `1px solid ${active ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
-    color: active ? '#4ade80' : 'rgba(255,255,255,0.6)',
+    background: active ? 'rgba(74,222,128,0.15)' : 'var(--text-muted)',
+    border: `1px solid ${active ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
+    color: active ? '#4ade80' : 'var(--text-secondary)',
     fontFamily: "'DM Sans', sans-serif",
   });
 
@@ -591,8 +591,8 @@ const MembersSection = ({ players: propPlayers, onRefresh, showToast }) => {
         {[['all', `All (${localPlayers.length})`], ['Active', `Active (${activeCount})`], ['Inactive', `Inactive (${inactiveCount})`]].map(([val, label]) => (
           <button key={val} onClick={() => setStatusFilter(val)} style={{
             padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-            background: statusFilter === val ? BRAND.primary : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${statusFilter === val ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+            background: statusFilter === val ? BRAND.primary : 'var(--text-muted)',
+            border: `1px solid ${statusFilter === val ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
             color: statusFilter === val ? '#4ade80' : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
@@ -615,7 +615,7 @@ const MembersSection = ({ players: propPlayers, onRefresh, showToast }) => {
                 width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
                 background: p.status === 'Active'
                   ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
-                  : 'rgba(255,255,255,0.08)',
+                  : 'var(--text-muted)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif",
                 opacity: p.status === 'Active' ? 1 : 0.5,
@@ -628,7 +628,7 @@ const MembersSection = ({ players: propPlayers, onRefresh, showToast }) => {
                 </div>
                 <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
                   {p.bagTag && <span style={{ fontSize: 11, color: BRAND.light }}>#{p.bagTag}</span>}
-                  <span style={{ fontSize: 11, color: divColor[p.division] || 'rgba(255,255,255,0.3)' }}>{p.division}</span>
+                  <span style={{ fontSize: 11, color: divColor[p.division] || 'var(--text-muted)' }}>{p.division}</span>
                   {p.role !== 'member' && <span style={{ fontSize: 11, color: '#fbbf24' }}>{p.role}</span>}
                   <span style={{ fontSize: 11, color: p.status === 'Active' ? '#4ade80' : '#f87171' }}>{p.status}</span>
                 </div>
@@ -878,8 +878,8 @@ const RequestsSection = ({ courses, currentUser, players: allPlayers, showToast 
         {['pending', 'approved', 'rejected'].map(s => (
           <button key={s} onClick={() => setFilter(s)} style={{
             padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            background: filter === s ? `rgba(74,222,128,0.15)` : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${filter === s ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.08)'}`,
+            background: filter === s ? `rgba(74,222,128,0.15)` : 'var(--text-muted)',
+            border: `1px solid ${filter === s ? 'rgba(74,222,128,0.35)' : 'var(--text-muted)'}`,
             color: filter === s ? BRAND.light : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>
@@ -1033,8 +1033,8 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
               {['write', 'preview'].map(m => (
                 <button key={m} type="button" onClick={() => setPreview(m === 'preview')} style={{
                   padding: '4px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                  background: (preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${(preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                  background: (preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.12)' : 'var(--text-muted)',
+                  border: `1px solid ${(preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
                   color: (preview ? m === 'preview' : m === 'write') ? '#4ade80' : 'var(--text-secondary)',
                   fontFamily: "'DM Sans', sans-serif", textTransform: 'capitalize',
                 }}>{m}</button>
@@ -1140,8 +1140,8 @@ const AchievementForm = ({ existing, onSave, onBack }) => {
           {COMMON_ICONS.map(ic => (
             <button key={ic} onClick={() => set('icon', ic)} style={{
               width: 36, height: 36, borderRadius: 8, fontSize: 18,
-              background: form.icon === ic ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${form.icon === ic ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              background: form.icon === ic ? 'rgba(74,222,128,0.2)' : 'var(--text-muted)',
+              border: `1px solid ${form.icon === ic ? 'rgba(74,222,128,0.4)' : 'var(--text-muted)'}`,
               cursor: 'pointer',
             }}>{ic}</button>
           ))}
@@ -1155,8 +1155,8 @@ const AchievementForm = ({ existing, onSave, onBack }) => {
           {TIERS.map(t => (
             <button key={t} onClick={() => set('tier', t)} style={{
               flex: 1, padding: '9px', borderRadius: 10, cursor: 'pointer',
-              background: form.tier === t ? TIER_COLORS[t].bg : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${form.tier === t ? TIER_COLORS[t].border : 'rgba(255,255,255,0.08)'}`,
+              background: form.tier === t ? TIER_COLORS[t].bg : 'var(--text-muted)',
+              border: `1px solid ${form.tier === t ? TIER_COLORS[t].border : 'var(--text-muted)'}`,
               color: form.tier === t ? TIER_COLORS[t].color : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
               textTransform: 'capitalize',
@@ -1169,8 +1169,8 @@ const AchievementForm = ({ existing, onSave, onBack }) => {
           {[['true', 'Auto (from scores)'], ['false', 'Manual only']].map(([val, lbl]) => (
             <button key={val} onClick={() => set('auto_award', val === 'true')} style={{
               flex: 1, padding: '9px', borderRadius: 10, cursor: 'pointer',
-              background: String(form.auto_award) === val ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${String(form.auto_award) === val ? 'rgba(74,222,128,0.25)' : 'rgba(255,255,255,0.08)'}`,
+              background: String(form.auto_award) === val ? 'rgba(74,222,128,0.1)' : 'var(--text-muted)',
+              border: `1px solid ${String(form.auto_award) === val ? 'rgba(74,222,128,0.25)' : 'var(--text-muted)'}`,
               color: String(form.auto_award) === val ? '#4ade80' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
             }}>{lbl}</button>
@@ -1296,7 +1296,7 @@ const AchievementsSection = ({ players, showToast }) => {
         awards.map(award => (
           <div key={award.id} style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px',
-            background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
             borderRadius: 12, marginBottom: 8,
           }}>
             <div style={{ flex: 1 }}>
@@ -1333,8 +1333,8 @@ const AchievementsSection = ({ players, showToast }) => {
           return (
             <div key={a.id} style={{
               display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
-              background: a.active ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
-              border: `1px solid ${a.active ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)'}`,
+              background: a.active ? 'var(--bg-card)' : 'var(--text-muted)',
+              border: `1px solid ${a.active ? 'var(--bg-card)' : 'var(--text-muted)'}`,
               borderRadius: 12, marginBottom: 8,
               opacity: a.active ? 1 : 0.5,
             }}>
@@ -1513,8 +1513,8 @@ const MessagesSection = ({ currentUser, showToast }) => {
           <button key={id} onClick={() => setView(id)} style={{
             display: 'flex', alignItems: 'center', gap: 5,
             padding: '8px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-            background: view === id ? BRAND.primary : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${view === id ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+            background: view === id ? BRAND.primary : 'var(--text-muted)',
+            border: `1px solid ${view === id ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
             color: view === id ? '#4ade80' : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
@@ -1580,7 +1580,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
               </div>
             )}
 
-            <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
+            <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 12 }}>
               {filtered.length === 0 ? (
                 <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No members with email addresses</div>
               ) : (
@@ -1590,12 +1590,12 @@ const MessagesSection = ({ currentUser, showToast }) => {
                     <div key={p.id} onClick={() => togglePlayer(p.id)} style={{
                       display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
                       background: isSelected ? 'rgba(74,222,128,0.06)' : 'transparent',
-                      borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer',
+                      borderBottom: '1px solid var(--border)', cursor: 'pointer',
                     }}>
                       <div style={{
                         width: 20, height: 20, borderRadius: 6, flexShrink: 0,
-                        background: isSelected ? BRAND.primary : 'rgba(255,255,255,0.07)',
-                        border: `1.5px solid ${isSelected ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.15)'}`,
+                        background: isSelected ? BRAND.primary : 'var(--text-muted)',
+                        border: `1.5px solid ${isSelected ? 'rgba(74,222,128,0.5)' : 'var(--text-muted)'}`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {isSelected && <Check size={12} color="#4ade80" />}
@@ -1632,7 +1632,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
               const isExpanded = expandedMsg === msg.id;
               return (
                 <div key={msg.id} style={{
-                  background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+                  background: 'var(--bg-card)', border: '1px solid var(--border)',
                   borderRadius: 14, marginBottom: 10, overflow: 'hidden',
                 }}>
                   <div onClick={() => setExpandedMsg(isExpanded ? null : msg.id)} style={{ padding: '14px 16px', cursor: 'pointer' }}>
@@ -1657,8 +1657,8 @@ const MessagesSection = ({ currentUser, showToast }) => {
                     </div>
                   </div>
                   {isExpanded && (
-                    <div style={{ padding: '0 16px 14px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 10 }}>
+                    <div style={{ padding: '0 16px 14px', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '12px 0', borderBottom: '1px solid var(--border)', marginBottom: 10 }}>
                         {msg.body}
                       </div>
                       <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
@@ -1743,7 +1743,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
               </button>
             )}
             <button onClick={() => setMenuOpen(s => !s)} style={{
-              background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.15)',
+              background: 'var(--bg-input)', border: '1px solid var(--border)',
               borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'var(--text-primary)',
               display: 'flex', flexDirection: 'column', gap: 4,
             }}>
@@ -1759,7 +1759,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
           <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 90 }} />
           <div style={{
             position: 'fixed', top: 0, right: 0, bottom: 0, width: 240,
-            background: '#0a1f0a', borderLeft: '1px solid rgba(255,255,255,0.1)',
+            background: '#0a1f0a', borderLeft: '1px solid var(--border)',
             zIndex: 100, paddingTop: 60, display: 'flex', flexDirection: 'column',
           }}>
             <div style={{ padding: '0 16px 16px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
@@ -1777,7 +1777,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
                   fontFamily: "'DM Sans', sans-serif",
                 }}>
                   <Icon size={18} color={activeSection === id ? BRAND.light : 'var(--text-secondary)'} />
-                  <span style={{ flex: 1, fontSize: 14, fontWeight: activeSection === id ? 700 : 500, color: activeSection === id ? BRAND.light : 'rgba(255,255,255,0.7)' }}>
+                  <span style={{ flex: 1, fontSize: 14, fontWeight: activeSection === id ? 700 : 500, color: activeSection === id ? BRAND.light : 'var(--text-primary)' }}>
                     {label}
                   </span>
                   {hasBadge && (

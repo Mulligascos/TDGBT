@@ -10,7 +10,7 @@ import { Trophy, Calendar, Play, ChevronRight, Settings, ChevronLeft, AlertCircl
 
 // ─── ROUND CARD ───────────────────────────────────────────────────────────────
 const RoundCard = ({ round, index, course, myScore, isAdmin, onStart, onStatusChange }) => {
-  const statusColors = { upcoming: '#fbbf24', active: '#4ade80', complete: 'rgba(255,255,255,0.3)' };
+  const statusColors = { upcoming: '#fbbf24', active: '#4ade80', complete: 'var(--text-muted)' };
   const status = round.status || 'upcoming';
   const [changingStatus, setChangingStatus] = useState(false);
 
@@ -105,13 +105,13 @@ const LeaderboardTable = ({ entries, countRounds, totalRounds }) => {
   return (
     <div>
       <div style={{
-        background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+        background: 'var(--bg-card)', border: '1px solid var(--border)',
         borderRadius: 14, overflow: 'hidden',
       }}>
         <div style={{
           display: 'grid', gridTemplateColumns: '28px 1fr 48px 48px 52px',
           gap: 4, padding: '10px 14px',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          borderBottom: '1px solid var(--border)',
         }}>
           {['#', 'Player', 'Rnds', 'Stk', '+/-'].map(h => (
             <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>
@@ -120,15 +120,15 @@ const LeaderboardTable = ({ entries, countRounds, totalRounds }) => {
           ))}
         </div>
         {entries.map((entry, i) => {
-          const posColors = ['#fbbf24', 'rgba(255,255,255,0.5)', '#cd7f32'];
+          const posColors = ['#fbbf24', 'var(--text-secondary)', '#cd7f32'];
           return (
             <div key={entry.playerId} style={{
               display: 'grid', gridTemplateColumns: '28px 1fr 48px 48px 52px',
               gap: 4, padding: '12px 14px', alignItems: 'center',
-              borderBottom: i < entries.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+              borderBottom: i < entries.length - 1 ? '1px solid var(--border)' : 'none',
               background: i === 0 ? 'rgba(251,191,36,0.04)' : 'transparent',
             }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? posColors[i] : 'rgba(255,255,255,0.25)', fontFamily: "'Syne', sans-serif" }}>{i + 1}</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? posColors[i] : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>{i + 1}</div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {formatName(entry.player?.name || 'Unknown')}
@@ -175,8 +175,8 @@ const RoundResults = ({ round, roundScores, players, course, onBack }) => {
       {sorted.length === 0 ? (
         <EmptyState icon="📋" title="No scores yet" subtitle="Scores will appear here once submitted" />
       ) : (
-        <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 52px 52px', gap: 4, padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 52px 52px', gap: 4, padding: '10px 14px', borderBottom: '1px solid var(--border)' }}>
             {['#', 'Player', 'Strokes', '+/-'].map(h => (
               <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, textAlign: h === 'Player' ? 'left' : 'center' }}>{h}</div>
             ))}
@@ -187,10 +187,10 @@ const RoundResults = ({ round, roundScores, players, course, onBack }) => {
               <div key={rs.id || rs.player_id} style={{
                 display: 'grid', gridTemplateColumns: '28px 1fr 52px 52px',
                 gap: 4, padding: '12px 14px', alignItems: 'center',
-                borderBottom: i < sorted.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                borderBottom: i < sorted.length - 1 ? '1px solid var(--border)' : 'none',
                 background: i === 0 ? 'rgba(251,191,36,0.04)' : 'transparent',
               }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? ['#fbbf24','rgba(255,255,255,0.5)','#cd7f32'][i] : 'rgba(255,255,255,0.25)', fontFamily: "'Syne', sans-serif" }}>{i + 1}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? ['#fbbf24','var(--text-secondary)','#cd7f32'][i] : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>{i + 1}</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(player?.name || 'Unknown')}</div>
                 <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>{rs.total_strokes}</div>
                 <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 800, color: vsParColor(rs.vs_par), fontFamily: "'Syne', sans-serif" }}>{vsParLabel(rs.vs_par)}</div>
@@ -285,8 +285,8 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
           {[['strokeplay', '📊 Stroke Play'], ['matchplay', '⚔️ Match Play']].map(([fmt, label]) => (
             <button key={fmt} onClick={() => setScoringFormat(fmt)} style={{
               flex: 1, padding: '12px 8px', borderRadius: 12, cursor: 'pointer',
-              background: scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.12)' : `rgba(74,222,128,0.12)`) : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.35)' : 'rgba(74,222,128,0.35)') : 'rgba(255,255,255,0.1)'}`,
+              background: scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.12)' : `rgba(74,222,128,0.12)`) : 'var(--text-muted)',
+              border: `1px solid ${scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.35)' : 'rgba(74,222,128,0.35)') : 'var(--text-muted)'}`,
               color: scoringFormat === fmt ? 'white' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
             }}>
@@ -298,8 +298,8 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
 
       <button onClick={handleStart} disabled={!selectedCourse} style={{
         width: '100%', padding: '15px', borderRadius: 14,
-        background: selectedCourse ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
-        border: selectedCourse ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.1)',
+        background: selectedCourse ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
+        border: selectedCourse ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
         color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: selectedCourse ? 'pointer' : 'not-allowed',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -350,7 +350,7 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
   if (activeRounds.length === 0) {
     return (
       <div style={{
-        background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+        background: 'var(--bg-card)', border: '1px solid var(--border)',
         borderRadius: 16, padding: '32px 20px', textAlign: 'center', marginTop: 8,
       }}>
         <div style={{ fontSize: 32, marginBottom: 10 }}>🏌️</div>
@@ -427,14 +427,14 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
 
             {isExpanded && (
               <div style={{
-                background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(74,222,128,0.1)',
+                background: 'var(--text-muted)', border: '1px solid rgba(74,222,128,0.1)',
                 borderTop: 'none', borderRadius: '0 0 14px 14px', overflow: 'hidden',
               }}>
                 {/* Column headers */}
                 <div style={{
                   display: 'grid', gridTemplateColumns: '28px 1fr 52px 48px 56px',
                   gap: 4, padding: '8px 14px',
-                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  borderBottom: '1px solid var(--border)',
                   background: 'rgba(0,0,0,0.2)',
                 }}>
                   {['#', 'Player', 'Thru', 'Stk', '+/-'].map(h => (
@@ -451,11 +451,11 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
                     <div key={entry.playerId} style={{
                       display: 'grid', gridTemplateColumns: '28px 1fr 52px 48px 56px',
                       gap: 4, padding: '11px 14px', alignItems: 'center',
-                      borderBottom: i < entries.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                      borderBottom: i < entries.length - 1 ? '1px solid var(--border)' : 'none',
                       background: entry.isMe ? 'rgba(74,222,128,0.04)' : 'transparent',
                     }}>
                       {/* Position */}
-                      <div style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? ['#fbbf24','rgba(255,255,255,0.5)','#cd7f32'][i] : 'rgba(255,255,255,0.2)', fontFamily: "'Syne', sans-serif", textAlign: 'center' }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? ['#fbbf24','var(--text-secondary)','#cd7f32'][i] : 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textAlign: 'center' }}>
                         {i + 1}
                       </div>
                       {/* Name */}
@@ -477,7 +477,7 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
                         {entry.holesThru > 0 ? entry.totalStrokes : '-'}
                       </div>
                       {/* Vs par */}
-                      <div style={{ textAlign: 'center', fontSize: 14, fontWeight: 800, color: entry.holesThru > 0 ? vsParColor(entry.liveVsPar) : 'rgba(255,255,255,0.2)', fontFamily: "Arial, sans-serif" }}>
+                      <div style={{ textAlign: 'center', fontSize: 14, fontWeight: 800, color: entry.holesThru > 0 ? vsParColor(entry.liveVsPar) : 'var(--text-muted)', fontFamily: "Arial, sans-serif" }}>
                         {entry.holesThru > 0 ? vsParLabel(entry.liveVsPar) : '-'}
                       </div>
                     </div>
@@ -485,12 +485,12 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
                 )}
 
                 {/* Refresh / battery save footer */}
-                <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <button onClick={(e) => { e.stopPropagation(); setBatterySave(b => !b); }} style={{
                     padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-                    background: batterySave ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
-                    border: batterySave ? '1px solid rgba(251,191,36,0.3)' : '1px solid rgba(255,255,255,0.1)',
-                    color: batterySave ? '#fbbf24' : 'rgba(255,255,255,0.3)',
+                    background: batterySave ? 'rgba(251,191,36,0.12)' : 'var(--text-muted)',
+                    border: batterySave ? '1px solid rgba(251,191,36,0.3)' : '1px solid var(--border)',
+                    color: batterySave ? '#fbbf24' : 'var(--text-muted)',
                     cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}>
@@ -740,7 +740,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
 
           <button onClick={() => setShowCasualPicker(true)} style={{
             marginTop: 14, padding: '9px 16px', borderRadius: 12,
-            background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.15)',
+            background: 'var(--bg-input)', border: '1px solid var(--border)',
             color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
             fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6,
           }}>
@@ -815,7 +815,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
                         style={{
                           width: '100%', marginTop: -4, marginBottom: 14,
                           padding: '8px', borderRadius: '0 0 12px 12px',
-                          background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)',
+                          background: 'var(--text-muted)', border: '1px solid var(--border)',
                           borderTop: 'none', color: 'var(--text-muted)',
                           fontFamily: "'DM Sans', sans-serif", fontSize: 12,
                           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
@@ -830,7 +830,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
                     {scheduledCount > 0 && (
                       <div style={{
                         display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
-                        background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)',
+                        background: 'var(--text-muted)', border: '1px dashed rgba(255,255,255,0.1)',
                         borderRadius: 14, marginBottom: 10,
                       }}>
                         <div style={{ fontSize: 24 }}>📅</div>
@@ -904,7 +904,7 @@ const SubTabBar = ({ activeTab, setActiveTab, isAdmin }) => (
       <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
         flex: 1, padding: '13px 8px', background: 'none', border: 'none',
         borderBottom: activeTab === tab.id ? `2px solid ${BRAND.light}` : '2px solid transparent',
-        color: activeTab === tab.id ? BRAND.light : 'rgba(255,255,255,0.35)',
+        color: activeTab === tab.id ? BRAND.light : 'var(--text-muted)',
         fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 700,
         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
         whiteSpace: 'nowrap',
