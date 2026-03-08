@@ -1467,7 +1467,10 @@ const MessagesSection = ({ currentUser, showToast }) => {
         },
       });
 
-      if (fnError) throw new Error(fnError.message);
+      if (fnError) {
+        console.error('Edge function error:', fnError);
+        throw new Error(`Edge function error: ${fnError.message || JSON.stringify(fnError)}`);
+      }
       const sent   = result.sent   || 0;
       const failed = result.failed || 0;
 
@@ -1492,7 +1495,7 @@ const MessagesSection = ({ currentUser, showToast }) => {
       }
     } catch (err) {
       console.error('Send error:', err);
-      showToast('Failed to send — check Edge Function setup', 'error');
+      showToast(`Failed: ${err.message}`, 'error');
     } finally {
       setSending(false);
     }
