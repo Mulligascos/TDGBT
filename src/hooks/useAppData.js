@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../supabaseClient';
 import { normalisePlayer } from './useAuth';
 
@@ -11,26 +11,30 @@ export const useAppData = (currentUser, isAdmin = false, onCurrentUserUpdated = 
   const [lastLoaded, setLastLoaded] = useState(null);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
+  // Use refs so loadData doesn't need currentUser/isAdmin/onCurrentUserUpdated
+  // in its dependency array — prevents re-render loops when updateUser fires
+  const currentUserRef = useRef(currentUser);
+  const isAdminRef = useRef(isAdmin);
+  const onUpdatedRef = useRef(onCurrentUserUpdated);
+  currentUserRef.current = currentUser;
+  isAdminRef.current = isAdmin;
+  onUpdatedRef.current = onCurrentUserUpdated;
+
   const loadData = useCallback(async () => {
-    if (!currentUser) return;
+    const user = currentUserRef.current;
+    if (!user) return;
     setIsLoading(true);
     try {
-      // Use allSettled so one failing query doesn't kill the rest
       const queries = [
         supabase.from('courses').select('*').order('name'),
         supabase.from('tournaments').select('*').order('start_date', { ascending: false }),
         supabase.from('matches').select('*').order('scheduled_date', { ascending: false }),
-        supabase.from('players')
-          .select('*')
-          .eq('player_status', 'Active')
-          .order('player_name'),
+        supabase.from('players').select('*').eq('player_status', 'Active').order('player_name'),
       ];
 
-      if (isAdmin) {
+      if (isAdminRef.current) {
         queries.push(
-          supabase.from('course_requests')
-            .select('*', { count: 'exact', head: true })
-            .eq('status', 'pending')
+          supabase.from('course_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending')
         );
       }
 
@@ -46,13 +50,18 @@ export const useAppData = (currentUser, isAdmin = false, onCurrentUserUpdated = 
       if (playersRes.status === 'fulfilled' && playersRes.value.data) {
         const normalised = playersRes.value.data.map(normalisePlayer);
         setPlayers(normalised);
-        // Sync currentUser with fresh DB data so stale localStorage values (e.g. bagTag) are updated
-        if (currentUser && onCurrentUserUpdated) {
-          const freshMe = normalised.find(p => p.id === currentUser.id);
-          if (freshMe) onCurrentUserUpdated(freshMe);
+
+        // Sync currentUser only if something actually changed — prevents loop
+        const cb = onUpdatedRef.current;
+        if (cb && user) {
+          const freshMe = normalised.find(p => p.id === user.id);
+          if (freshMe) {
+            const changed = Object.keys(freshMe).some(k => freshMe[k] !== user[k]);
+            if (changed) cb(freshMe);
+          }
         }
       }
-      if (isAdmin && pendingRes?.status === 'fulfilled' && pendingRes.value)
+      if (isAdminRef.current && pendingRes?.status === 'fulfilled' && pendingRes.value)
         setPendingRequestsCount(pendingRes.value.count || 0);
 
       setLastLoaded(new Date());
@@ -61,7 +70,7 @@ export const useAppData = (currentUser, isAdmin = false, onCurrentUserUpdated = 
     } finally {
       setIsLoading(false);
     }
-  }, [currentUser, isAdmin]);
+  }, []); // stable — no deps, uses refs
 
   useEffect(() => {
     loadData();
