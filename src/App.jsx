@@ -73,69 +73,31 @@ export default function App() {
     onNavigate: handleTabChange,
   };
 
-  const pages = {
-    home: (
-      <HomePage
-        {...commonProps}
-        tournaments={tournaments}
-        activeTournament={activeTournament}
-        players={players}
-        pendingRequestsCount={pendingRequestsCount}
-      />
-    ),
-    matches: (
-      <MatchesPage
-        {...commonProps}
-        matches={matches}
-        activeTournament={activeTournament}
-        courses={courses}
-        players={players}
-        tournaments={tournaments}
-        onDataChanged={loadData}
-        updateUser={updateUser}
-      />
-    ),
-    history: <HistoryPage {...commonProps} matches={matches} players={players} />,
-    courses: <CoursesPage {...commonProps} courses={courses} />,
-    admin: (
-      <AdminPanel
-        currentUser={currentUser}
-        tournaments={tournaments}
-        rounds={[]}
-        courses={courses}
-        players={players}
-        onDataChanged={loadData}
-        onBack={() => handleTabChange('home')}
-        pendingRequestsCount={pendingRequestsCount}
-      />
-    ),
-    bagtags: (
-      <BagTagsPage
-        currentUser={currentUser}
-        players={players}
-      />
-    ),
-    lostfound: (
-      <LostFoundPage
-        currentUser={currentUser}
-        isAdmin={isAdmin}
-        courses={courses}
-      />
-    ),
-    ctp: (
-      <CTPPage
-        currentUser={currentUser}
-        isAdmin={isAdmin}
-        courses={courses}
-      />
-    ),
-    profile: (
-      <ProfilePage
-        {...commonProps}
-        onLogout={handleLogout}
-        updateUser={updateUser}
-      />
-    ),
+  const renderPage = () => {
+    switch (activeTab) {
+      case 'home': return (
+        <HomePage {...commonProps} tournaments={tournaments} activeTournament={activeTournament}
+          players={players} pendingRequestsCount={pendingRequestsCount} />
+      );
+      case 'matches': return (
+        <MatchesPage {...commonProps} matches={matches} activeTournament={activeTournament}
+          courses={courses} players={players} tournaments={tournaments}
+          onDataChanged={loadData} updateUser={updateUser} />
+      );
+      case 'history': return <HistoryPage {...commonProps} matches={matches} players={players} />;
+      case 'courses': return <CoursesPage {...commonProps} courses={courses} />;
+      case 'admin': return (
+        <AdminPanel currentUser={currentUser} tournaments={tournaments} rounds={[]}
+          courses={courses} players={players} onDataChanged={loadData}
+          onBack={() => handleTabChange('home')} pendingRequestsCount={pendingRequestsCount} />
+      );
+      case 'bagtags': return <BagTagsPage currentUser={currentUser} players={players} />;
+      case 'lostfound': return <LostFoundPage currentUser={currentUser} isAdmin={isAdmin} courses={courses} />;
+      case 'ctp': return <CTPPage currentUser={currentUser} isAdmin={isAdmin} courses={courses} />;
+      case 'profile': return <ProfilePage {...commonProps} onLogout={handleLogout} updateUser={updateUser} />;
+      default: return <HomePage {...commonProps} tournaments={tournaments} activeTournament={activeTournament}
+        players={players} pendingRequestsCount={pendingRequestsCount} />;
+    }
   };
 
   return (
@@ -158,7 +120,7 @@ export default function App() {
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      {pages[activeTab] || pages.home}
+      {renderPage()}
 
       <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
     </>
