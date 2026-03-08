@@ -1,4 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { loadTheme, applyTheme } from './theme';
+
+// Apply saved theme immediately on load
+applyTheme(loadTheme());
 import { useAuth } from './hooks/useAuth';
 import { useAppData } from './hooks/useAppData';
 import { haptic } from './utils';
