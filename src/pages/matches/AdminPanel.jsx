@@ -218,7 +218,11 @@ const TournamentsSection = ({ tournaments, rounds, courses, onRefresh, showToast
   const [localT, setLocalT] = useState(tournaments);
   const [localR, setLocalR] = useState(rounds);
 
-  useEffect(() => { setLocalT(tournaments); setLocalR(rounds); }, [tournaments, rounds]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setLocalT(tournaments); setLocalR(rounds); }, [
+    tournaments.map(t => t.id).join(','),
+    rounds.map(r => r.id).join(','),
+  ]);
 
   const tRounds = (tid) => localR.filter(r => r.tournament_id === tid).sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
 
@@ -660,7 +664,8 @@ const CoursesSection = ({ courses, onRefresh, showToast }) => {
   const [selected, setSelected] = useState(null);
   const [localCourses, setLocalCourses] = useState(courses);
 
-  useEffect(() => { setLocalCourses(courses); }, [courses]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setLocalCourses(courses); }, [courses.map(c => c.id).join(',')]);
 
   const handleSave = (raw) => {
     if (selected) {
@@ -1253,6 +1258,7 @@ const NAV_ITEMS = [
 export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, courses, players, onDataChanged, onBack, pendingRequestsCount = 0 }) => {
   const [rounds, setRounds] = React.useState(roundsProp || []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (roundsProp && roundsProp.length > 0) { setRounds(roundsProp); return; }
     // Load rounds ourselves if not provided

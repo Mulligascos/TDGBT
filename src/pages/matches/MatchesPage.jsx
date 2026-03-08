@@ -534,7 +534,11 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
   const [showCasualPicker, setShowCasualPicker] = useState(false);
   const [localTournaments, setLocalTournaments] = useState(tournaments || []);
 
-  useEffect(() => { setLocalTournaments(tournaments || []); }, [tournaments]);
+  // Use stable key to avoid re-running when parent re-renders with new array reference
+  const tournamentsKey = (tournaments || []).map(t => t.id + t.status).join(',');
+  useEffect(() => { setLocalTournaments(tournaments || []); },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [tournamentsKey]);
 
   useEffect(() => {
     const active = localTournaments.find(t => t.status === 'active');
