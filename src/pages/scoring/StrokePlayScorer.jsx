@@ -63,12 +63,12 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
     <div style={{
       display: 'flex', alignItems: 'center', gap: 10,
       padding: '10px 0',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      borderBottom: '1px solid var(--border)',
       opacity: isCurrentHole ? 1 : 0.85,
     }}>
       {/* Name */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
           {formatName(player.name)}
           {junior && (
             <span style={{ fontSize: 9, background: 'rgba(251,191,36,0.2)', color: '#fbbf24', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>J</span>
@@ -78,7 +78,7 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
           )}
         </div>
         {adjusted != null && (
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
             {junior ? `${score} → ${adjusted} (handicap)` : `${score} strokes`}
           </div>
         )}
@@ -88,8 +88,8 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <button onClick={() => { haptic('light'); onChange(Math.max(1, (score || par) - 1)); }} style={{
           width: 36, height: 36, borderRadius: '50%',
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-          color: 'white', fontSize: 20, cursor: 'pointer',
+          background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+          color: 'var(--text-primary)', fontSize: 20, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Minus size={16} />
@@ -113,8 +113,8 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
 
         <button onClick={() => { haptic('light'); onChange((score || par) + 1); }} style={{
           width: 36, height: 36, borderRadius: '50%',
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-          color: 'white', fontSize: 20, cursor: 'pointer',
+          background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+          color: 'var(--text-primary)', fontSize: 20, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Plus size={16} />
@@ -164,7 +164,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
         display: 'flex', flexDirection: 'column',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'white', margin: 0 }}>
+          <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
             Add Player
           </h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
@@ -179,7 +179,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
               flex: 1, padding: '8px', borderRadius: 10,
               background: tab === id ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.05)',
               border: `1px solid ${tab === id ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.08)'}`,
-              color: tab === id ? '#4ade80' : 'rgba(255,255,255,0.4)',
+              color: tab === id ? '#4ade80' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}>{label}</button>
           ))}
@@ -192,8 +192,8 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
               placeholder="Search members..."
               style={{
                 width: '100%', padding: '10px 14px', borderRadius: 10, marginBottom: 12,
-                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-                color: 'white', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none',
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none',
                 boxSizing: 'border-box',
               }}
             />
@@ -208,7 +208,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
                     width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
                     borderRadius: 12, padding: '12px 16px', marginBottom: 6,
-                    color: 'white', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                    color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
                   }}>
                     <span style={{ fontSize: 14, fontWeight: 500 }}>{p.name}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -222,7 +222,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
           </>
         ) : (
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 10, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.5 }}>
               Guest scores are saved with the round but don't count toward club stats or bag tags.
             </div>
             <input
@@ -233,8 +233,8 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
               autoFocus
               style={{
                 width: '100%', padding: '12px 14px', borderRadius: 10, marginBottom: 14,
-                background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.12)',
-                color: 'white', fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: 'none',
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                color: 'var(--text-primary)', fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: 'none',
                 boxSizing: 'border-box',
               }}
             />
@@ -272,14 +272,14 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <ChevronLeft size={22} />
         </button>
-        <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'white', margin: 0 }}>
+        <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
           Review Scorecard
         </h2>
       </div>
 
       {/* Leaderboard */}
-      <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 20 }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden', marginBottom: 20 }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Player</span>
           <div style={{ display: 'flex', gap: 20 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Strokes</span>
@@ -296,15 +296,15 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
               <span style={{
                 width: 22, height: 22, borderRadius: '50%',
                 background: i === 0 ? BRAND.light : 'rgba(255,255,255,0.08)',
-                color: i === 0 ? BRAND.primary : 'rgba(255,255,255,0.4)',
+                color: i === 0 ? BRAND.primary : 'var(--text-secondary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 800,
               }}>{i + 1}</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>{formatName(row.player.name)}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(row.player.name)}</span>
               {isJunior(row.player) && <span style={{ fontSize: 9, color: '#fbbf24', fontWeight: 700 }}>J</span>}
             </div>
             <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>{row.total}</span>
+              <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{row.total}</span>
               <span style={{ fontSize: 15, fontWeight: 800, color: vsParColor(row.vsPar), width: 36, textAlign: 'right' }}>
                 {vsParLabel(row.vsPar)}
               </span>
@@ -318,24 +318,24 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, fontFamily: "'DM Sans', sans-serif" }}>
           <thead>
             <tr>
-              <td style={{ padding: '6px 8px', color: 'rgba(255,255,255,0.35)', fontWeight: 700 }}>Hole</td>
+              <td style={{ padding: '6px 8px', color: 'var(--text-muted)', fontWeight: 700 }}>Hole</td>
               {pars.map((_, i) => (
-                <td key={i} style={{ padding: '6px 4px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', fontWeight: 700 }}>{i + 1}</td>
+                <td key={i} style={{ padding: '6px 4px', color: 'var(--text-muted)', textAlign: 'center', fontWeight: 700 }}>{i + 1}</td>
               ))}
-              <td style={{ padding: '6px 8px', color: 'rgba(255,255,255,0.35)', textAlign: 'right', fontWeight: 700 }}>Tot</td>
+              <td style={{ padding: '6px 8px', color: 'var(--text-muted)', textAlign: 'right', fontWeight: 700 }}>Tot</td>
             </tr>
             <tr>
-              <td style={{ padding: '4px 8px', color: 'rgba(255,255,255,0.2)', fontSize: 10 }}>Par</td>
+              <td style={{ padding: '4px 8px', color: 'var(--text-muted)', fontSize: 10 }}>Par</td>
               {pars.map((p, i) => (
-                <td key={i} style={{ padding: '4px', color: 'rgba(255,255,255,0.2)', textAlign: 'center', fontSize: 10 }}>{p}</td>
+                <td key={i} style={{ padding: '4px', color: 'var(--text-muted)', textAlign: 'center', fontSize: 10 }}>{p}</td>
               ))}
-              <td style={{ padding: '4px 8px', color: 'rgba(255,255,255,0.2)', textAlign: 'right', fontSize: 10 }}>{totalPar(pars)}</td>
+              <td style={{ padding: '4px 8px', color: 'var(--text-muted)', textAlign: 'right', fontSize: 10 }}>{totalPar(pars)}</td>
             </tr>
           </thead>
           <tbody>
             {rows.map(row => (
               <tr key={row.player.id}>
-                <td style={{ padding: '6px 8px', color: 'rgba(255,255,255,0.7)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                <td style={{ padding: '6px 8px', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap' }}>
                   {formatName(row.player.name)}
                 </td>
                 {row.adjusted.map((s, i) => (
@@ -368,7 +368,7 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
       <button onClick={onSubmit} disabled={submitting} style={{
         width: '100%', padding: '16px', borderRadius: 14,
         background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-        border: `1px solid rgba(74,222,128,0.3)`, color: 'white',
+        border: `1px solid rgba(74,222,128,0.3)`, color: 'var(--text-primary)',
         fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: submitting ? 'not-allowed' : 'pointer',
         opacity: submitting ? 0.6 : 1,
@@ -446,15 +446,15 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
   const handleSkip = () => onComplete?.();
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'white', paddingBottom: 40 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'var(--text-primary)', paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #92400e, #d97706)', padding: '52px 20px 24px', borderBottom: '1px solid rgba(251,191,36,0.2)' }}>
         <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🏷️</div>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: 'white' }}>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: 'var(--text-primary)' }}>
             Bag Tag Challenge!
           </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 }}>
             {eligible.length} tagged players · {course?.name}
           </div>
         </div>
@@ -482,10 +482,10 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
                     {isWinner ? '🏆' : isTied ? '🤝' : ''}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{formatName(p.name)}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 3, alignItems: 'center' }}>
                       <span style={{ fontSize: 11, color: '#fbbf24' }}>🏷️ #{p.bagTag}</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{p.total_strokes} strokes</span>
+                      <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{p.total_strokes} strokes</span>
                     </div>
                   </div>
                   <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: p.vs_par < 0 ? '#4ade80' : p.vs_par === 0 ? '#fbbf24' : '#f87171' }}>
@@ -502,7 +502,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
             <div style={{ fontSize: 10, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
               🤝 Tie — Select Playoff Winner
             </div>
-            <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 14, padding: '14px', marginBottom: 10, fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+            <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 14, padding: '14px', marginBottom: 10, fontSize: 13, color: 'var(--text-secondary)' }}>
               Tied players must play a sudden death playoff hole. Select the winner below.
             </div>
             {tied.map(p => (
@@ -517,7 +517,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
                   {playoffWinnerId === p.id && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24' }} />}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>{formatName(p.name)}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
                   <div style={{ fontSize: 11, color: '#fbbf24' }}>🏷️ #{p.bagTag}</div>
                 </div>
                 {playoffWinnerId === p.id && <Check size={16} color="#fbbf24" />}
@@ -534,8 +534,8 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
             </div>
             {hasSwap ? (
               effectiveSwaps.filter(s => s.tagBefore !== s.tagAfter).map(s => (
-                <div key={s.player.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, marginBottom: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'white', flex: 1 }}>{formatName(s.player.name)}</div>
+                <div key={s.player.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{formatName(s.player.name)}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 14, fontWeight: 700, color: '#f87171', fontFamily: "'Syne', sans-serif" }}>#{s.tagBefore}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>→</span>
@@ -544,7 +544,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
                 </div>
               ))
             ) : (
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', padding: '8px 0' }}>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', padding: '8px 0' }}>
                 {effectiveWinner?.name ? formatName(effectiveWinner.name) : 'Winner'} already holds the lowest tag — no changes needed.
               </div>
             )}
@@ -560,7 +560,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
         <button onClick={handleConfirm} disabled={saving || (isTie && !playoffWinnerId)} style={{
           width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10,
           background: (isTie && !playoffWinnerId) ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg, #92400e, #d97706)',
-          border: '1px solid rgba(251,191,36,0.3)', color: 'white',
+          border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
           fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer',
           opacity: saving ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         }}>
@@ -569,8 +569,8 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
 
         <button onClick={handleSkip} style={{
           width: '100%', padding: '12px', borderRadius: 12,
-          background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-          color: 'rgba(255,255,255,0.35)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
+          background: 'transparent', border: '1px solid var(--border-card)',
+          color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
         }}>
           Skip — record scores only
         </button>
@@ -842,24 +842,24 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       <div style={{
         background: `linear-gradient(160deg, ${BRAND.primary}cc, ${BRAND.accent}99)`,
         padding: '48px 20px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--border)',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 10, padding: '6px 10px', cursor: 'pointer', color: 'white', display: 'flex', alignItems: 'center' }}>
+            <button onClick={onBack} style={{ background: 'var(--bg-input)', border: 'none', borderRadius: 10, padding: '6px 10px', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center' }}>
               <ChevronLeft size={16} />
             </button>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>
                 {course.name}
               </div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                 Hole {currentHole + round.starting_hole} <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}>of {totalHoles}</span>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>Par</div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>{par}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1 }}>Par</div>
+              <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>{par}</div>
             </div>
           </div>
 
@@ -914,7 +914,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
         <div style={{ display: 'flex', gap: 8, marginTop: 12, marginBottom: 16 }}>
           <button onClick={() => setShowAddPlayer(true)} style={{
             flex: 1, padding: '10px', borderRadius: 10,
-            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
             color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
@@ -935,7 +935,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 
         {/* Running totals */}
         <div style={{
-          background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.06)',
+          background: 'var(--bg-card)', border: '1px solid var(--border)',
           borderRadius: 12, padding: '10px 14px', marginBottom: 20,
         }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
@@ -950,7 +950,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             if (holesPlayed === 0) return null;
             return (
               <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                   {formatName(p.name)}
                   {p.isGuest && <span style={{ fontSize: 9, background: 'rgba(148,163,184,0.15)', color: '#94a3b8', padding: '1px 5px', borderRadius: 4, fontWeight: 700, marginLeft: 5 }}>GUEST</span>}
                 </span>
@@ -965,12 +965,12 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       <div style={{
         position: 'fixed', bottom: 70, left: 0, right: 0,
         padding: '12px 20px', background: 'rgba(7,20,7,0.95)',
-        borderTop: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)',
+        borderTop: '1px solid var(--border)', backdropFilter: 'blur(10px)',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto', display: 'flex', gap: 10 }}>
           <button onClick={() => goToHole(currentHole - 1)} disabled={currentHole === 0} style={{
             flex: 1, padding: '13px', borderRadius: 14,
-            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+            background: 'var(--bg-card)', border: '1px solid var(--border-card)',
             color: currentHole === 0 ? 'rgba(255,255,255,0.2)' : 'white',
             fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: currentHole === 0 ? 'not-allowed' : 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -982,7 +982,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             <button onClick={() => setView('summary')} style={{
               flex: 2, padding: '13px', borderRadius: 14,
               background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-              border: `1px solid rgba(74,222,128,0.3)`, color: 'white',
+              border: `1px solid rgba(74,222,128,0.3)`, color: 'var(--text-primary)',
               fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
@@ -995,7 +995,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
                 ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
                 : 'rgba(255,255,255,0.06)',
               border: allScored ? `1px solid rgba(74,222,128,0.3)` : '1px solid rgba(255,255,255,0.1)',
-              color: 'white',
+              color: 'var(--text-primary)',
               fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
@@ -1010,7 +1010,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       {/* CTP Toast */}
       {ctpToast && (
         <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 300,
-          background: '#15803d', color: 'white', padding: '12px 20px', borderRadius: 14,
+          background: '#15803d', color: 'var(--text-primary)', padding: '12px 20px', borderRadius: 14,
           fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600,
           whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
           {ctpToast}
@@ -1023,26 +1023,26 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           <div onClick={() => setCtpSheet(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
           <div style={{ position: 'relative', background: 'var(--bg-nav)', borderRadius: '20px 20px 0 0',
             padding: '24px 20px 40px', maxWidth: 520, width: '100%', margin: '0 auto',
-            border: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none' }}>
+            border: '1px solid var(--border-card)', borderBottom: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: 'white', fontFamily: "'Syne', sans-serif" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                   🎯 {ctpForHole.name}
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Hole {ctpForHole.hole} · Closest to Pin</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>Hole {ctpForHole.hole} · Closest to Pin</div>
               </div>
-              <button onClick={() => setCtpSheet(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', color: 'var(--text-secondary)' }}>
+              <button onClick={() => setCtpSheet(false)} style={{ background: 'var(--bg-input)', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', color: 'var(--text-secondary)' }}>
                 <X size={16} />
               </button>
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.5 }}>
               🥏 Throw your disc, walk to where it landed, then tap the button below.
             </div>
             <button onClick={captureCtpGps} disabled={ctpGpsLoading} style={{
               width: '100%', padding: '14px', borderRadius: 14, cursor: ctpGpsLoading ? 'wait' : 'pointer',
               background: ctpPos ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.05)',
               border: '2px solid ' + (ctpPos ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.12)'),
-              color: 'white', fontFamily: "'DM Sans', sans-serif",
+              color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
               display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12,
             }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0,
@@ -1056,7 +1056,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
                 <div style={{ fontSize: 14, fontWeight: 700, color: ctpPos ? '#4ade80' : 'white' }}>
                   {ctpGpsLoading ? 'Getting location...' : ctpPos ? 'Position captured' : "I'm standing at my disc"}
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
                   {ctpPos
                     ? ('+-' + Math.round(ctpPos.acc) + 'm accuracy · ' + fmtDist(haversineDistance(ctpForHole.pin_lat, ctpForHole.pin_lng, ctpPos.lat, ctpPos.lng)) + ' from pin')
                     : 'Tap to capture GPS position'}
@@ -1085,13 +1085,13 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 const pageStyle = {
   minHeight: '100vh',
   background: 'var(--bg-page)',
-  fontFamily: "'DM Sans', sans-serif", color: 'white', paddingBottom: 130,
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 130,
 };
 
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
   `}</style>
