@@ -971,7 +971,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           <button onClick={() => goToHole(currentHole - 1)} disabled={currentHole === 0} style={{
             flex: 1, padding: '13px', borderRadius: 14,
             background: 'var(--bg-card)', border: '1px solid var(--border-card)',
-            color: currentHole === 0 ? 'rgba(255,255,255,0.2)' : 'white',
+            color: currentHole === 0 ? 'rgba(255,255,255,0.2)' : 'var(--text-primary)',
             fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: currentHole === 0 ? 'not-allowed' : 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
