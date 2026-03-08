@@ -6,6 +6,44 @@ import { vsParLabel, vsParColor, buildLeaderboard } from '../utils/strokeplay';
 import { Trophy, Disc, Clock, ChevronRight, Zap, Flag, BookOpen, Settings } from 'lucide-react';
 
 // ─── SECTION TITLE ────────────────────────────────────────────────────────────
+
+// ─── MARKDOWN RENDERER (shared with announcements) ───────────────────────────
+const inlineMarkdown = (text) => {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('*') && part.endsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+};
+
+const renderMarkdown = (text) => {
+  if (!text) return null;
+  const lines = text.split('\n');
+  const elements = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^[-*] /.test(line)) {
+      const items = [];
+      while (i < lines.length && /^[-*] /.test(lines[i])) { items.push(lines[i].replace(/^[-*] /, '')); i++; }
+      elements.push(<ul key={i} style={{ paddingLeft: 18, margin: '4px 0' }}>{items.map((item, j) => <li key={j} style={{ marginBottom: 2 }}>{inlineMarkdown(item)}</li>)}</ul>);
+      continue;
+    }
+    if (/^\d+\. /.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\d+\. /.test(lines[i])) { items.push(lines[i].replace(/^\d+\. /, '')); i++; }
+      elements.push(<ol key={i} style={{ paddingLeft: 18, margin: '4px 0' }}>{items.map((item, j) => <li key={j} style={{ marginBottom: 2 }}>{inlineMarkdown(item)}</li>)}</ol>);
+      continue;
+    }
+    if (line.trim() === '') { elements.push(<div key={i} style={{ height: 6 }} />); }
+    else { elements.push(<div key={i}>{inlineMarkdown(line)}</div>); }
+    i++;
+  }
+  return elements;
+};
+
+
 const SectionTitle = ({ children, action }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
     <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
@@ -120,7 +158,7 @@ const AnnouncementCard = ({ announcement }) => (
         <span style={{ fontSize: 10, background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24', borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap' }}>📌 Pinned</span>
       )}
     </div>
-    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{announcement.body}</div>
+    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>{renderMarkdown(announcement.body)}</div>
     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>
       {formatDate(announcement.created_at)}
     </div>
