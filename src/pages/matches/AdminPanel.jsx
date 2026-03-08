@@ -1747,7 +1747,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
               borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: 'var(--text-primary)',
               display: 'flex', flexDirection: 'column', gap: 4,
             }}>
-              {[0, 1, 2].map(i => <div key={i} style={{ width: 18, height: 2, background: 'white', borderRadius: 1 }} />)}
+              {[0, 1, 2].map(i => <div key={i} style={{ width: 18, height: 2, background: 'var(--text-primary)', borderRadius: 1 }} />)}
             </button>
           </div>
         </div>
@@ -1759,7 +1759,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
           <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 90 }} />
           <div style={{
             position: 'fixed', top: 0, right: 0, bottom: 0, width: 240,
-            background: '#0a1f0a', borderLeft: '1px solid var(--border)',
+            background: 'var(--bg-nav)', borderLeft: '1px solid var(--border-card)',
             zIndex: 100, paddingTop: 60, display: 'flex', flexDirection: 'column',
           }}>
             <div style={{ padding: '0 16px 16px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
@@ -1838,7 +1838,7 @@ const GlobalStyles = () => (
     button { font-family: 'DM Sans', sans-serif; }
     button:active { transform: scale(0.97); }
     textarea { font-family: 'DM Sans', sans-serif; }
-    select option { background: #0d2b0d; }
+    select option { background: var(--bg-nav); }
     input[type="date"] { color-scheme: dark; }
     input[type="checkbox"] { accent-color: ${BRAND.light}; width: 16px; height: 16px; }
   `}</style>
