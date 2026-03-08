@@ -122,6 +122,13 @@ export default function App() {
         courses={courses}
       />
     ),
+    ctp: (
+      <CTPPage
+        currentUser={currentUser}
+        isAdmin={isAdmin}
+        courses={courses}
+      />
+    ),
     profile: (
       <ProfilePage
         {...commonProps}
