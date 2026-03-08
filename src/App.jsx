@@ -13,6 +13,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { CoursesPage } from './pages/CoursesPage';
 import { BagTagsPage } from './pages/BagTagsPage';
 import { LostFoundPage } from './pages/LostFoundPage';
+import { CTPPage } from './pages/CTPPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
