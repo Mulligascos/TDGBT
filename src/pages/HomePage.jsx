@@ -218,7 +218,8 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
     } finally {
       setLoading(false);
     }
-  }, [currentUser, activeTournament, players]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser.id, activeTournament?.id, players.map(p => p.id).join(',')]);
 
   useEffect(() => { loadHomeData(); }, [loadHomeData]);
 
