@@ -120,7 +120,7 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
       {moreOpen && (
         <div
           onClick={() => setMoreOpen(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 48, background: 'rgba(0,0,0,0.5)' }}
+          style={{ position: 'fixed', inset: 0, zIndex: 48, background: 'rgba(0,0,0,0.6)' }}
         />
       )}
 
@@ -133,7 +133,7 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
         padding: '0 16px',
       }}>
         <div style={{
-          background: 'rgba(13,43,13,0.98)',
+          background: 'var(--bg-nav)',
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: 20,
           padding: '8px',
@@ -174,7 +174,7 @@ export const BottomNav = ({ activeTab, onTabChange }) => {
       {/* Bottom nav bar */}
       <nav style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-        background: 'rgba(10, 26, 10, 0.97)',
+        background: 'var(--bg-nav)',
         borderTop: '1px solid rgba(255,255,255,0.08)',
         backdropFilter: 'blur(20px)',
         paddingBottom: 'env(safe-area-inset-bottom)',
