@@ -158,7 +158,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
       zIndex: 100, backdropFilter: 'blur(10px)',
     }}>
       <div style={{
-        background: '#0d1f0d', borderTop: '1px solid var(--border)',
+        background: 'var(--bg-nav)', borderTop: '1px solid var(--border)',
         borderRadius: '20px 20px 0 0', padding: '20px',
         width: '100%', maxWidth: 520, maxHeight: '70vh',
         display: 'flex', flexDirection: 'column',
@@ -368,7 +368,7 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
       <button onClick={onSubmit} disabled={submitting} style={{
         width: '100%', padding: '16px', borderRadius: 14,
         background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-        border: `1px solid rgba(74,222,128,0.3)`, color: 'var(--text-primary)',
+        border: `1px solid rgba(74,222,128,0.3)`, color: 'var(--text-on-brand)',
         fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: submitting ? 'not-allowed' : 'pointer',
         opacity: submitting ? 0.6 : 1,
@@ -964,15 +964,16 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       {/* Navigation */}
       <div style={{
         position: 'fixed', bottom: 70, left: 0, right: 0,
-        padding: '12px 20px', background: 'rgba(7,20,7,0.95)',
+        padding: '12px 20px', background: 'var(--bg-nav)',
         borderTop: '1px solid var(--border)', backdropFilter: 'blur(10px)',
       }}>
         <div style={{ maxWidth: 520, margin: '0 auto', display: 'flex', gap: 10 }}>
           <button onClick={() => goToHole(currentHole - 1)} disabled={currentHole === 0} style={{
             flex: 1, padding: '13px', borderRadius: 14,
-            background: 'var(--bg-card)', border: '1px solid var(--border-card)',
-            color: currentHole === 0 ? 'rgba(255,255,255,0.2)' : 'var(--text-primary)',
-            fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: currentHole === 0 ? 'not-allowed' : 'pointer',
+            background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+            color: currentHole === 0 ? 'var(--text-muted)' : 'var(--text-primary)',
+            fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+            cursor: currentHole === 0 ? 'not-allowed' : 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
             <ChevronLeft size={18} /> Prev
@@ -982,7 +983,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             <button onClick={() => setView('summary')} style={{
               flex: 2, padding: '13px', borderRadius: 14,
               background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-              border: `1px solid rgba(74,222,128,0.3)`, color: 'var(--text-primary)',
+              border: `1px solid ${BRAND.light}40`, color: 'var(--text-on-brand)',
               fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
@@ -991,11 +992,8 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           ) : (
             <button onClick={() => goToHole(currentHole + 1)} style={{
               flex: 2, padding: '13px', borderRadius: 14,
-              background: allScored
-                ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
-                : 'var(--text-muted)',
-              border: allScored ? `1px solid rgba(74,222,128,0.3)` : '1px solid var(--border)',
-              color: 'var(--text-primary)',
+              background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
+              border: `1px solid ${BRAND.light}40`, color: 'var(--text-on-brand)',
               fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
@@ -1067,7 +1065,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             {ctpPos && (
               <button onClick={submitCtpShot} disabled={ctpSubmitting} style={{
                 width: '100%', padding: '14px', borderRadius: 14, border: 'none',
-                background: BRAND.primary, color: '#052e0f', fontFamily: "'DM Sans', sans-serif",
+                background: BRAND.primary, color: 'var(--text-on-brand)', fontFamily: "'DM Sans', sans-serif",
                 fontSize: 15, fontWeight: 800, cursor: ctpSubmitting ? 'wait' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               }}>

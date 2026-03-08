@@ -488,7 +488,7 @@ const MatchSummary = ({ p1, p2, p1Scores, p2Scores, pars, status, onConfirm, onB
       <button onClick={onConfirm} disabled={submitting} style={{
         width: '100%', padding: '16px', borderRadius: 14,
         background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-        border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
+        border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
         fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.6 : 1,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -844,7 +844,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
       </div>
 
       {/* Navigation */}
-      <div style={{ position: 'fixed', bottom: 70, left: 0, right: 0, padding: '12px 20px', background: 'rgba(7,20,7,0.95)', borderTop: '1px solid var(--border)', backdropFilter: 'blur(10px)' }}>
+      <div style={{ position: 'fixed', bottom: 70, left: 0, right: 0, padding: '12px 20px', background: 'var(--bg-nav)', borderTop: '1px solid var(--border)', backdropFilter: 'blur(10px)' }}>
         <div style={{ maxWidth: 520, margin: '0 auto', display: 'flex', gap: 10 }}>
           <button onClick={handleBack} disabled={currentHole === 0} style={{
             flex: 1, padding: '14px', borderRadius: 14,
@@ -859,7 +859,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
           <button onClick={handleNext} style={{
             flex: 2, padding: '14px', borderRadius: 14,
             background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-            border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)',
+            border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
             fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
