@@ -109,7 +109,7 @@ export default function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #071407; color: white; }
+        body { background: var(--bg-base); color: var(--text-primary); }
         @keyframes slideDown {
           from { opacity: 0; transform: translate(-50%, -100%); }
           to { opacity: 1; transform: translate(-50%, 0); }
