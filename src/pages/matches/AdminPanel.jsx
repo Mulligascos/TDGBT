@@ -1702,9 +1702,8 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (roundsProp && roundsProp.length > 0) { setRounds(roundsProp); return; }
-    // Load rounds ourselves if not provided
     supabase.from('rounds').select('*').then(({ data }) => { if (data) setRounds(data); });
-  }, [roundsProp]);
+  }, [(roundsProp || []).map(r => r.id).join(',')]);
   const [activeSection, setActiveSection] = useState('tournaments');
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
