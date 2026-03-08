@@ -8,6 +8,113 @@ import {
   Mail, Send, Clock, AlertCircle
 } from 'lucide-react';
 
+
+// ─── RICH TEXT ────────────────────────────────────────────────────────────────
+// Lightweight markdown: **bold**, *italic*, bullet lists (- item), numbered lists, line breaks
+const renderMarkdown = (text) => {
+  if (!text) return null;
+  const lines = text.split('\n');
+  const elements = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    // Unordered list block
+    if (/^[-*] /.test(line)) {
+      const items = [];
+      while (i < lines.length && /^[-*] /.test(lines[i])) {
+        items.push(lines[i].replace(/^[-*] /, ''));
+        i++;
+      }
+      elements.push(
+        <ul key={i} style={{ paddingLeft: 18, margin: '4px 0' }}>
+          {items.map((item, j) => <li key={j} style={{ marginBottom: 2 }}>{inlineMarkdown(item)}</li>)}
+        </ul>
+      );
+      continue;
+    }
+    // Ordered list block
+    if (/^\d+\. /.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\d+\. /.test(lines[i])) {
+        items.push(lines[i].replace(/^\d+\. /, ''));
+        i++;
+      }
+      elements.push(
+        <ol key={i} style={{ paddingLeft: 18, margin: '4px 0' }}>
+          {items.map((item, j) => <li key={j} style={{ marginBottom: 2 }}>{inlineMarkdown(item)}</li>)}
+        </ol>
+      );
+      continue;
+    }
+    // Blank line → spacer
+    if (line.trim() === '') {
+      elements.push(<div key={i} style={{ height: 6 }} />);
+    } else {
+      elements.push(<div key={i}>{inlineMarkdown(line)}</div>);
+    }
+    i++;
+  }
+  return elements;
+};
+
+const inlineMarkdown = (text) => {
+  // Split on **bold** and *italic*
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('*') && part.endsWith('*'))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+};
+
+const RichTextToolbar = ({ value, onChange, textareaRef }) => {
+  const wrap = (before, after, placeholder) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end   = el.selectionEnd;
+    const sel   = value.slice(start, end) || placeholder;
+    const next  = value.slice(0, start) + before + sel + after + value.slice(end);
+    onChange(next);
+    setTimeout(() => {
+      el.focus();
+      el.setSelectionRange(start + before.length, start + before.length + sel.length);
+    }, 0);
+  };
+
+  const insertList = (prefix) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const start = el.selectionStart;
+    // Insert at start of current line
+    const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+    const next = value.slice(0, lineStart) + prefix + value.slice(lineStart);
+    onChange(next);
+    setTimeout(() => { el.focus(); el.setSelectionRange(start + prefix.length, start + prefix.length); }, 0);
+  };
+
+  const btnStyle = (active) => ({
+    padding: '5px 9px', borderRadius: 7, cursor: 'pointer', fontSize: 13, fontWeight: 700,
+    background: active ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)',
+    border: `1px solid ${active ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+    color: active ? '#4ade80' : 'rgba(255,255,255,0.6)',
+    fontFamily: "'DM Sans', sans-serif",
+  });
+
+  return (
+    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6, padding: '6px 8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px 10px 0 0', borderBottom: 'none' }}>
+      <button type="button" onClick={() => wrap('**', '**', 'bold text')} style={btnStyle(false)}><strong>B</strong></button>
+      <button type="button" onClick={() => wrap('*', '*', 'italic text')} style={btnStyle(false)}><em>I</em></button>
+      <button type="button" onClick={() => insertList('- ')} style={btnStyle(false)}>• List</button>
+      <button type="button" onClick={() => insertList('1. ')} style={btnStyle(false)}>1. List</button>
+      <div style={{ width: 1, background: 'rgba(255,255,255,0.1)', margin: '2px 2px' }} />
+      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', alignSelf: 'center', paddingLeft: 4 }}>**bold**  *italic*  - list</span>
+    </div>
+  );
+};
+
 // ─── SHARED PRIMITIVES ────────────────────────────────────────────────────────
 const Field = ({ label, children, hint }) => (
   <div style={{ marginBottom: 14 }}>
@@ -863,6 +970,8 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', body: '', pinned: false });
   const [saving, setSaving] = useState(false);
+  const [preview, setPreview] = useState(false);
+  const textareaRef = React.useRef(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -920,14 +1029,41 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
         <Card>
           <Field label="Title"><Inp value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Announcement title" /></Field>
           <Field label="Body">
-            <textarea value={form.body} onChange={e => setForm(p => ({ ...p, body: e.target.value }))} placeholder="Write your announcement..." rows={3} style={{ ...inputStyle, resize: 'vertical' }} />
+            <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+              {['write', 'preview'].map(m => (
+                <button key={m} type="button" onClick={() => setPreview(m === 'preview')} style={{
+                  padding: '4px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                  background: (preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${(preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                  color: (preview ? m === 'preview' : m === 'write') ? '#4ade80' : 'rgba(255,255,255,0.4)',
+                  fontFamily: "'DM Sans', sans-serif", textTransform: 'capitalize',
+                }}>{m}</button>
+              ))}
+            </div>
+            {!preview ? (
+              <>
+                <RichTextToolbar value={form.body} onChange={v => setForm(p => ({ ...p, body: v }))} textareaRef={textareaRef} />
+                <textarea
+                  ref={textareaRef}
+                  value={form.body}
+                  onChange={e => setForm(p => ({ ...p, body: e.target.value }))}
+                  placeholder={"Write your announcement...\n\nTips:\n**bold text**\n*italic text*\n- bullet item\n1. numbered item"}
+                  rows={5}
+                  style={{ ...inputStyle, resize: 'vertical', borderRadius: '0 0 10px 10px', borderTop: 'none' }}
+                />
+              </>
+            ) : (
+              <div style={{ ...inputStyle, minHeight: 100, lineHeight: 1.6, fontSize: 14, color: 'rgba(255,255,255,0.8)' }}>
+                {form.body ? renderMarkdown(form.body) : <span style={{ color: 'rgba(255,255,255,0.2)' }}>Nothing to preview yet</span>}
+              </div>
+            )}
           </Field>
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, cursor: 'pointer', fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
             <input type="checkbox" checked={form.pinned} onChange={e => setForm(p => ({ ...p, pinned: e.target.checked }))} />
             Pin to top of home screen
           </label>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Btn small variant="ghost" onClick={() => setShowForm(false)}>Cancel</Btn>
+            <Btn small variant="ghost" onClick={() => { setShowForm(false); setPreview(false); }}>Cancel</Btn>
             <Btn small onClick={handlePost} disabled={saving || !form.title.trim() || !form.body.trim()}>
               {saving ? 'Posting...' : 'Post'}
             </Btn>
@@ -943,7 +1079,7 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
             <div style={{ fontSize: 14, fontWeight: 700, color: 'white', flex: 1 }}>{a.title}</div>
             {a.pinned && <span style={{ fontSize: 10, color: '#fbbf24', marginLeft: 8 }}>📌</span>}
           </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: 8 }}>{a.body}</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginBottom: 8 }}>{renderMarkdown(a.body)}</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 10 }}>{formatDate(a.created_at)}</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <Btn small variant="ghost" onClick={() => togglePin(a)}>{a.pinned ? 'Unpin' : '📌 Pin'}</Btn>
