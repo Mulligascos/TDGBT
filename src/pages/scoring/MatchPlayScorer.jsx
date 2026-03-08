@@ -134,8 +134,8 @@ const StrokeRow = ({ player, score, par, onChange, holeResult, isP1, opponent })
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
-      background: won ? 'rgba(74,222,128,0.08)' : halved ? 'rgba(251,191,36,0.06)' : lost ? 'rgba(248,113,113,0.06)' : 'rgba(255,255,255,0.04)',
-      border: `1px solid ${won ? 'rgba(74,222,128,0.2)' : halved ? 'rgba(251,191,36,0.15)' : lost ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.08)'}`,
+      background: won ? 'rgba(74,222,128,0.08)' : halved ? 'rgba(251,191,36,0.06)' : lost ? 'rgba(248,113,113,0.06)' : 'var(--text-muted)',
+      border: `1px solid ${won ? 'rgba(74,222,128,0.2)' : halved ? 'rgba(251,191,36,0.15)' : lost ? 'rgba(248,113,113,0.15)' : 'var(--text-muted)'}`,
       borderRadius: 16, marginBottom: 10,
     }}>
       {/* Name + result badge */}
@@ -184,7 +184,7 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
 
   const ScorecardHalf = ({ from, to, label, isPlayoff }) => (
     <div style={{ marginBottom: 10 }}>
-      {label && <div style={{ fontSize: 9, fontWeight: 700, color: isPlayoff ? 'rgba(251,191,36,0.5)' : 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4, paddingLeft: 48 }}>{label}</div>}
+      {label && <div style={{ fontSize: 9, fontWeight: 700, color: isPlayoff ? 'rgba(251,191,36,0.5)' : 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4, paddingLeft: 48 }}>{label}</div>}
       <div style={{ display: 'flex', gap: 2 }}>
         {/* Name column */}
         <div style={{ width: 46, flexShrink: 0 }}>
@@ -224,7 +224,7 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
                 <span style={{
                   fontSize: 10, fontWeight: 800, width: 18, height: 18, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: isCurrent ? BRAND.light : 'transparent',
-                  color: isCurrent ? '#071407' : 'rgba(255,255,255,0.3)',
+                  color: isCurrent ? '#071407' : 'var(--text-muted)',
                 }}>{holeNum}</span>
               </div>
               {/* Par */}
@@ -235,7 +235,7 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
               <div style={{ height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{
                   fontSize: 13, fontWeight: 800,
-                  color: s1 != null ? scoreColor(s1, par) : 'rgba(255,255,255,0.12)',
+                  color: s1 != null ? scoreColor(s1, par) : 'var(--text-muted)',
                   background: r === 1 ? 'rgba(74,222,128,0.15)' : 'transparent',
                   borderRadius: 4, width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   outline: r === 1 ? '1px solid rgba(74,222,128,0.3)' : 'none',
@@ -247,7 +247,7 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
               <div style={{ height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{
                   fontSize: 13, fontWeight: 800,
-                  color: s2 != null ? scoreColor(s2, par) : 'rgba(255,255,255,0.12)',
+                  color: s2 != null ? scoreColor(s2, par) : 'var(--text-muted)',
                   background: r === 2 ? 'rgba(74,222,128,0.15)' : 'transparent',
                   borderRadius: 4, width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   outline: r === 2 ? '1px solid rgba(74,222,128,0.3)' : 'none',
@@ -260,7 +260,7 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
         })}
 
         {/* Totals */}
-        <div style={{ width: 28, flexShrink: 0, borderLeft: '1px solid rgba(255,255,255,0.06)', paddingLeft: 3 }}>
+        <div style={{ width: 28, flexShrink: 0, borderLeft: '1px solid var(--border)', paddingLeft: 3 }}>
           <div style={{ height: 20 }} />
           <div style={{ height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{pars.slice(from, to).reduce((a, b) => a + b, 0)}</span>
@@ -271,7 +271,7 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
             const diff = total - parTotal;
             return (
               <div key={pi} style={{ height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: total ? vsParColor(diff) : 'rgba(255,255,255,0.15)' }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: total ? vsParColor(diff) : 'var(--text-muted)' }}>
                   {total || '·'}
                 </span>
               </div>
@@ -283,7 +283,7 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
   );
 
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '12px 10px', overflowX: 'auto' }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '12px 10px', overflowX: 'auto' }}>
       {(() => {
         const hc = pars.length;
         return (<>
@@ -315,7 +315,7 @@ const AddPlayerModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
           {available.map(p => (
             <button key={p.id} onClick={() => { onAdd(p); onClose(); }} style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px',
-              background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
               borderRadius: 10, marginBottom: 6, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", textAlign: 'left',
             }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: BRAND.primary + '40', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: BRAND.light }}>
@@ -378,7 +378,7 @@ const MPBagTagScreen = ({ p1, p2, winnerPlayer, onComplete, updateUser, currentU
           const isWinner = winnerPlayer?.id === p.id;
           const swap = swaps.find(s => s.player.id === p.id);
           return (
-            <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: isWinner ? 'rgba(251,191,36,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isWinner ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 14, marginBottom: 8 }}>
+            <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: isWinner ? 'rgba(251,191,36,0.1)' : 'var(--text-muted)', border: `1px solid ${isWinner ? 'rgba(251,191,36,0.3)' : 'var(--text-muted)'}`, borderRadius: 14, marginBottom: 8 }}>
               <div style={{ fontSize: 22, width: 28 }}>{isWinner ? '🏆' : ''}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
@@ -464,7 +464,7 @@ const MatchSummary = ({ p1, p2, p1Scores, p2Scores, pars, status, onConfirm, onB
               {[3, 4, 5].map(p => (
                 <button key={p} onClick={() => onSetPlayoffPar(p)} style={{
                   width: 36, height: 36, borderRadius: 8, border: 'none', cursor: 'pointer',
-                  background: playoffPar === p ? BRAND.primary : 'rgba(255,255,255,0.07)',
+                  background: playoffPar === p ? BRAND.primary : 'var(--text-muted)',
                   color: playoffPar === p ? 'white' : 'var(--text-secondary)',
                   fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
                 }}>
@@ -710,8 +710,8 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
 
           <button onClick={() => setView('scoring')} disabled={!p2} style={{
             width: '100%', padding: '15px', borderRadius: 14, marginTop: 16,
-            background: p2 ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'rgba(255,255,255,0.06)',
-            border: p2 ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.1)',
+            background: p2 ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
+            border: p2 ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
             color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
             cursor: p2 ? 'pointer' : 'not-allowed',
           }}>
@@ -765,7 +765,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
                 }
               </div>
             </div>
-            <button onClick={() => setView('summary')} style={{ background: 'var(--bg-input)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '6px 14px', cursor: 'pointer', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 12 }}>
+            <button onClick={() => setView('summary')} style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 10, padding: '6px 14px', cursor: 'pointer', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 12 }}>
               Summary
             </button>
           </div>
@@ -791,7 +791,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
                   width: i === currentHole ? 22 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer', padding: 0,
                   background: i === currentHole ? BRAND.light
                     : r === 1 ? 'rgba(74,222,128,0.55)' : r === 2 ? 'rgba(248,113,113,0.55)'
-                    : r === 3 ? 'rgba(251,191,36,0.55)' : 'rgba(255,255,255,0.15)',
+                    : r === 3 ? 'rgba(251,191,36,0.55)' : 'var(--text-muted)',
                   transform: i === currentHole ? 'scaleY(1.5)' : 'none',
                   transition: 'all 0.2s',
                 }} />
@@ -825,9 +825,9 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
           {[{ player: p1, wins: status.p1Holes }, { player: p2, wins: status.p2Holes }].map(({ player, wins }, pi) => {
             const leading = status.leader === (pi + 1);
             return (
-              <div key={player.id} style={{ flex: 1, textAlign: 'center', padding: '10px 8px', background: leading ? 'rgba(74,222,128,0.07)' : 'rgba(255,255,255,0.03)', border: `1px solid ${leading ? 'rgba(74,222,128,0.18)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 12 }}>
+              <div key={player.id} style={{ flex: 1, textAlign: 'center', padding: '10px 8px', background: leading ? 'rgba(74,222,128,0.07)' : 'var(--text-muted)', border: `1px solid ${leading ? 'rgba(74,222,128,0.18)' : 'var(--text-muted)'}`, borderRadius: 12 }}>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2 }}>{formatName(player.name).split(' ')[0]}</div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: leading ? '#4ade80' : 'rgba(255,255,255,0.35)', lineHeight: 1 }}>{wins}</div>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: leading ? '#4ade80' : 'var(--text-muted)', lineHeight: 1 }}>{wins}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>holes won</div>
               </div>
             );

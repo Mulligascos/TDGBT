@@ -97,7 +97,7 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
 
         <div style={{
           width: 44, height: 44, borderRadius: 12,
-          background: diff == null ? 'rgba(255,255,255,0.07)' :
+          background: diff == null ? 'var(--bg-card)' :
             diff < 0 ? 'rgba(74,222,128,0.15)' :
             diff === 0 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
           border: `1px solid ${diff == null ? 'rgba(255,255,255,0.1)' :
@@ -158,7 +158,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
       zIndex: 100, backdropFilter: 'blur(10px)',
     }}>
       <div style={{
-        background: '#0d1f0d', borderTop: '1px solid rgba(255,255,255,0.1)',
+        background: '#0d1f0d', borderTop: '1px solid var(--border)',
         borderRadius: '20px 20px 0 0', padding: '20px',
         width: '100%', maxWidth: 520, maxHeight: '70vh',
         display: 'flex', flexDirection: 'column',
@@ -177,8 +177,8 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
           {[['members', '👥 Members'], ['guest', '🙋 Guest']].map(([id, label]) => (
             <button key={id} onClick={() => setTab(id)} style={{
               flex: 1, padding: '8px', borderRadius: 10,
-              background: tab === id ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${tab === id ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.08)'}`,
+              background: tab === id ? 'rgba(74,222,128,0.15)' : 'var(--text-muted)',
+              border: `1px solid ${tab === id ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
               color: tab === id ? '#4ade80' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}>{label}</button>
@@ -206,7 +206,7 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
                 available.map(p => (
                   <button key={p.id} onClick={() => { haptic('light'); onAdd(p); onClose(); }} style={{
                     width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
+                    background: 'var(--bg-card)', border: '1px solid var(--border)',
                     borderRadius: 12, padding: '12px 16px', marginBottom: 6,
                     color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
                   }}>
@@ -240,9 +240,9 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
             />
             <button onClick={addGuest} disabled={!guestName.trim()} style={{
               width: '100%', padding: '13px', borderRadius: 12,
-              background: guestName.trim() ? 'linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.1))' : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${guestName.trim() ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.08)'}`,
-              color: guestName.trim() ? '#4ade80' : 'rgba(255,255,255,0.3)',
+              background: guestName.trim() ? 'linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.1))' : 'var(--text-muted)',
+              border: `1px solid ${guestName.trim() ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
+              color: guestName.trim() ? '#4ade80' : 'var(--text-muted)',
               fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
               cursor: guestName.trim() ? 'pointer' : 'not-allowed',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -289,13 +289,13 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
         {rows.map((row, i) => (
           <div key={row.player.id} style={{
             padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            borderBottom: i < rows.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+            borderBottom: i < rows.length - 1 ? '1px solid var(--border)' : 'none',
             background: i === 0 ? 'rgba(74,222,128,0.04)' : 'transparent',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{
                 width: 22, height: 22, borderRadius: '50%',
-                background: i === 0 ? BRAND.light : 'rgba(255,255,255,0.08)',
+                background: i === 0 ? BRAND.light : 'var(--text-muted)',
                 color: i === 0 ? BRAND.primary : 'var(--text-secondary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 800,
@@ -474,8 +474,8 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
               return (
                 <div key={p.id} style={{
                   display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-                  background: isWinner ? 'rgba(251,191,36,0.1)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${isWinner ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                  background: isWinner ? 'rgba(251,191,36,0.1)' : 'var(--text-muted)',
+                  border: `1px solid ${isWinner ? 'rgba(251,191,36,0.3)' : 'var(--text-muted)'}`,
                   borderRadius: 14, marginBottom: 8,
                 }}>
                   <div style={{ fontSize: 20, width: 28, textAlign: 'center' }}>
@@ -508,12 +508,12 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
             {tied.map(p => (
               <button key={p.id} onClick={() => setPlayoffWinnerId(p.id)} style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px',
-                background: playoffWinnerId === p.id ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${playoffWinnerId === p.id ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                background: playoffWinnerId === p.id ? 'rgba(251,191,36,0.15)' : 'var(--text-muted)',
+                border: `1px solid ${playoffWinnerId === p.id ? 'rgba(251,191,36,0.4)' : 'var(--text-muted)'}`,
                 borderRadius: 12, marginBottom: 8, cursor: 'pointer', textAlign: 'left',
                 fontFamily: "'DM Sans', sans-serif",
               }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${playoffWinnerId === p.id ? '#fbbf24' : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${playoffWinnerId === p.id ? '#fbbf24' : 'var(--text-muted)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {playoffWinnerId === p.id && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24' }} />}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -559,7 +559,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
 
         <button onClick={handleConfirm} disabled={saving || (isTie && !playoffWinnerId)} style={{
           width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10,
-          background: (isTie && !playoffWinnerId) ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg, #92400e, #d97706)',
+          background: (isTie && !playoffWinnerId) ? 'var(--bg-card)' : 'linear-gradient(135deg, #92400e, #d97706)',
           border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
           fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer',
           opacity: saving ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -871,7 +871,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
                 <button key={i} onClick={() => goToHole(i)} style={{
                   width: 22, height: 6, borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0,
                   background: i === currentHole ? BRAND.light :
-                    visited ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)',
+                    visited ? 'rgba(74,222,128,0.4)' : 'var(--text-muted)',
                   transform: i === currentHole ? 'scaleY(1.5)' : 'none',
                   transition: 'all 0.2s',
                 }} />
@@ -993,8 +993,8 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
               flex: 2, padding: '13px', borderRadius: 14,
               background: allScored
                 ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
-                : 'rgba(255,255,255,0.06)',
-              border: allScored ? `1px solid rgba(74,222,128,0.3)` : '1px solid rgba(255,255,255,0.1)',
+                : 'var(--text-muted)',
+              border: allScored ? `1px solid rgba(74,222,128,0.3)` : '1px solid var(--border)',
               color: 'var(--text-primary)',
               fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -1040,13 +1040,13 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             </div>
             <button onClick={captureCtpGps} disabled={ctpGpsLoading} style={{
               width: '100%', padding: '14px', borderRadius: 14, cursor: ctpGpsLoading ? 'wait' : 'pointer',
-              background: ctpPos ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.05)',
-              border: '2px solid ' + (ctpPos ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.12)'),
+              background: ctpPos ? 'rgba(74,222,128,0.1)' : 'var(--text-muted)',
+              border: '2px solid ' + (ctpPos ? 'rgba(74,222,128,0.4)' : 'var(--bg-card)'),
               color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
               display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12,
             }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                background: ctpPos ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.08)',
+                background: ctpPos ? 'rgba(74,222,128,0.2)' : 'var(--text-muted)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {ctpGpsLoading
                   ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
