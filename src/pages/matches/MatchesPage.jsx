@@ -287,7 +287,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
               flex: 1, padding: '12px 8px', borderRadius: 12, cursor: 'pointer',
               background: scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.12)' : `rgba(74,222,128,0.12)`) : 'var(--text-muted)',
               border: `1px solid ${scoringFormat === fmt ? (fmt === 'matchplay' ? 'rgba(248,113,113,0.35)' : 'rgba(74,222,128,0.35)') : 'var(--text-muted)'}`,
-              color: scoringFormat === fmt ? 'white' : 'var(--text-secondary)',
+              color: scoringFormat === fmt ? 'var(--text-primary)' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
             }}>
               {label}
