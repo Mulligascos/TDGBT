@@ -18,12 +18,21 @@ export const vsParColor = (diff) => {
 };
 
 // Parse pars object from course: {"1":3,"2":3,...} → array [3,3,3,...]
+// Handles 9-hole courses played twice with any starting hole (wraps around)
 export const parsToArray = (parsObj, startHole = 1, totalHoles = 18) => {
+  const courseHoles = Object.keys(parsObj).length || 9;
   const result = [];
-  for (let i = startHole; i < startHole + totalHoles; i++) {
-    result.push(parsObj[String(i)] ?? 3);
+  for (let i = 0; i < totalHoles; i++) {
+    // Wrap: hole 10 on a 9-hole course = hole 1, etc.
+    const holeKey = ((startHole - 1 + i) % courseHoles) + 1;
+    result.push(parsObj[String(holeKey)] ?? 3);
   }
   return result;
+};
+
+// Given a scorecard hole index (0-based) and round config, return the physical basket number
+export const physicalBasket = (holeIndex, startHole = 1, courseHoles = 9) => {
+  return ((startHole - 1 + holeIndex) % courseHoles) + 1;
 };
 
 // Calculate total par for a set of holes
