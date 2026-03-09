@@ -15,31 +15,34 @@ export const useAppBanners = (currentUser) => {
     let cancelled = false;
 
     const load = async () => {
-      // Fetch all banners
+      console.log('[Banner] loading for player:', playerId);
+
       const { data: allBanners, error } = await supabase
         .from('app_banners')
         .select('*')
         .order('sent_at', { ascending: false });
 
+      console.log('[Banner] allBanners:', allBanners, 'error:', error);
       if (cancelled) return;
       if (error) { console.error('Banner fetch error:', error); return; }
-      if (!allBanners?.length) { setBanners([]); return; }
+      if (!allBanners?.length) { console.log('[Banner] no banners in DB'); setBanners([]); return; }
 
-      // Filter to ones this player should see
       const mine = allBanners.filter(b =>
         b.all_members === true || (b.recipient_ids || []).includes(playerId)
       );
-      if (!mine.length) { setBanners([]); return; }
+      console.log('[Banner] mine:', mine, 'playerId:', playerId);
+      if (!mine.length) { console.log('[Banner] none matched player'); setBanners([]); return; }
 
-      // Get dismissals
       const { data: dismissals } = await supabase
         .from('app_banner_dismissals')
         .select('banner_id')
         .eq('player_id', playerId);
 
+      console.log('[Banner] dismissals:', dismissals);
       if (cancelled) return;
       const dismissed = new Set((dismissals || []).map(d => d.banner_id));
       const visible = mine.filter(b => !dismissed.has(b.id));
+      console.log('[Banner] visible:', visible);
       setBanners(visible);
     };
 
