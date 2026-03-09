@@ -1,0 +1,722 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../supabaseClient';
+import { BRAND, formatName, formatDate  } from '../utils';
+import { Badge, SectionLabel, EmptyState, LogoWatermark } from '../components/ui';
+import { vsParLabel, vsParColor, parsToArray, totalPar } from '../utils/strokeplay';
+import { ChevronDown, ChevronUp, Search, X, Calendar } from 'lucide-react';
+
+// ─── PERSONAL BESTS BANNER ────────────────────────────────────────────────────
+const PersonalBests = ({ myScores }) => {
+  if (myScores.length === 0) return null;
+
+  const best = myScores.reduce((b, s) => s.vs_par < b.vs_par ? s : b, myScores[0]);
+  const avg = Math.round(myScores.reduce((a, s) => a + s.vs_par, 0) / myScores.length);
+  const total = myScores.length;
+
+  const stats = [
+    { label: 'Rounds', value: total, color: BRAND.light },
+    {
+      label: 'Best Round',
+      value: vsParLabel(best.vs_par),
+      color: vsParColor(best.vs_par),
+    },
+    {
+      label: 'Avg Score',
+      value: vsParLabel(avg),
+      color: vsParColor(avg),
+    },
+  ];
+
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 24,
+    }}>
+      {stats.map(({ label, value, color }) => (
+        <div key={label} style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          borderRadius: 14, padding: '14px 10px', textAlign: 'center',
+        }}>
+          <div style={{
+            fontSize: 22, fontWeight: 800, color,
+            fontFamily: "'Syne', sans-serif", lineHeight: 1, marginBottom: 4,
+          }}>{value}</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+            {label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ─── HOLE-BY-HOLE GRID ────────────────────────────────────────────────────────
+const HoleGrid = ({ scores, pars }) => {
+  if (!scores || !pars || pars.length === 0) {
+    return (
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '8px 0' }}>
+        No hole-by-hole data available
+      </div>
+    );
+  }
+
+  const holeScores = Array.isArray(scores) ? scores : [];
+
+  return (
+    <div style={{ overflowX: 'auto', marginTop: 12 }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+        <thead>
+          <tr>
+            <td style={{ padding: '4px 6px', color: 'var(--text-muted)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+              Hole
+            </td>
+            {pars.map((_, i) => (
+              <td key={i} style={{ padding: '4px 3px', color: 'var(--text-muted)', textAlign: 'center', fontWeight: 700 }}>
+                {i + 1}
+              </td>
+            ))}
+            <td style={{ padding: '4px 6px', color: 'var(--text-muted)', textAlign: 'right', fontWeight: 700 }}>
+              Tot
+            </td>
+          </tr>
+          <tr>
+            <td style={{ padding: '3px 6px', color: 'var(--text-muted)', fontSize: 10 }}>Par</td>
+            {pars.map((p, i) => (
+              <td key={i} style={{ padding: '3px', color: 'var(--text-muted)', textAlign: 'center', fontSize: 10 }}>
+                {p}
+              </td>
+            ))}
+            <td style={{ padding: '3px 6px', color: 'var(--text-muted)', textAlign: 'right', fontSize: 10 }}>
+              {totalPar(pars)}
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style={{ padding: '5px 6px', color: 'var(--text-secondary)', fontWeight: 600 }}>Score</td>
+            {pars.map((par, i) => {
+              const s = holeScores[i];
+              const diff = s != null ? s - par : null;
+              return (
+                <td key={i} style={{
+                  padding: '5px 3px', textAlign: 'center',
+                  color: diff == null ? 'var(--text-muted)'
+                    : diff < 0 ? '#4ade80'
+                    : diff === 0 ? 'white'
+                    : '#f87171',
+                  fontWeight: diff != null && diff < 0 ? 700 : 400,
+                }}>
+                  {s ?? '—'}
+                </td>
+              );
+            })}
+            <td style={{
+              padding: '5px 6px', textAlign: 'right', fontWeight: 700,
+              color: 'var(--text-secondary)',
+            }}>
+              {holeScores.filter(s => s != null).reduce((a, b) => a + b, 0) || '—'}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// ─── ROUND HISTORY CARD ───────────────────────────────────────────────────────
+const RoundHistoryCard = ({ score, round, course, tournament, coPlayers, allPlayers }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const pars = course?.pars ? parsToArray(
+    typeof course.pars === 'string' ? JSON.parse(course.pars) : course.pars,
+    round?.starting_hole || 1,
+    round?.total_holes || 18
+  ) : [];
+
+  const holeScores = score.scores
+    ? (Array.isArray(score.scores) ? score.scores : JSON.parse(score.scores))
+    : [];
+
+  // Recalculate vs_par from hole scores + course pars (more reliable than stored value)
+  const calcVsParFromHoles = (holes) => {
+    if (!holes.length || !pars.length) return null;
+    // Only count regulation holes (ignore playoff extras beyond pars.length)
+    const regulationHoles = holes.slice(0, pars.length);
+    const strokes = regulationHoles.reduce((a, b) => a + (b ?? 0), 0);
+    const par = totalPar(pars.slice(0, regulationHoles.length));
+    return strokes - par;
+  };
+
+  const myVsPar = calcVsParFromHoles(holeScores) ?? score.vs_par;
+
+  // Other players in the same round
+  const others = coPlayers
+    .filter(s => s.player_id !== score.player_id)
+    .map(s => {
+      const p = allPlayers.find(p => p.id === s.player_id);
+      const hs = s.scores
+        ? (Array.isArray(s.scores) ? s.scores : JSON.parse(s.scores))
+        : [];
+      const vp = calcVsParFromHoles(hs) ?? s.vs_par;
+      return { name: p?.name || 'Unknown', vs_par: vp, total_strokes: s.total_strokes, holeScores: hs };
+    })
+    .sort((a, b) => a.vs_par - b.vs_par);
+
+  return (
+    <div style={{
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border)',
+      borderRadius: 16, marginBottom: 10, overflow: 'hidden',
+    }}>
+      {/* Main row */}
+      <div
+        onClick={() => setExpanded(e => !e)}
+        style={{ padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}
+      >
+        {/* Score bubble */}
+        <div style={{
+          width: 52, height: 52, borderRadius: 14, flexShrink: 0,
+          background: myVsPar < 0
+            ? 'rgba(74,222,128,0.12)' : myVsPar === 0
+            ? 'rgba(251,191,36,0.12)' : 'rgba(248,113,113,0.1)',
+          border: `1px solid ${vsParColor(myVsPar)}30`,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            fontSize: 18, fontWeight: 800, color: vsParColor(myVsPar),
+            fontFamily: "'Syne', sans-serif", lineHeight: 1,
+          }}>
+            {vsParLabel(myVsPar)}
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
+            {score.total_strokes}
+          </div>
+        </div>
+
+        {/* Info */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3 }}>
+            {course?.name || 'Unknown course'}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+            {formatDate(round?.scheduled_date)}
+            {tournament && (
+              <span style={{ marginLeft: 6, color: BRAND.light + '99' }}>· {tournament.name}</span>
+            )}
+          </div>
+          {others.length > 0 && (
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>
+              with {others.slice(0, 3).map(o => formatName(o.name)).join(', ')}
+              {others.length > 3 && ` +${others.length - 3}`}
+            </div>
+          )}
+        </div>
+
+        {/* Expand toggle */}
+        <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div style={{
+          borderTop: '1px solid var(--border)',
+          padding: '12px 16px 16px',
+        }}>
+          {/* Hole grid */}
+          {pars.length > 0 && holeScores.length > 0 ? (
+            <HoleGrid scores={holeScores} pars={pars} />
+          ) : (
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '4px 0' }}>
+              No hole-by-hole data for this round
+            </div>
+          )}
+
+          {/* Other players — full scorecards */}
+          {others.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              {others.map(o => (
+                <div key={o.name} style={{
+                  marginBottom: 14, paddingTop: 14,
+                  borderTop: '1px solid var(--border)',
+                }}>
+                  {/* Player header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                      {formatName(o.name)}
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{o.total_strokes} strokes</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: vsParColor(o.vs_par), fontFamily: "'Syne', sans-serif" }}>
+                        {vsParLabel(o.vs_par)}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Hole grid */}
+                  {pars.length > 0 && o.holeScores.length > 0
+                    ? <HoleGrid scores={o.holeScores} pars={pars} />
+                    : <div style={{ fontSize: 11, color: 'var(--text-muted)', padding: '4px 0' }}>No hole data</div>
+                  }
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── FILTER BAR ───────────────────────────────────────────────────────────────
+const FilterBar = ({ playerFilter, setPlayerFilter, dateFrom, setDateFrom, dateTo, setDateTo, allPlayers, onClear, hasFilters }) => {
+  const [showFilters, setShowFilters] = useState(false);
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      {/* Search + toggle */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: showFilters ? 10 : 0 }}>
+        <div style={{ flex: 1, position: 'relative' }}>
+          <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <select
+            value={playerFilter}
+            onChange={e => setPlayerFilter(e.target.value)}
+            style={{
+              width: '100%', padding: '11px 12px 11px 34px', borderRadius: 12,
+              background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+              color: playerFilter ? 'white' : 'var(--text-secondary)',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
+              appearance: 'none',
+            }}
+          >
+            <option value="" style={{ background: 'var(--bg-nav)', color: 'var(--text-secondary)' }}>Filter by player...</option>
+            {allPlayers.map(p => (
+              <option key={p.id} value={p.id} style={{ background: 'var(--bg-nav)', color: 'var(--text-primary)' }}>
+                {formatName(p.name)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          onClick={() => setShowFilters(s => !s)}
+          style={{
+            padding: '11px 14px', borderRadius: 12,
+            background: showFilters ? 'rgba(74,222,128,0.1)' : 'var(--text-muted)',
+            border: showFilters ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
+            color: showFilters ? BRAND.light : 'var(--text-secondary)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+          }}
+        >
+          <Calendar size={14} /> Dates
+        </button>
+
+        {hasFilters && (
+          <button onClick={onClear} style={{
+            padding: '11px 12px', borderRadius: 12,
+            background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)',
+            color: '#f87171', cursor: 'pointer',
+          }}>
+            <X size={15} />
+          </button>
+        )}
+      </div>
+
+      {/* Date range */}
+      {showFilters && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>From</div>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={e => setDateFrom(e.target.value)}
+              style={{
+                width: '100%', padding: '10px 12px', borderRadius: 10,
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
+                colorScheme: 'dark',
+              }}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>To</div>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={e => setDateTo(e.target.value)}
+              style={{
+                width: '100%', padding: '10px 12px', borderRadius: 10,
+                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none',
+                colorScheme: 'dark',
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+// ─── ACTIVITY CALENDAR ────────────────────────────────────────────────────────
+const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose }) => {
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth()); // 0-indexed
+
+  // Build a map of date string → { played: count, scheduled: bool, active: bool }
+  const dateMap = {};
+
+  playedRounds.forEach(round => {
+    const d = round.scheduled_date;
+    if (!d) return;
+    if (!dateMap[d]) dateMap[d] = { played: 0, scheduled: false, active: false };
+    dateMap[d].played += 1;
+  });
+
+  allScheduledRounds.forEach(round => {
+    const d = round.scheduled_date;
+    if (!d) return;
+    if (!dateMap[d]) dateMap[d] = { played: 0, scheduled: false, active: false };
+    if (round.status === 'upcoming') dateMap[d].scheduled = true;
+    if (round.status === 'active') dateMap[d].active = true;
+  });
+
+  const prevMonth = () => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
+    else setViewMonth(m => m - 1);
+  };
+  const nextMonth = () => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
+    else setViewMonth(m => m + 1);
+  };
+
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const todayStr = today.toISOString().split('T')[0];
+
+  // Build grid cells
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  return (
+    <div style={{
+      background: 'var(--bg-card)', border: '1px solid var(--border)',
+      borderRadius: 18, padding: '18px 16px', marginBottom: 24,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <button onClick={prevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>‹</button>
+        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 800, color: 'var(--text-primary)' }}>
+          {monthNames[viewMonth]} {viewYear}
+        </div>
+        <button onClick={nextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>›</button>
+      </div>
+
+      {/* Day headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
+        {dayNames.map(d => (
+          <div key={d} style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', padding: '4px 0', textTransform: 'uppercase', letterSpacing: 0.5 }}>{d}</div>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
+        {cells.map((day, idx) => {
+          if (!day) return <div key={`empty-${idx}`} />;
+
+          const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const info = dateMap[dateStr];
+          const isToday = dateStr === todayStr;
+          const hasPlayed = info?.played > 0;
+          const isScheduled = info?.scheduled;
+          const isActive = info?.active;
+
+          return (
+            <div key={dateStr} style={{
+              position: 'relative',
+              height: 36, borderRadius: 8,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              background: hasPlayed
+                ? 'rgba(74,222,128,0.12)'
+                : isActive
+                ? 'rgba(74,222,128,0.06)'
+                : isScheduled
+                ? 'rgba(251,191,36,0.06)'
+                : 'transparent',
+              border: isToday
+                ? `1px solid ${BRAND.light}`
+                : isScheduled
+                ? '1px solid rgba(251,191,36,0.25)'
+                : isActive
+                ? '1px solid rgba(74,222,128,0.2)'
+                : '1px solid transparent',
+            }}>
+              <span style={{
+                fontSize: 12, fontWeight: isToday || hasPlayed ? 700 : 400,
+                color: hasPlayed ? '#4ade80' : isToday ? BRAND.light : isScheduled || isActive ? 'var(--text-secondary)' : 'var(--text-muted)',
+                lineHeight: 1,
+              }}>
+                {day}
+              </span>
+              {hasPlayed && (
+                <span style={{
+                  fontSize: 9, fontWeight: 800, color: '#4ade80',
+                  lineHeight: 1, marginTop: 1,
+                }}>
+                  {info.played}
+                </span>
+              )}
+              {(isScheduled || isActive) && !hasPlayed && (
+                <span style={{ fontSize: 6, lineHeight: 1, marginTop: 1 }}>
+                  {isActive ? '🟢' : '🟡'}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', gap: 16, marginTop: 14, flexWrap: 'wrap' }}>
+        {[
+          { color: 'rgba(74,222,128,0.4)', label: 'Rounds played' },
+          { color: 'rgba(74,222,128,0.2)', label: 'Round active' },
+          { color: 'rgba(251,191,36,0.4)', label: 'Round scheduled' },
+        ].map(({ color, label }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: color }} />
+            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─── MAIN HISTORY PAGE ────────────────────────────────────────────────────────
+export const HistoryPage = ({ currentUser, players }) => {
+  const [myScores, setMyScores] = useState([]);
+  const [rounds, setRounds] = useState([]);
+  const [allRoundScores, setAllRoundScores] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [tournaments, setTournaments] = useState([]);
+  const [allScheduledRounds, setAllScheduledRounds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  // Filters
+  const [playerFilter, setPlayerFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const hasFilters = !!(playerFilter || dateFrom || dateTo);
+
+  const loadHistory = useCallback(async () => {
+    if (!currentUser) return;
+    setLoading(true);
+    try {
+      // Load all round_scores for current user
+      const { data: myScoresData } = await supabase
+        .from('round_scores')
+        .select('*')
+        .eq('player_id', currentUser.id)
+        .order('submitted_at', { ascending: false });
+
+      if (!myScoresData || myScoresData.length === 0) {
+        setMyScores([]);
+        setLoading(false);
+        return;
+      }
+
+      const roundIds = [...new Set(myScoresData.map(s => s.round_id))];
+
+      // Load all supporting data in parallel
+      const [roundsRes, allScoresRes, coursesRes, tournamentsRes, scheduledRes] = await Promise.allSettled([
+        supabase.from('rounds').select('*').in('id', roundIds),
+        supabase.from('round_scores').select('*').in('round_id', roundIds),
+        supabase.from('courses').select('*'),
+        supabase.from('tournaments').select('*'),
+        supabase.from('rounds').select('id, scheduled_date, status, tournament_id').not('tournament_id', 'is', null),
+      ]);
+
+      setMyScores(myScoresData);
+      setRounds(roundsRes.value?.data || []);
+      setAllRoundScores(allScoresRes.value?.data || []);
+      setCourses(coursesRes.value?.data || []);
+      setTournaments(tournamentsRes.value?.data || []);
+      setAllScheduledRounds(scheduledRes.value?.data || []);
+    } catch (err) {
+      console.error('Error loading history:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser]);
+
+  useEffect(() => { loadHistory(); }, [loadHistory]);
+
+  // Apply filters
+  const filteredScores = myScores.filter(score => {
+    const round = rounds.find(r => r.id === score.round_id);
+    if (!round) return false;
+
+    // Date range filter
+    if (dateFrom && round.scheduled_date < dateFrom) return false;
+    if (dateTo && round.scheduled_date > dateTo) return false;
+
+    // Player filter — only show rounds where this player also played
+    if (playerFilter) {
+      const playedTogether = allRoundScores.some(
+        s => s.round_id === score.round_id && s.player_id === playerFilter
+      );
+      if (!playedTogether) return false;
+    }
+
+    return true;
+  });
+
+  const clearFilters = () => {
+    setPlayerFilter('');
+    setDateFrom('');
+    setDateTo('');
+  };
+
+  // Other players to show in filter (exclude self)
+  const otherPlayers = (players || []).filter(p => p.id !== currentUser.id);
+
+  return (
+    <div style={pageStyle}>
+      {/* Header */}
+      <div style={{
+        background: 'var(--bg-header)',
+        padding: '36px 20px 14px',
+        borderBottom: '1px solid var(--border)',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <LogoWatermark size={110} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
+
+        <div style={{ maxWidth: 520, margin: '0 auto' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
+            📋 History
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
+            My Rounds
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+              {formatName(currentUser.name)} · all completed rounds
+            </div>
+            <button onClick={() => setShowCalendar(c => !c)} style={{
+              padding: '6px 12px', borderRadius: 10, cursor: 'pointer',
+              background: showCalendar ? BRAND.primary + '40' : 'var(--text-muted)',
+              border: showCalendar ? `1px solid ${BRAND.light}50` : '1px solid var(--border)',
+              color: showCalendar ? BRAND.light : 'var(--text-secondary)',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}>
+              📅 {showCalendar ? 'Hide' : 'Calendar'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px 0' }}>
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+            Loading history...
+          </div>
+        ) : myScores.length === 0 ? (
+          <EmptyState
+            icon="📋"
+            title="No rounds yet"
+            subtitle="Your completed rounds will appear here once you've submitted a scorecard"
+          />
+        ) : (
+          <>
+            {/* Calendar */}
+            {showCalendar && (
+              <ActivityCalendar
+                myScores={myScores}
+                playedRounds={rounds}
+                allScheduledRounds={allScheduledRounds}
+              />
+            )}
+
+            {/* Personal bests */}
+            <PersonalBests myScores={myScores} />
+
+            {/* Filters */}
+            <FilterBar
+              playerFilter={playerFilter}
+              setPlayerFilter={setPlayerFilter}
+              dateFrom={dateFrom}
+              setDateFrom={setDateFrom}
+              dateTo={dateTo}
+              setDateTo={setDateTo}
+              allPlayers={otherPlayers}
+              onClear={clearFilters}
+              hasFilters={hasFilters}
+            />
+
+            {/* Results count */}
+            {hasFilters && (
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14 }}>
+                {filteredScores.length} round{filteredScores.length !== 1 ? 's' : ''} found
+              </div>
+            )}
+
+            {/* Round cards */}
+            {filteredScores.length === 0 ? (
+              <EmptyState icon="🔍" title="No rounds match" subtitle="Try adjusting your filters" />
+            ) : (
+              filteredScores.map(score => {
+                const round = rounds.find(r => r.id === score.round_id);
+                const course = courses.find(c => c.id === round?.course_id);
+                const tournament = tournaments.find(t => t.id === round?.tournament_id);
+                const coPlayers = allRoundScores.filter(s => s.round_id === score.round_id);
+                return (
+                  <RoundHistoryCard
+                    key={score.id}
+                    score={score}
+                    round={round}
+                    course={course}
+                    tournament={tournament}
+                    coPlayers={coPlayers}
+                    allPlayers={players || []}
+                  />
+                );
+              })
+            )}
+          </>
+        )}
+      </div>
+
+      <GlobalStyles />
+    </div>
+  );
+};
+
+const pageStyle = {
+  minHeight: '100vh',
+  background: 'var(--bg-page)',
+  fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90,
+};
+
+const GlobalStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; } body { background: var(--bg-base); color: var(--text-primary); }
+    button { font-family: 'DM Sans', sans-serif; }
+    button:active { transform: scale(0.97); }
+    ::-webkit-scrollbar { display: none; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
+  `}</style>
+);
