@@ -131,7 +131,6 @@ export default function App() {
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      {console.log('[App] banners state:', banners)}
       <AppBanners banners={banners} onDismiss={dismissBanner} />
 
       {renderPage()}
