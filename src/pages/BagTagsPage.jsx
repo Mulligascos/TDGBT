@@ -14,8 +14,8 @@ const SectionTitle = ({ children }) => (
 // ─── LEADERBOARD TAB ──────────────────────────────────────────────────────────
 const LeaderboardTab = ({ players, currentUserId }) => {
   const tagged = players
-    .filter(p => p.bagTag != null && p.bagTag < 999000)
-    .sort((a, b) => a.bagTag - b.bagTag);
+    .filter(p => { const t = p.bagTag ?? p.bag_tag; return t != null && t < 999000; })
+    .sort((a, b) => (a.bagTag ?? a.bag_tag) - (b.bagTag ?? b.bag_tag));
 
   if (tagged.length === 0) {
     return <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>No bag tags assigned yet</div>;
@@ -49,17 +49,17 @@ const LeaderboardTab = ({ players, currentUserId }) => {
             }}>
               <Tag size={11} color={i === 0 ? '#fbbf24' : 'var(--text-secondary)'} />
               <div style={{ fontSize: 13, fontWeight: 800, color: i === 0 ? '#fbbf24' : 'white', fontFamily: "'Syne', sans-serif", lineHeight: 1.2 }}>
-                {p.bagTag}
+                {p.bagTag ?? p.bag_tag}
               </div>
             </div>
 
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 15, fontWeight: isMe ? 700 : 600, color: isMe ? BRAND.light : 'white' }}>
-                {formatName(p.name)}
+                {formatName(p.name ?? p.player_name)}
                 {isMe && <span style={{ fontSize: 11, color: BRAND.light, marginLeft: 6 }}>you</span>}
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                {p.division} · {p.status}
+                {p.division} · {p.player_status ?? p.status}
               </div>
             </div>
           </div>
