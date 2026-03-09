@@ -19,7 +19,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(160deg, #071407 0%, #0d2b0d 50%, #071407 100%)',
+      background: 'var(--bg-page)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       padding: '24px 20px',
