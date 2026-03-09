@@ -9,7 +9,7 @@ export const useAppBanners = (currentUser) => {
   const [banners, setBanners] = useState([]);
 
   const load = useCallback(async () => {
-    if (!currentUser?.id) return;
+    if (!currentUser?.id) { setBanners([]); return; }
 
     // Get all banners for this player (targeted or all-members)
     const { data: allBanners } = await supabase
@@ -39,6 +39,7 @@ export const useAppBanners = (currentUser) => {
   useEffect(() => { load(); }, [load]);
 
   const dismiss = useCallback(async (bannerId) => {
+    if (!currentUser?.id) return;
     setBanners(prev => prev.filter(b => b.id !== bannerId));
     await supabase.from('app_banner_dismissals').upsert(
       { banner_id: bannerId, player_id: currentUser.id },
