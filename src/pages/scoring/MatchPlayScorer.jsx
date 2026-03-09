@@ -538,6 +538,8 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
       roundId: round.id, userId: currentUser.id,
       courseId: round.course_id, courseName: course.name,
       scoringFormat: 'matchplay',
+      startingHole: round.starting_hole || 1,
+      totalHoles: round.total_holes || 18,
       p1, p2, p1Scores, p2Scores, currentHole,
       visitedHoles: [...visitedHoles], playoffPar,
     });

@@ -679,6 +679,8 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       userId: currentUser.id,
       courseId: round.course_id,
       courseName: course.name,
+      startingHole: round.starting_hole || 1,
+      totalHoles: round.total_holes || 18,
       currentHole,
       cardPlayers,
       scores,
