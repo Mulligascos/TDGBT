@@ -69,16 +69,18 @@ export const AppBanner = ({ banner, onDismiss }) => {
 
   return (
     <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300,
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999,
+      pointerEvents: 'none',
     }}>
       <div style={{
-        margin: '10px 12px 0',
+        margin: '50px 12px 0',
         background: 'linear-gradient(135deg, #1a3a1a, #0f2a0f)',
         border: '1px solid rgba(74,222,128,0.3)',
         borderRadius: 16,
         padding: '14px 14px 14px 16px',
         boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
         display: 'flex', gap: 12, alignItems: 'flex-start',
+        pointerEvents: 'all',
       }}>
         <div style={{ fontSize: 24, flexShrink: 0, marginTop: 1 }}>📣</div>
         <div style={{ flex: 1, minWidth: 0 }}>
