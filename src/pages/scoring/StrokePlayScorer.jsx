@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '../../supabaseClient';
 import { BRAND, formatName, haptic } from '../../utils';
 import {
-  parsToArray, totalPar, calcVsPar, calcAdjustedStrokes,
+  parsToArray, totalPar, calcVsPar, calcAdjustedStrokes, physicalBasket,
   vsParLabel, vsParColor, isJunior, applyHandicap,
 } from '../../utils/strokeplay';
 import { ChevronLeft, ChevronRight, Plus, Minus, Check, X, UserPlus, UserMinus, Tag, MapPin, Target } from 'lucide-react';
@@ -632,7 +632,10 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   }, [round.course_id]);
 
   // Challenge matching current hole (1-indexed)
-  const currentHoleNum = currentHole + (round.starting_hole || 1);
+  const courseHoles = Object.keys(typeof course.pars === 'string' ? JSON.parse(course.pars) : (course.pars || {})).length || 9;
+  const currentBasket = physicalBasket(currentHole, round.starting_hole || 1, courseHoles);
+  const is9HoleTwice = round.total_holes === 18 && courseHoles === 9;
+  const currentHoleNum = currentBasket; // for CTP matching
   const ctpForHole = ctpChallenges.find(c => c.hole === currentHoleNum);
 
   const captureCtpGps = () => {
@@ -854,7 +857,13 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
                 {course.name}
               </div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
-                Hole {currentHole + round.starting_hole} <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}>of {totalHoles}</span>
+                Hole {currentHole + 1}
+                {is9HoleTwice && (
+                  <span style={{ fontSize: 12, fontWeight: 600, color: BRAND.light, marginLeft: 6, background: 'rgba(74,222,128,0.12)', padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(74,222,128,0.25)' }}>
+                    Basket {currentBasket}
+                  </span>
+                )}
+                <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}> of {totalHoles}</span>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>

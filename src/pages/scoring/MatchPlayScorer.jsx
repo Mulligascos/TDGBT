@@ -735,7 +735,10 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
   if (!p2) { setView('setup'); return null; }
 
   const par = pars[currentHole];
-  const holeNum = currentHole + round.starting_hole;
+  const courseHoles = Object.keys(typeof course.pars === 'string' ? JSON.parse(course.pars) : (course.pars || {})).length || 9;
+  const is9HoleTwice = round.total_holes === 18 && courseHoles === 9;
+  const currentBasket = physicalBasket(currentHole, round.starting_hole || 1, courseHoles);
+  const holeNum = currentHole + 1;
   const holeResult = status.results[currentHole];
   const statusLabel = matchLabel(status);
 
@@ -761,7 +764,10 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                 {currentHole >= totalHoles
                   ? <>Playoff {currentHole - totalHoles + 1} <span style={{ fontSize: 13, fontWeight: 400, color: '#fbbf24' }}>sudden death · Par {par}</span></>
-                  : <>Hole {holeNum} <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}>of {totalHoles} · Par {par}</span></>
+                  : <>Hole {holeNum}
+                    {is9HoleTwice && <span style={{ fontSize: 11, fontWeight: 600, color: '#4ade80', marginLeft: 6, background: 'rgba(74,222,128,0.12)', padding: '2px 7px', borderRadius: 8 }}>Basket {currentBasket}</span>}
+                    <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}> of {totalHoles} · Par {par}</span>
+                  </>
                 }
               </div>
             </div>
