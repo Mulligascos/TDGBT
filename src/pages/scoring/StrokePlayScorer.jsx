@@ -295,8 +295,8 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{
                 width: 22, height: 22, borderRadius: '50%',
-                background: i === 0 ? BRAND.light : 'var(--text-muted)',
-                color: i === 0 ? BRAND.primary : 'var(--text-secondary)',
+                background: i === 0 ? BRAND.light : 'var(--bg-subtle2)',
+                color: i === 0 ? '#052e0f' : 'var(--text-secondary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 800,
               }}>{i + 1}</span>
@@ -341,8 +341,8 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
                 {row.adjusted.map((s, i) => (
                   <td key={i} style={{
                     padding: '6px 4px', textAlign: 'center',
-                    color: s == null ? 'rgba(255,255,255,0.2)' :
-                      s < pars[i] ? '#4ade80' : s === pars[i] ? 'white' : '#f87171',
+                    color: s == null ? 'var(--text-muted)' :
+                      s < pars[i] ? '#4ade80' : s === pars[i] ? 'var(--text-primary)' : '#f87171',
                     fontWeight: s != null && s < pars[i] ? 700 : 400,
                   }}>{s ?? '—'}</td>
                 ))}
