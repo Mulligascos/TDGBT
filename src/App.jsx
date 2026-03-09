@@ -18,6 +18,7 @@ import { CoursesPage } from './pages/CoursesPage';
 import { BagTagsPage } from './pages/BagTagsPage';
 import { LostFoundPage } from './pages/LostFoundPage';
 import { CTPPage } from './pages/CTPPage';
+import { useAppBanners, AppBanners } from './components/AppBanner';
 import { BingoPage } from './pages/BingoPage';
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [, forceThemeRender] = useState(0);
   const handleThemeChange = () => forceThemeRender(n => n + 1);
+  const { banners, dismiss: dismissBanner } = useAppBanners(currentUser);
 
   const {
     currentUser, players: loginPlayers, isLoadingPlayers,
