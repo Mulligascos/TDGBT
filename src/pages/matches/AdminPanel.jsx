@@ -1390,58 +1390,36 @@ const QUICK_TEMPLATES = [
   { label: '📅 Round Reminder',subject: 'Club Round This Weekend', body: 'Hi,\n\nJust a reminder that we have a club round this weekend. Head to the app to register your score afterwards.\n\nSee you there!' },
 ];
 
-const MessagesSection = ({ currentUser, showToast }) => {
-  const [view, setView]           = useState('compose');
-  const [subject, setSubject]     = useState('');
-  const [body, setBody]           = useState('');
-  const [selected, setSelected]   = useState(new Set());
-  const [search, setSearch]       = useState('');
-  const [sending, setSending]     = useState(false);
-  const [history, setHistory]     = useState([]);
+const MessagesSection = ({ currentUser, players, showToast }) => {
+  const [view, setView]       = useState('compose');
+  const [title, setTitle]     = useState('');
+  const [body, setBody]       = useState('');
+  const [selected, setSelected] = useState(new Set());
+  const [allMembers, setAllMembers] = useState(true);
+  const [search, setSearch]   = useState('');
+  const [sending, setSending] = useState(false);
+  const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [expandedMsg, setExpandedMsg] = useState(null);
-  const [allPlayers, setAllPlayers] = useState([]);
 
-  // Fetch full player list including email (prop players omits email field)
-  useEffect(() => {
-    supabase.from('players')
-      .select('player_id, player_name, player_status, email')
-      .eq('player_status', 'Active')
-      .order('player_name')
-      .then(({ data }) => {
-        setAllPlayers((data || []).map(p => ({
-          id: p.player_id, name: p.player_name, status: p.player_status, email: p.email || '',
-        })));
-      });
-  }, []);
+  const activePlayers = (players || []).filter(p => p.status === 'Active' || p.player_status === 'Active');
+  const normalised = activePlayers.map(p => ({ id: p.id || p.player_id, name: p.name || p.player_name }));
+  const filtered = normalised.filter(p => !search || (p.name || '').toLowerCase().includes(search.toLowerCase()));
 
-  const activePlayers = allPlayers.filter(p => p.email);
-  const noEmail       = allPlayers.filter(p => !p.email);
+  const togglePlayer = id => setSelected(prev => {
+    const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next;
+  });
 
-  const filtered = activePlayers.filter(p =>
-    !search || p.name?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const togglePlayer = (id) => {
-    setSelected(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
-
-  const selectAll = () => setSelected(new Set(filtered.map(p => p.id)));
-  const selectNone = () => setSelected(new Set());
-
-  const applyTemplate = (t) => { setSubject(t.subject); setBody(t.body); };
+  const TEMPLATES = [
+    { label: '📅 Round Today',   title: 'Round Today!',           body: "Don't forget — there's a round on today. See you out there! 🥏" },
+    { label: '🏆 Results',       title: 'Results Posted',          body: 'Results from the latest round are now live. Check the leaderboard!' },
+    { label: '🎱 Bingo Season',  title: 'New Bingo Season!',       body: 'A new bingo season has started — open the app and check your card! 🎱' },
+    { label: '📣 Announcement',  title: 'Club Announcement',       body: '' },
+  ];
 
   const loadHistory = async () => {
     setLoadingHistory(true);
-    const { data } = await supabase
-      .from('club_messages')
-      .select('*')
-      .order('sent_at', { ascending: false })
-      .limit(50);
+    const { data } = await supabase.from('app_banners')
+      .select('*').order('sent_at', { ascending: false }).limit(50);
     setHistory(data || []);
     setLoadingHistory(false);
   };
@@ -1449,74 +1427,48 @@ const MessagesSection = ({ currentUser, showToast }) => {
   useEffect(() => { if (view === 'history') loadHistory(); }, [view]);
 
   const handleSend = async () => {
-    if (!subject.trim())    { showToast('Subject is required', 'error'); return; }
-    if (!body.trim())       { showToast('Message body is required', 'error'); return; }
-    if (selected.size === 0){ showToast('Select at least one recipient', 'error'); return; }
+    if (!title.trim()) { showToast('Title is required', 'error'); return; }
+    if (!body.trim())  { showToast('Message is required', 'error'); return; }
+    if (!allMembers && selected.size === 0) { showToast('Select at least one recipient', 'error'); return; }
 
     setSending(true);
     try {
-      const recipients = activePlayers
-        .filter(p => selected.has(p.id))
-        .map(p => ({ email: p.email, name: formatName(p.name), id: p.id }));
-
-      // Call Supabase Edge Function using the built-in invoker
-      const { data: result, error: fnError } = await supabase.functions.invoke('send-club-email', {
-        body: {
-          subject: subject.trim(),
-          body: body.trim(),
-          recipients: recipients.map(r => ({ email: r.email, name: r.name })),
-        },
-      });
-
-      if (fnError) {
-        console.error('Edge function error:', fnError);
-        throw new Error(`Edge function error: ${fnError.message || JSON.stringify(fnError)}`);
-      }
-      const sent   = result?.sent   || 0;
-      const failed = result?.failed || 0;
-      if (result?.resendError) console.error('Resend rejected:', result.resendStatus, result.resendError);
-
-      // Log to DB
-      await supabase.from('club_messages').insert({
-        subject: subject.trim(),
+      const recipientIds = allMembers ? normalised.map(p => p.id) : [...selected];
+      const { error } = await supabase.from('app_banners').insert({
+        title: title.trim(),
         body: body.trim(),
         sent_by: currentUser.id,
-        recipient_ids:    recipients.map(r => r.id),
-        recipient_emails: recipients.map(r => r.email),
-        recipient_names:  recipients.map(r => r.name),
-        sent_count:   sent,
-        failed_count: failed,
-        status: failed === 0 ? 'sent' : sent === 0 ? 'failed' : 'partial',
+        recipient_ids: recipientIds,
+        all_members: allMembers,
       });
-
-      if (failed === 0) {
-        showToast(`✉️ Sent to ${sent} member${sent !== 1 ? 's' : ''}`);
-        setSubject(''); setBody(''); setSelected(new Set());
-      } else {
-        showToast(`Sent ${sent}, failed ${failed}${result?.resendError ? ` — ${JSON.parse(result.resendError)?.message || result.resendError}` : ''}`, 'error');
-      }
-    } catch (err) {
-      console.error('Send error:', err);
-      showToast(`Failed: ${err.message}`, 'error');
-    } finally {
-      setSending(false);
+      if (error) throw error;
+      showToast(`📣 Banner sent to ${allMembers ? 'all members' : `${selected.size} member${selected.size !== 1 ? 's' : ''}`}`);
+      setTitle(''); setBody(''); setSelected(new Set());
+    } catch (e) {
+      showToast(`Error: ${e.message}`, 'error');
     }
+    setSending(false);
   };
 
-  const statusColor = { sent: '#4ade80', partial: '#fbbf24', failed: '#f87171' };
-  const statusIcon  = { sent: '✓', partial: '⚠️', failed: '✗' };
+  const deleteBanner = async (id) => {
+    await supabase.from('app_banners').delete().eq('id', id);
+    setHistory(prev => prev.filter(b => b.id !== id));
+    showToast('Banner deleted');
+  };
+
+  const inputStyle = { width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none', boxSizing: 'border-box' };
+  const LabelEl = ({ children }) => <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{children}</div>;
 
   return (
     <div>
-      {/* Tab toggle */}
+      {/* Tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {[['compose', <><Mail size={13} /> Compose</>], ['history', <><Clock size={13} /> Sent History</>]].map(([id, label]) => (
+        {[['compose', '✏️ New Banner'], ['history', '📋 Sent']].map(([id, label]) => (
           <button key={id} onClick={() => setView(id)} style={{
-            display: 'flex', alignItems: 'center', gap: 5,
             padding: '8px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-            background: view === id ? BRAND.primary : 'var(--text-muted)',
-            border: `1px solid ${view === id ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
-            color: view === id ? '#4ade80' : 'var(--text-secondary)',
+            background: view === id ? BRAND.primary : 'var(--bg-card)',
+            border: `1px solid ${view === id ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+            color: view === id ? 'var(--text-on-brand)' : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
         ))}
@@ -1524,98 +1476,114 @@ const MessagesSection = ({ currentUser, showToast }) => {
 
       {view === 'compose' && (
         <div>
-          {/* Quick templates */}
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Quick Templates</div>
+          {/* Templates */}
+          <div style={{ marginBottom: 16 }}>
+            <LabelEl>Quick Templates</LabelEl>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {QUICK_TEMPLATES.map(t => (
-                <button key={t.label} onClick={() => applyTemplate(t)} style={{
-                  padding: '6px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                  background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+              {TEMPLATES.map(t => (
+                <button key={t.label} onClick={() => { setTitle(t.title); setBody(t.body); }} style={{
+                  padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  background: 'var(--bg-input)', border: '1px solid var(--border)',
                   color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif",
                 }}>{t.label}</button>
               ))}
             </div>
           </div>
 
-          {/* Subject */}
-          <Field label="Subject *">
-            <Inp value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Club Fees Due" />
-          </Field>
+          {/* Title */}
+          <div style={{ marginBottom: 12 }}>
+            <LabelEl>Banner Title</LabelEl>
+            <input value={title} onChange={e => setTitle(e.target.value)}
+              placeholder="e.g. Round Today!" style={inputStyle} />
+          </div>
 
           {/* Body */}
-          <Field label="Message *">
-            <textarea
-              value={body}
-              onChange={e => setBody(e.target.value)}
-              placeholder="Write your message here..."
-              rows={6}
-              style={{
-                width: '100%', padding: '10px 12px', borderRadius: 12,
-                background: 'var(--bg-input)', border: '1px solid var(--border-card)',
-                color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
-                resize: 'vertical', lineHeight: 1.5,
-              }}
-            />
-          </Field>
+          <div style={{ marginBottom: 16 }}>
+            <LabelEl>Message</LabelEl>
+            <textarea value={body} onChange={e => setBody(e.target.value)}
+              placeholder="What do you want to tell your members?" rows={3}
+              style={{ ...inputStyle, resize: 'vertical' }} />
+          </div>
+
+          {/* Preview */}
+          {(title || body) && (
+            <div style={{ marginBottom: 16, padding: '12px 14px', background: 'linear-gradient(135deg, #1a3a1a, #0f2a0f)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Preview</div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ fontSize: 22, flexShrink: 0 }}>📣</div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#ffffff', marginBottom: 3 }}>{title || 'Title'}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{body || 'Message body'}</div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Recipients */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
-                Recipients ({selected.size} selected)
-              </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button onClick={selectAll} style={{ fontSize: 11, color: '#4ade80', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>All</button>
-                <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>·</span>
-                <button onClick={selectNone} style={{ fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>None</button>
-              </div>
+            <LabelEl>Recipients</LabelEl>
+            {/* Toggle all vs specific */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              {[true, false].map(val => (
+                <button key={String(val)} onClick={() => { setAllMembers(val); setSelected(new Set()); }} style={{
+                  flex: 1, padding: '9px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                  background: allMembers === val ? BRAND.primary : 'var(--bg-card)',
+                  border: `1px solid ${allMembers === val ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+                  color: allMembers === val ? 'var(--text-on-brand)' : 'var(--text-secondary)',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  {val ? `👥 All Members (${normalised.length})` : '🎯 Specific Members'}
+                </button>
+              ))}
             </div>
 
-            <Inp value={search} onChange={e => setSearch(e.target.value)} placeholder="Search members..." style={{ marginBottom: 8 }} />
-
-            {noEmail.length > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', marginBottom: 8, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10 }}>
-                <AlertCircle size={13} color="#fbbf24" />
-                <span style={{ fontSize: 12, color: '#fbbf24' }}>{noEmail.length} member{noEmail.length !== 1 ? 's' : ''} have no email address and will be skipped</span>
+            {/* Member picker */}
+            {!allMembers && (
+              <div>
+                <input value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Search members..." style={{ ...inputStyle, marginBottom: 8 }} />
+                <div style={{ maxHeight: 220, overflowY: 'auto', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10 }}>
+                  {filtered.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No members found</div>
+                  ) : filtered.map(p => {
+                    const isSelected = selected.has(p.id);
+                    return (
+                      <div key={p.id} onClick={() => togglePlayer(p.id)} style={{
+                        display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px',
+                        cursor: 'pointer', borderBottom: '1px solid var(--border)',
+                        background: isSelected ? 'rgba(74,222,128,0.06)' : 'transparent',
+                      }}>
+                        <div style={{
+                          width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+                          background: isSelected ? '#4ade80' : 'var(--bg-input)',
+                          border: `1.5px solid ${isSelected ? '#4ade80' : 'var(--border-card)'}`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          {isSelected && <span style={{ fontSize: 11, color: '#052e0f', fontWeight: 900 }}>✓</span>}
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {selected.size > 0 && (
+                  <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-muted)' }}>{selected.size} member{selected.size !== 1 ? 's' : ''} selected</div>
+                )}
               </div>
             )}
-
-            <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 12 }}>
-              {filtered.length === 0 ? (
-                <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No members with email addresses</div>
-              ) : (
-                filtered.map(p => {
-                  const isSelected = selected.has(p.id);
-                  return (
-                    <div key={p.id} onClick={() => togglePlayer(p.id)} style={{
-                      display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
-                      background: isSelected ? 'rgba(74,222,128,0.06)' : 'transparent',
-                      borderBottom: '1px solid var(--border)', cursor: 'pointer',
-                    }}>
-                      <div style={{
-                        width: 20, height: 20, borderRadius: 6, flexShrink: 0,
-                        background: isSelected ? BRAND.primary : 'var(--text-muted)',
-                        border: `1.5px solid ${isSelected ? 'rgba(74,222,128,0.5)' : 'var(--text-muted)'}`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        {isSelected && <Check size={12} color="#4ade80" />}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.email}</div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
           </div>
 
-          {/* Send button */}
-          <Btn fullWidth onClick={handleSend} disabled={sending || selected.size === 0 || !subject || !body}>
-            <Send size={14} />{sending ? `Sending to ${selected.size} member${selected.size !== 1 ? 's' : ''}...` : `Send to ${selected.size} member${selected.size !== 1 ? 's' : ''}`}
-          </Btn>
+          <button onClick={handleSend} disabled={sending || !title || !body} style={{
+            width: '100%', padding: '13px', borderRadius: 12, border: 'none',
+            cursor: sending || !title || !body ? 'not-allowed' : 'pointer',
+            background: sending || !title || !body ? 'var(--bg-input)' : BRAND.primary,
+            color: sending || !title || !body ? 'var(--text-muted)' : 'var(--text-on-brand)',
+            fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            opacity: sending || !title || !body ? 0.6 : 1,
+          }}>
+            <Send size={15} />{sending ? 'Sending...' : 'Send Banner'}
+          </button>
         </div>
       )}
 
@@ -1626,59 +1594,26 @@ const MessagesSection = ({ currentUser, showToast }) => {
           ) : history.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
-              <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>No messages sent yet</div>
+              <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>No banners sent yet</div>
             </div>
-          ) : (
-            history.map(msg => {
-              const isExpanded = expandedMsg === msg.id;
-              return (
-                <div key={msg.id} style={{
-                  background: 'var(--bg-card)', border: '1px solid var(--border)',
-                  borderRadius: 14, marginBottom: 10, overflow: 'hidden',
-                }}>
-                  <div onClick={() => setExpandedMsg(isExpanded ? null : msg.id)} style={{ padding: '14px 16px', cursor: 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                      <div style={{
-                        width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                        background: `${statusColor[msg.status]}20`,
-                        border: `1px solid ${statusColor[msg.status]}40`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 12,
-                      }}>{statusIcon[msg.status]}</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3 }}>{msg.subject}</div>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 11, color: statusColor[msg.status] }}>
-                            {msg.sent_count} sent{msg.failed_count > 0 ? `, ${msg.failed_count} failed` : ''}
-                          </span>
-                          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{formatDate(msg.sent_at)}</span>
-                        </div>
-                      </div>
-                      <ChevronRight size={14} color="rgba(255,255,255,0.2)" style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
-                    </div>
+          ) : history.map(b => (
+            <div key={b.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 14px', marginBottom: 8 }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3 }}>{b.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: 6 }}>{b.body}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                    {b.all_members ? 'All members' : `${(b.recipient_ids || []).length} members`} · {formatDate(b.sent_at)}
                   </div>
-                  {isExpanded && (
-                    <div style={{ padding: '0 16px 14px', borderTop: '1px solid var(--border)' }}>
-                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '12px 0', borderBottom: '1px solid var(--border)', marginBottom: 10 }}>
-                        {msg.body}
-                      </div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-                        Sent to ({msg.recipient_names?.length || 0})
-                      </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                        {(msg.recipient_names || []).map((name, i) => (
-                          <span key={i} style={{
-                            fontSize: 11, padding: '3px 8px', borderRadius: 8,
-                            background: 'var(--bg-card)', color: 'var(--text-secondary)',
-                          }}>{name}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
-              );
-            })
-          )}
+                <button onClick={() => deleteBanner(b.id)} style={{
+                  flexShrink: 0, padding: '6px 10px', borderRadius: 8,
+                  background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)',
+                  color: '#f87171', cursor: 'pointer', fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: 600,
+                }}>Delete</button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -1833,7 +1768,7 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
           <BingoAdminSection currentUser={currentUser} showToast={showToast} />
         )}
         {activeSection === 'messages' && (
-          <MessagesSection currentUser={currentUser} showToast={showToast} />
+          <MessagesSection currentUser={currentUser} players={players} showToast={showToast} />
         )}
       </div>
 
