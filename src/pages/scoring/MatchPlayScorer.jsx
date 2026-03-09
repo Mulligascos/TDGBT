@@ -488,7 +488,7 @@ const MatchSummary = ({ p1, p2, p1Scores, p2Scores, pars, status, onConfirm, onB
       <button onClick={onConfirm} disabled={submitting} style={{
         width: '100%', padding: '16px', borderRadius: 14,
         background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-        border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
+        border: '1px solid rgba(74,222,128,0.3)', color: '#ffffff',
         fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.6 : 1,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -767,7 +767,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
                 {currentHole >= totalHoles
                   ? <>Playoff {currentHole - totalHoles + 1} <span style={{ fontSize: 13, fontWeight: 400, color: '#fbbf24' }}>sudden death · Par {par}</span></>
                   : <>Hole {holeNum}
-                    {is9HoleTwice && <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-on-brand)', marginLeft: 6, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, padding: '2px 10px', borderRadius: 10, border: `1px solid ${BRAND.light}40` }}>Basket {currentBasket}</span>}
+                    {is9HoleTwice && <span style={{ fontSize: 11, fontWeight: 700, color: '#ffffff', marginLeft: 6, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, padding: '2px 10px', borderRadius: 10, border: `1px solid ${BRAND.light}40` }}>Basket {currentBasket}</span>}
                     <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}> of {totalHoles} · Par {par}</span>
                   </>
                 }
@@ -867,7 +867,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
           <button onClick={handleNext} style={{
             flex: 2, padding: '14px', borderRadius: 14,
             background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-            border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
+            border: '1px solid rgba(74,222,128,0.3)', color: '#ffffff',
             fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>

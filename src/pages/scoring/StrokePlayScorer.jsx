@@ -368,7 +368,7 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
       <button onClick={onSubmit} disabled={submitting} style={{
         width: '100%', padding: '16px', borderRadius: 14,
         background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-        border: `1px solid rgba(74,222,128,0.3)`, color: 'var(--text-on-brand)',
+        border: `1px solid rgba(74,222,128,0.3)`, color: '#ffffff',
         fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: submitting ? 'not-allowed' : 'pointer',
         opacity: submitting ? 0.6 : 1,
@@ -861,7 +861,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                 Hole {currentHole + 1}
                 {is9HoleTwice && (
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-on-brand)', marginLeft: 6, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, padding: '2px 10px', borderRadius: 10, border: `1px solid ${BRAND.light}40` }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#ffffff', marginLeft: 6, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, padding: '2px 10px', borderRadius: 10, border: `1px solid ${BRAND.light}40` }}>
                     Basket {currentBasket}
                   </span>
                 )}
@@ -994,7 +994,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             <button onClick={() => setView('summary')} style={{
               flex: 2, padding: '13px', borderRadius: 14,
               background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-              border: `1px solid ${BRAND.light}40`, color: 'var(--text-on-brand)',
+              border: `1px solid ${BRAND.light}40`, color: '#ffffff',
               fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
@@ -1004,7 +1004,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             <button onClick={() => goToHole(currentHole + 1)} style={{
               flex: 2, padding: '13px', borderRadius: 14,
               background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-              border: `1px solid ${BRAND.light}40`, color: 'var(--text-on-brand)',
+              border: `1px solid ${BRAND.light}40`, color: '#ffffff',
               fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
@@ -1076,7 +1076,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             {ctpPos && (
               <button onClick={submitCtpShot} disabled={ctpSubmitting} style={{
                 width: '100%', padding: '14px', borderRadius: 14, border: 'none',
-                background: BRAND.primary, color: 'var(--text-on-brand)', fontFamily: "'DM Sans', sans-serif",
+                background: BRAND.primary, color: '#ffffff', fontFamily: "'DM Sans', sans-serif",
                 fontSize: 15, fontWeight: 800, cursor: ctpSubmitting ? 'wait' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               }}>
