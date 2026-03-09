@@ -767,7 +767,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
                 {currentHole >= totalHoles
                   ? <>Playoff {currentHole - totalHoles + 1} <span style={{ fontSize: 13, fontWeight: 400, color: '#fbbf24' }}>sudden death · Par {par}</span></>
                   : <>Hole {holeNum}
-                    {is9HoleTwice && <span style={{ fontSize: 11, fontWeight: 600, color: '#4ade80', marginLeft: 6, background: 'rgba(74,222,128,0.12)', padding: '2px 7px', borderRadius: 8 }}>Basket {currentBasket}</span>}
+                    {is9HoleTwice && <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-on-brand)', marginLeft: 6, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, padding: '2px 10px', borderRadius: 10, border: `1px solid ${BRAND.light}40` }}>Basket {currentBasket}</span>}
                     <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)' }}> of {totalHoles} · Par {par}</span>
                   </>
                 }

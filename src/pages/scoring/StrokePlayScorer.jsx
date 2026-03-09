@@ -861,7 +861,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                 Hole {currentHole + 1}
                 {is9HoleTwice && (
-                  <span style={{ fontSize: 12, fontWeight: 600, color: BRAND.light, marginLeft: 6, background: 'rgba(74,222,128,0.12)', padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(74,222,128,0.25)' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-on-brand)', marginLeft: 6, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, padding: '2px 10px', borderRadius: 10, border: `1px solid ${BRAND.light}40` }}>
                     Basket {currentBasket}
                   </span>
                 )}
