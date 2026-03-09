@@ -587,7 +587,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
       ? (savedDraft.holeResults?.length || 18)
       : (savedDraft.scores ? Object.values(savedDraft.scores)[0]?.length || 18 : 18);
     const round = rounds.find(r => r.id === savedDraft.roundId)
-      || { id: savedDraft.roundId, course_id: savedDraft.courseId, total_holes: holeCount, starting_hole: 1, status: 'active' };
+      || { id: savedDraft.roundId, course_id: savedDraft.courseId, total_holes: savedDraft.totalHoles || holeCount, starting_hole: savedDraft.startingHole || 1, status: 'active' };
     const course = courses.find(c => c.id === savedDraft.courseId)
       || { id: savedDraft.courseId, name: savedDraft.courseName || 'Unknown', pars: {} };
     setScoringFormat(savedDraft.scoringFormat || 'strokeplay');
