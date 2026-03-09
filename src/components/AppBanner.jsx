@@ -65,24 +65,11 @@ export const useAppBanners = (currentUser) => {
 
 // ─── BANNER UI ────────────────────────────────────────────────────────────────
 export const AppBanner = ({ banner, onDismiss }) => {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // Slight delay so it animates in
-    const t = setTimeout(() => setVisible(true), 100);
-    return () => clearTimeout(t);
-  }, []);
-
-  const handleDismiss = () => {
-    setVisible(false);
-    setTimeout(() => onDismiss(banner.id), 300);
-  };
+  const handleDismiss = () => onDismiss(banner.id);
 
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300,
-      transform: visible ? 'translateY(0)' : 'translateY(-110%)',
-      transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
     }}>
       <div style={{
         margin: '10px 12px 0',
