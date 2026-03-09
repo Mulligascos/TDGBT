@@ -369,7 +369,7 @@ const TournamentsSection = ({ tournaments, rounds, courses, onRefresh, showToast
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Badge label={r.status} color={statusColor[r.status]} />
-                  <ChevronRight size={15} color="rgba(255,255,255,0.2)" />
+                  <ChevronRight size={15} color="var(--text-muted)" />
                 </div>
               </div>
             </Card>
@@ -397,7 +397,7 @@ const TournamentsSection = ({ tournaments, rounds, courses, onRefresh, showToast
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Badge label={t.status} color={statusColor[t.status]} />
-              <ChevronRight size={15} color="rgba(255,255,255,0.2)" />
+              <ChevronRight size={15} color="var(--text-muted)" />
             </div>
           </div>
         </Card>
@@ -647,7 +647,7 @@ const MembersSection = ({ players: propPlayers, onRefresh, showToast }) => {
                 >
                   {p.status === 'Active' ? 'Deactivate' : 'Activate'}
                 </button>
-                <ChevronRight size={15} color="rgba(255,255,255,0.2)" />
+                <ChevronRight size={15} color="var(--text-muted)" />
               </div>
             </div>
           </Card>
@@ -813,7 +813,7 @@ const CoursesSection = ({ courses, onRefresh, showToast }) => {
                 {c.holes || 18} holes{tp(c.pars) ? ` · Par ${tp(c.pars)}` : ''}{c.location ? ` · ${c.location}` : ''}
               </div>
             </div>
-            <ChevronRight size={15} color="rgba(255,255,255,0.2)" />
+            <ChevronRight size={15} color="var(--text-muted)" />
           </div>
         </Card>
       ))}
@@ -1271,7 +1271,7 @@ const AchievementsSection = ({ players, showToast }) => {
         <select value={awardingPlayer} onChange={e => setAwardingPlayer(e.target.value)}
           style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, marginBottom: 8 }}>
           <option value="">Select player...</option>
-          {(players || []).filter(p => p.status === 'Active').map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          {(players || []).filter(p => (p.status || p.player_status) === 'Active').map(p => <option key={p.id} value={p.id}>{p.name || p.player_name}</option>)}
         </select>
         <Inp value={awardDetail} onChange={e => setAwardDetail(e.target.value)} placeholder="Detail (optional, e.g. 'Eagle on hole 3')" style={{ marginBottom: 8 }} />
         <Btn onClick={handleManualAward} disabled={!awardingPlayer}><Award size={14} /> Grant Award</Btn>
@@ -1507,7 +1507,7 @@ const MessagesSection = ({ currentUser, players, showToast }) => {
 
           {/* Preview */}
           {(title || body) && (
-            <div style={{ marginBottom: 16, padding: '12px 14px', background: 'linear-gradient(135deg, #1a3a1a, #0f2a0f)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: 12 }}>
+            <div style={{ marginBottom: 16, padding: '12px 14px', background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 12 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Preview</div>
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <div style={{ fontSize: 22, flexShrink: 0 }}>📣</div>
