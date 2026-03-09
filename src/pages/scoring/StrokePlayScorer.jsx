@@ -100,12 +100,12 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
           background: diff == null ? 'var(--bg-card)' :
             diff < 0 ? 'rgba(74,222,128,0.15)' :
             diff === 0 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
-          border: `1px solid ${diff == null ? 'rgba(255,255,255,0.1)' :
+          border: `1px solid ${diff == null ? 'var(--border)' :
             diff < 0 ? 'rgba(74,222,128,0.3)' :
             diff === 0 ? 'rgba(251,191,36,0.3)' : 'rgba(248,113,113,0.3)'}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800,
-          color: diff == null ? 'rgba(255,255,255,0.3)' :
+          color: diff == null ? 'var(--text-muted)' :
             diff < 0 ? '#4ade80' : diff === 0 ? '#fbbf24' : '#f87171',
         }}>
           {score ?? '—'}
@@ -1019,7 +1019,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       {/* CTP Toast */}
       {ctpToast && (
         <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 300,
-          background: '#15803d', color: 'var(--text-primary)', padding: '12px 20px', borderRadius: 14,
+          background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, color: '#ffffff', padding: '12px 20px', borderRadius: 14,
           fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600,
           whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
           {ctpToast}
@@ -1058,8 +1058,8 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
                 background: ctpPos ? 'rgba(74,222,128,0.2)' : 'var(--text-muted)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {ctpGpsLoading
-                  ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                  : ctpPos ? <Check size={16} color="#4ade80" /> : <MapPin size={16} color="rgba(255,255,255,0.5)" />}
+                  ? <div style={{ width: 16, height: 16, border: '2px solid var(--border-card)', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  : ctpPos ? <Check size={16} color="#4ade80" /> : <MapPin size={16} color="var(--text-muted)" />}
               </div>
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: ctpPos ? '#4ade80' : 'white' }}>

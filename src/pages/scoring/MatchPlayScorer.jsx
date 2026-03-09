@@ -100,11 +100,11 @@ const matchLabel = (status) => {
 
 // Score colour relative to par (for the scorecard cells)
 const scoreColor = (strokes, par) => {
-  if (strokes == null) return 'rgba(255,255,255,0.2)';
+  if (strokes == null) return 'var(--text-muted)';
   const d = strokes - par;
   if (d <= -2) return '#fbbf24'; // eagle+
   if (d === -1) return '#4ade80'; // birdie
-  if (d === 0)  return 'rgba(255,255,255,0.7)'; // par
+  if (d === 0)  return 'var(--text-primary)'; // par
   if (d === 1)  return '#fb923c'; // bogey
   return '#f87171'; // double+
 };
@@ -224,7 +224,7 @@ const Scorecard = ({ p1, p2, p1Scores, p2Scores, pars, status, currentHole, onHo
                 <span style={{
                   fontSize: 10, fontWeight: 800, width: 18, height: 18, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: isCurrent ? BRAND.light : 'transparent',
-                  color: isCurrent ? '#071407' : 'var(--text-muted)',
+                  color: isCurrent ? '#ffffff' : 'var(--text-muted)',
                 }}>{holeNum}</span>
               </div>
               {/* Par */}
@@ -703,7 +703,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
           ) : (
             <button onClick={() => setShowAddPlayer(true)} style={{
               width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              padding: '14px', background: 'var(--bg-card)', border: '2px dashed rgba(255,255,255,0.15)',
+              padding: '14px', background: 'var(--bg-card)', border: '2px dashed var(--border-card)',
               borderRadius: 14, marginBottom: 10, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-secondary)', fontSize: 14,
             }}>
               <UserPlus size={18} /> Add Opponent
@@ -857,7 +857,7 @@ export const MatchPlayScorer = ({ round, course, allPlayers, currentUser, onComp
           <button onClick={handleBack} disabled={currentHole === 0} style={{
             flex: 1, padding: '14px', borderRadius: 14,
             background: 'var(--bg-card)', border: '1px solid var(--border-card)',
-            color: currentHole === 0 ? 'rgba(255,255,255,0.2)' : 'white',
+            color: currentHole === 0 ? 'var(--text-muted)' : 'var(--text-primary)',
             fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
             cursor: currentHole === 0 ? 'not-allowed' : 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
