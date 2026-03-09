@@ -122,11 +122,11 @@ export default function App() {
           to { opacity: 1; transform: translate(-50%, 0); }
         }
         button { font-family: "'DM Sans', sans-serif"; }
-        select option { background: #0d2b0d; }
-        input::placeholder { color: rgba(255,255,255,0.25); }
+        select option { background: var(--bg-nav); }
+        input::placeholder { color: var(--text-muted); }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: var(--border-card); border-radius: 2px; }
       `}</style>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
