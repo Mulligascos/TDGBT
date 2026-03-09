@@ -118,46 +118,45 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
 
 // ─── DEFAULT ITEMS ────────────────────────────────────────────────────────────
 export const DEFAULT_BINGO_ITEMS = [
-  { position: 0,  label: 'Score a Birdie',        icon: '🐦', type: 'auto',   auto_key: 'birdie',           description: 'Get a birdie in any round this season' },
-  { position: 1,  label: 'Play in the Rain',       icon: '🌧️', type: 'manual', auto_key: null,               description: 'Complete a round in rainy conditions' },
-  { position: 2,  label: 'Score an Eagle',         icon: '🦅', type: 'auto',   auto_key: 'eagle',            description: 'Get an eagle (-2) on any hole' },
-  { position: 3,  label: 'Play Before 7am',        icon: '🌅', type: 'manual', auto_key: null,               description: 'Start a round before sunrise' },
-  { position: 4,  label: 'Turkey! 🦃',             icon: '🦃', type: 'auto',   auto_key: 'turkey',           description: '3 birdies in a row in one round' },
-  { position: 5,  label: 'Play 3 Courses',         icon: '🗺️', type: 'auto',   auto_key: 'three_courses',    description: 'Play 3 different courses this season' },
-  { position: 6,  label: 'Play with 4+ People',    icon: '👥', type: 'manual', auto_key: null,               description: 'Complete a round with a group of 4 or more' },
-  { position: 7,  label: 'Throw 100m+',            icon: '💪', type: 'manual', auto_key: null,               description: 'Record a throw of over 100 metres' },
-  { position: 8,  label: 'Finish Under Par',       icon: '✅', type: 'auto',   auto_key: 'under_par',        description: 'Complete a round at under par' },
-  { position: 9,  label: 'Introduce a New Player', icon: '🤝', type: 'manual', auto_key: null,               description: 'Bring someone new to the club' },
-  { position: 10, label: 'Find a Lost Disc',       icon: '🔍', type: 'manual', auto_key: null,               description: 'Return a lost disc to its owner via the app' },
-  { position: 11, label: 'Play 5 Rounds',          icon: '📋', type: 'auto',   auto_key: 'five_rounds',      description: 'Complete 5 rounds this season' },
-  { position: 12, label: 'FREE',                   icon: '⭐', type: 'auto',   auto_key: 'free',             description: 'Free square — already yours!' },
-  { position: 13, label: '5 Birdies in a Round',   icon: '🐦', type: 'auto',   auto_key: 'five_birdies',     description: 'Score 5 or more birdies in a single round' },
-  { position: 14, label: 'Play After 6pm',         icon: '🌆', type: 'manual', auto_key: null,               description: 'Complete a round after 6pm' },
-  { position: 15, label: 'Ace! Hole in One',       icon: '🎳', type: 'auto',   auto_key: 'ace',              description: 'Score an ace (hole in one) on any hole' },
-  { position: 16, label: 'Beat Club Admin',        icon: '😏', type: 'manual', auto_key: null,               description: 'Beat the club admin in a casual round' },
-  { position: 17, label: '3 Rounds in a Week',     icon: '📅', type: 'auto',   auto_key: 'three_rounds_week',description: 'Play 3 rounds in the same week' },
-  { position: 18, label: 'Play in Wind',           icon: '💨', type: 'manual', auto_key: null,               description: 'Complete a round in strong wind conditions' },
-  { position: 19, label: 'One Disc Round',         icon: '🥏', type: 'manual', auto_key: null,               description: 'Complete a full round using only one disc' },
-  { position: 20, label: 'Play a New Course',      icon: '🆕', type: 'manual', auto_key: null,               description: 'Play a course you\'ve never played before' },
-  { position: 21, label: '3 Under Par',            icon: '🔥', type: 'auto',   auto_key: 'three_under',      description: 'Finish a round 3 or more under par' },
-  { position: 22, label: 'Play on Birthday',       icon: '🎂', type: 'manual', auto_key: null,               description: 'Play a round on your birthday' },
-  { position: 23, label: 'Throw In from 50m+',     icon: '🎯', type: 'manual', auto_key: null,               description: 'Make a throw-in from over 50 metres' },
-  { position: 24, label: 'Complete 10 Rounds',     icon: '🏆', type: 'auto',   auto_key: 'ten_rounds',       description: 'Complete 10 rounds this season' },
-];
+  { position: 0,  label: 'Score a Birdie',        icon: '🐦', type: 'auto',   auto_key: 'birdie',            description: 'Get a birdie in any round this season' },
+  { position: 1,  label: 'Play in the Rain',       icon: '🌧️', type: 'manual', auto_key: null,                description: 'Complete a round in rainy conditions' },
+  { position: 2,  label: 'Score an Eagle',         icon: '🦅', type: 'auto',   auto_key: 'eagle',             description: 'Get an eagle (-2) on any hole' },
+  { position: 3,  label: 'Play Before 7am',        icon: '🌅', type: 'manual', auto_key: null,                description: 'Start a round before sunrise' },
+  { position: 4,  label: 'Turkey! 3 in a Row',     icon: '🦃', type: 'auto',   auto_key: 'turkey',            description: '3 birdies in a row in one round' },
+  { position: 5,  label: 'Play 3 Courses',         icon: '🗺️', type: 'auto',   auto_key: 'three_courses',     description: 'Play 3 different courses this season' },
+  { position: 6,  label: 'Play with 4+ People',   icon: '👥', type: 'manual', auto_key: null,                description: 'Complete a round with a group of 4 or more' },
+  { position: 7,  label: 'Throw 100m+',            icon: '💪', type: 'manual', auto_key: null,                description: 'Record a throw of over 100 metres' },
+  { position: 8,  label: 'Finish Under Par',       icon: '✅', type: 'auto',   auto_key: 'under_par',         description: 'Complete a round at under par' },
+  { position: 9,  label: 'Introduce a New Player', icon: '🤝', type: 'manual', auto_key: null,                description: 'Bring someone new to the club' },
+  { position: 10, label: 'Find a Lost Disc',       icon: '🔍', type: 'manual', auto_key: null,                description: 'Return a lost disc to its owner via the app' },
+  { position: 11, label: 'Play 5 Rounds',          icon: '📋', type: 'auto',   auto_key: 'five_rounds',       description: 'Complete 5 rounds this season' },
+  { position: 12, label: '5 Birdies in a Round',   icon: '🐦', type: 'auto',   auto_key: 'five_birdies',      description: 'Score 5 or more birdies in a single round' },
+  { position: 13, label: 'Play After 6pm',         icon: '🌆', type: 'manual', auto_key: null,                description: 'Complete a round after 6pm' },
+  { position: 14, label: 'Hole in One!',           icon: '🎳', type: 'auto',   auto_key: 'ace',               description: 'Score an ace (hole in one) on any hole' },
+  { position: 15, label: 'Beat Club Admin',        icon: '😏', type: 'manual', auto_key: null,                description: 'Beat the club admin in a casual round' },
+  { position: 16, label: '3 Rounds in a Week',     icon: '📅', type: 'auto',   auto_key: 'three_rounds_week', description: 'Play 3 rounds in the same week' },
+  { position: 17, label: 'Play in the Wind',       icon: '💨', type: 'manual', auto_key: null,                description: 'Complete a round in strong wind conditions' },
+  { position: 18, label: 'One Disc Round',         icon: '🥏', type: 'manual', auto_key: null,                description: 'Complete a full round using only one disc' },
+  { position: 19, label: 'Play a New Course',      icon: '🆕', type: 'manual', auto_key: null,                description: "Play a course you've never played before" },
+  { position: 20, label: '3 Under Par',            icon: '🔥', type: 'auto',   auto_key: 'three_under',       description: 'Finish a round 3 or more under par' },
+  { position: 21, label: 'Play on Birthday',       icon: '🎂', type: 'manual', auto_key: null,                description: 'Play a round on your birthday' },
+  { position: 22, label: 'Throw In from 50m+',     icon: '🎯', type: 'manual', auto_key: null,                description: 'Make a throw-in from over 50 metres' },
+  { position: 23, label: 'Complete 10 Rounds',     icon: '🏆', type: 'auto',   auto_key: 'ten_rounds',        description: 'Complete 10 rounds this season' },
+]
 
 // ─── BINGO CARD ───────────────────────────────────────────────────────────────
 const BingoCard = ({ items, completions, onToggle, interactive }) => {
   const completed = new Set(completions.map(c => c.position));
   const totalCompleted = completed.size;
-  const isComplete = totalCompleted === 25;
+  const isComplete = totalCompleted === 24;
 
   return (
     <div>
       {/* Progress */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
           <span style={{ fontWeight: 800, color: isComplete ? '#4ade80' : 'var(--text-primary)', fontSize: 16 }}>{totalCompleted}</span>
-          <span style={{ color: 'var(--text-muted)' }}> / 25 squares</span>
+          <span style={{ color: 'var(--text-muted)' }}> / 24 squares</span>
         </div>
         {isComplete && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: 20, padding: '4px 12px' }}>
@@ -168,54 +167,54 @@ const BingoCard = ({ items, completions, onToggle, interactive }) => {
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 4, background: 'var(--bg-input)', borderRadius: 2, marginBottom: 16, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${(totalCompleted / 25) * 100}%`, background: `linear-gradient(90deg, ${BRAND.primary}, ${BRAND.light})`, borderRadius: 2, transition: 'width 0.4s ease' }} />
+      <div style={{ height: 4, background: 'var(--bg-input)', borderRadius: 2, marginBottom: 14, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${(totalCompleted / 24) * 100}%`, background: `linear-gradient(90deg, ${BRAND.primary}, ${BRAND.light})`, borderRadius: 2, transition: 'width 0.4s ease' }} />
       </div>
 
-      {/* 5x5 Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4 }}>
-        {Array.from({ length: 25 }, (_, i) => {
+      {/* 4x6 Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+        {Array.from({ length: 24 }, (_, i) => {
           const item = items.find(it => it.position === i);
-          if (!item) return <div key={i} style={{ aspectRatio: '1', background: 'var(--bg-card)', borderRadius: 8 }} />;
+          if (!item) return <div key={i} style={{ aspectRatio: '0.85', background: 'var(--bg-card)', borderRadius: 10 }} />;
           const done = completed.has(i);
-          const isFree = i === 12;
           const isAuto = item.type === 'auto';
 
           return (
             <button
               key={i}
-              onClick={() => interactive && !isFree && !isAuto && onToggle(item)}
+              onClick={() => interactive && !isAuto && onToggle(item)}
               style={{
-                aspectRatio: '1', borderRadius: 8, border: 'none', cursor: interactive && !isFree && !isAuto ? 'pointer' : 'default',
-                background: isFree ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` :
-                            done ? 'rgba(74,222,128,0.15)' : 'var(--bg-card)',
-                border: `1px solid ${isFree ? 'transparent' : done ? 'rgba(74,222,128,0.35)' : 'var(--border)'}`,
+                aspectRatio: '0.85', borderRadius: 10, border: 'none',
+                cursor: interactive && !isAuto ? 'pointer' : 'default',
+                background: done ? 'rgba(74,222,128,0.15)' : 'var(--bg-card)',
+                border: `1px solid ${done ? 'rgba(74,222,128,0.35)' : 'var(--border)'}`,
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                gap: 2, padding: '4px 2px', position: 'relative', transition: 'all 0.15s',
-                opacity: done || isFree ? 1 : 0.75,
+                gap: 5, padding: '8px 4px', position: 'relative', transition: 'all 0.15s',
               }}
             >
-              {done && !isFree && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(74,222,128,0.08)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ position: 'absolute', top: 3, right: 3, width: 12, height: 12, background: '#4ade80', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Check size={8} color="#052e0f" strokeWidth={3} />
-                  </div>
+              {done && (
+                <div style={{ position: 'absolute', top: 4, right: 4, width: 14, height: 14, background: '#4ade80', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Check size={9} color="#052e0f" strokeWidth={3} />
                 </div>
               )}
-              <div style={{ fontSize: isFree ? 18 : 14 }}>{item.icon}</div>
-              <div style={{ fontSize: 7, fontWeight: 700, color: isFree ? 'var(--text-on-brand)' : done ? '#4ade80' : 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.2, padding: '0 1px' }}>
-                {isFree ? 'FREE' : item.label.length > 14 ? item.label.substring(0, 13) + '…' : item.label}
+              <div style={{ fontSize: 22 }}>{item.icon}</div>
+              <div style={{
+                fontSize: 9.5, fontWeight: 700,
+                color: done ? '#4ade80' : 'var(--text-primary)',
+                textAlign: 'center', lineHeight: 1.25, padding: '0 2px',
+              }}>
+                {item.label}
               </div>
-              {isAuto && !isFree && (
-                <div style={{ position: 'absolute', bottom: 2, left: 2, width: 6, height: 6, borderRadius: '50%', background: done ? '#4ade80' : 'var(--text-muted)', opacity: 0.6 }} />
+              {isAuto && (
+                <div style={{ position: 'absolute', bottom: 3, left: 4, width: 5, height: 5, borderRadius: '50%', background: done ? '#4ade80' : 'var(--text-muted)', opacity: 0.7 }} />
               )}
             </button>
           );
         })}
       </div>
       <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--text-muted)' }} />
-        Auto-tracked squares · tap manual squares to claim
+        <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--text-muted)' }} />
+        Auto-tracked · tap manual squares to claim
       </div>
     </div>
   );
@@ -248,7 +247,7 @@ const Leaderboard = ({ seasonId, players }) => {
     <div>
       {rows.map((row, i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
-        const isComplete = row.count === 25;
+        const isComplete = row.count === 24;
         return (
           <div key={row.pid} style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', marginBottom: 6,
@@ -260,7 +259,7 @@ const Leaderboard = ({ seasonId, players }) => {
             <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(row.name)}</div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 16, fontWeight: 800, color: isComplete ? '#4ade80' : 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
-                {isComplete ? '🏆 BINGO!' : `${row.count}/25`}
+                {isComplete ? '🏆 BINGO!' : `${row.count}/24`}
               </div>
             </div>
           </div>
@@ -269,6 +268,14 @@ const Leaderboard = ({ seasonId, players }) => {
     </div>
   );
 };
+
+// ─── SHARED FORM COMPONENTS ──────────────────────────────────────────────────
+const Inp = ({ style, ...props }) => (
+  <input style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none', boxSizing: 'border-box', ...style }} {...props} />
+);
+const Label = ({ children }) => (
+  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{children}</div>
+);
 
 // ─── ADMIN BINGO SECTION ──────────────────────────────────────────────────────
 export const BingoAdminSection = ({ currentUser, showToast }) => {
@@ -320,13 +327,6 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
     await supabase.from('bingo_items').update(changes).eq('id', item.id);
     loadItems(item.season_id);
   };
-
-  const Inp = ({ style, ...props }) => (
-    <input style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none', ...style }} {...props} />
-  );
-  const Label = ({ children }) => (
-    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{children}</div>
-  );
 
   if (view === 'create') return (
     <div>
@@ -456,7 +456,6 @@ export const BingoPage = ({ currentUser, isAdmin, players }) => {
 
     // Auto-check — compute what player has achieved
     const autoKeys = await computeAutoKeys(currentUser.id, activeSeason.starts_at, activeSeason.ends_at);
-    autoKeys.add('free'); // FREE square always complete
 
     // Find auto items player should have but doesn't yet
     const completedPositions = new Set(currentCompletions.map(c => c.position));
@@ -499,7 +498,7 @@ export const BingoPage = ({ currentUser, isAdmin, players }) => {
         setCompletions(prev => [...prev, data]);
         showToast(`✅ "${item.label}" claimed!`);
         // Check if full card
-        if (completions.length + 1 === 25) showToast('🏆 BINGO! Full card complete!');
+        if (completions.length + 1 === 24) showToast('🏆 BINGO! Full card complete!');
       }
     }
     setDetailItem(null);
