@@ -300,7 +300,7 @@ const CasualRoundPicker = ({ courses, onStart, onBack }) => {
         width: '100%', padding: '15px', borderRadius: 14,
         background: selectedCourse ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
         border: selectedCourse ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
-        color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
+        color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
         cursor: selectedCourse ? 'pointer' : 'not-allowed',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
       }}>
