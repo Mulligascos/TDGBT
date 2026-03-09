@@ -28,7 +28,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
       {/* Logo area */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <img
-          src="/assets/tdg_logo.gif"
+          src="/assets/TDG_LogoSmall.PNG"
           alt="Timaru Disc Golf Club"
           style={{
             width: 120, height: 120,
