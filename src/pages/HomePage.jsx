@@ -180,7 +180,7 @@ const NoTournamentBanner = ({ onScore }) => (
     <button onClick={onScore} style={{
       padding: '7px 14px', borderRadius: 9, flexShrink: 0,
       background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-      border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
+      border: '1px solid rgba(74,222,128,0.3)', color: '#ffffff',
       fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, cursor: 'pointer',
     }}>
       Score →
