@@ -8,41 +8,51 @@ import { X } from 'lucide-react';
 export const useAppBanners = (currentUser) => {
   const [banners, setBanners] = useState([]);
 
-  const load = useCallback(async () => {
-    if (!currentUser?.id) { setBanners([]); return; }
+  useEffect(() => {
+    const playerId = currentUser?.id;
+    if (!playerId) { setBanners([]); return; }
 
-    // Get all banners for this player (targeted or all-members)
-    const { data: allBanners } = await supabase
-      .from('app_banners')
-      .select('*')
-      .order('sent_at', { ascending: false });
+    let cancelled = false;
 
-    if (!allBanners?.length) return;
+    const load = async () => {
+      // Fetch all banners
+      const { data: allBanners, error } = await supabase
+        .from('app_banners')
+        .select('*')
+        .order('sent_at', { ascending: false });
 
-    // Filter to ones this player is a recipient of
-    const mine = allBanners.filter(b =>
-      b.all_members || (b.recipient_ids || []).includes(currentUser.id)
-    );
-    if (!mine.length) return;
+      if (cancelled) return;
+      if (error) { console.error('Banner fetch error:', error); return; }
+      if (!allBanners?.length) { setBanners([]); return; }
 
-    // Get this player's dismissals
-    const { data: dismissals } = await supabase
-      .from('app_banner_dismissals')
-      .select('banner_id')
-      .eq('player_id', currentUser.id);
+      // Filter to ones this player should see
+      const mine = allBanners.filter(b =>
+        b.all_members === true || (b.recipient_ids || []).includes(playerId)
+      );
+      if (!mine.length) { setBanners([]); return; }
 
-    const dismissed = new Set((dismissals || []).map(d => d.banner_id));
-    const visible = mine.filter(b => !dismissed.has(b.id));
-    setBanners(visible);
+      // Get dismissals
+      const { data: dismissals } = await supabase
+        .from('app_banner_dismissals')
+        .select('banner_id')
+        .eq('player_id', playerId);
+
+      if (cancelled) return;
+      const dismissed = new Set((dismissals || []).map(d => d.banner_id));
+      const visible = mine.filter(b => !dismissed.has(b.id));
+      setBanners(visible);
+    };
+
+    load();
+    return () => { cancelled = true; };
   }, [currentUser?.id]);
 
-  useEffect(() => { load(); }, [load]);
-
   const dismiss = useCallback(async (bannerId) => {
-    if (!currentUser?.id) return;
+    const playerId = currentUser?.id;
+    if (!playerId) return;
     setBanners(prev => prev.filter(b => b.id !== bannerId));
     await supabase.from('app_banner_dismissals').upsert(
-      { banner_id: bannerId, player_id: currentUser.id },
+      { banner_id: bannerId, player_id: playerId },
       { onConflict: 'banner_id,player_id' }
     );
   }, [currentUser?.id]);
