@@ -14,6 +14,7 @@ const MORE_TABS = [
   { id: 'courses',   label: 'Courses',    icon: CourseIcon,    emoji: '🏔️' },
   { id: 'ctp',       label: 'CTP',        icon: CTPIcon,       emoji: '🎯' },
   { id: 'lostfound', label: 'Lost+Found', icon: LostFoundIcon, emoji: '🔍' },
+  { id: 'bingo',     label: 'Bingo',       icon: LostFoundIcon, emoji: '🎱' },
 ];
 
 const MORE_IDS = MORE_TABS.map(t => t.id);
