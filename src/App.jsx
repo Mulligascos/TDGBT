@@ -18,6 +18,7 @@ import { CoursesPage } from './pages/CoursesPage';
 import { BagTagsPage } from './pages/BagTagsPage';
 import { LostFoundPage } from './pages/LostFoundPage';
 import { CTPPage } from './pages/CTPPage';
+import { BingoPage } from './pages/BingoPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -100,6 +101,7 @@ export default function App() {
       case 'bagtags': return <BagTagsPage currentUser={currentUser} players={players} />;
       case 'lostfound': return <LostFoundPage currentUser={currentUser} isAdmin={isAdmin} courses={courses} />;
       case 'ctp': return <CTPPage currentUser={currentUser} isAdmin={isAdmin} courses={courses} />;
+      case 'bingo': return <BingoPage currentUser={currentUser} isAdmin={isAdmin} players={players} />;
       case 'profile': return <ProfilePage {...commonProps} onLogout={handleLogout} updateUser={updateUser} onThemeChange={handleThemeChange} />;
       default: return <HomePage {...commonProps} tournaments={tournaments} activeTournament={activeTournament}
         players={players} pendingRequestsCount={pendingRequestsCount} />;
