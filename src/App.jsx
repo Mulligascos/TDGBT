@@ -26,13 +26,14 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [, forceThemeRender] = useState(0);
   const handleThemeChange = () => forceThemeRender(n => n + 1);
-  const { banners, dismiss: dismissBanner } = useAppBanners(currentUser);
 
   const {
     currentUser, players: loginPlayers, isLoadingPlayers,
     loginError, setLoginError,
     login, logout, updateUser, isAdmin,
   } = useAuth();
+
+  const { banners, dismiss: dismissBanner } = useAppBanners(currentUser);
 
   const {
     courses, tournaments, matches, players,
