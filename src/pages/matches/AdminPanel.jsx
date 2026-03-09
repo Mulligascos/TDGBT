@@ -1688,16 +1688,6 @@ const MessagesSection = ({ currentUser, showToast }) => {
 // MAIN ADMIN PANEL
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const NAV_ITEMS = [
-  { id: 'tournaments', label: 'Tournaments', icon: Trophy },
-  { id: 'members', label: 'Members', icon: Users },
-  { id: 'courses', label: 'Courses', icon: MapPin },
-  { id: 'requests', label: 'Requests', icon: FileText },
-  { id: 'announcements', label: 'Announcements', icon: Megaphone },
-  { id: 'achievements', label: 'Achievements', icon: Award },
-  { id: 'messages', label: 'Messages', icon: Mail },
-];
-
 function BingoIcon({ size = 18, color = 'currentColor' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1709,6 +1699,17 @@ function BingoIcon({ size = 18, color = 'currentColor' }) {
     </svg>
   );
 }
+
+const NAV_ITEMS = [
+  { id: 'tournaments',   label: 'Tournaments',   icon: Trophy },
+  { id: 'members',       label: 'Members',       icon: Users },
+  { id: 'courses',       label: 'Courses',       icon: MapPin },
+  { id: 'requests',      label: 'Requests',      icon: FileText },
+  { id: 'announcements', label: 'Announcements', icon: Megaphone },
+  { id: 'achievements',  label: 'Achievements',  icon: Award },
+  { id: 'messages',      label: 'Messages',      icon: Mail },
+  { id: 'bingo',         label: 'Bingo',         icon: BingoIcon },
+];
 
 export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, courses, players, onDataChanged, onBack, pendingRequestsCount = 0 }) => {
   const [rounds, setRounds] = React.useState(roundsProp || []);
