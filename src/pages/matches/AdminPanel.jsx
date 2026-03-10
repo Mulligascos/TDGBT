@@ -969,6 +969,7 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ title: '', body: '', pinned: false });
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(false);
@@ -984,19 +985,45 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
 
   useEffect(() => { load(); }, [load]);
 
+  const openNew = () => {
+    setEditingId(null);
+    setForm({ title: '', body: '', pinned: false });
+    setPreview(false);
+    setShowForm(true);
+  };
+
+  const openEdit = (a) => {
+    setEditingId(a.id);
+    setForm({ title: a.title, body: a.body, pinned: a.pinned });
+    setPreview(false);
+    setShowForm(true);
+  };
+
+  const closeForm = () => { setShowForm(false); setEditingId(null); setPreview(false); };
+
   const handlePost = async () => {
     if (!form.title.trim() || !form.body.trim()) return;
     setSaving(true);
-    const { data, error } = await supabase.from('announcements').insert({
-      title: form.title.trim(), body: form.body.trim(),
-      pinned: form.pinned, created_by: currentUser.id,
-    }).select().single();
-    setSaving(false);
-    if (error) return;
-    setAnnouncements(p => [data, ...p]);
+    if (editingId) {
+      const { data, error } = await supabase.from('announcements')
+        .update({ title: form.title.trim(), body: form.body.trim(), pinned: form.pinned, updated_at: new Date().toISOString() })
+        .eq('id', editingId).select().single();
+      setSaving(false);
+      if (error) { showToast('Update failed', 'error'); return; }
+      setAnnouncements(p => p.map(a => a.id === editingId ? data : a));
+      showToast('Announcement updated');
+    } else {
+      const { data, error } = await supabase.from('announcements').insert({
+        title: form.title.trim(), body: form.body.trim(),
+        pinned: form.pinned, created_by: currentUser.id,
+      }).select().single();
+      setSaving(false);
+      if (error) return;
+      setAnnouncements(p => [data, ...p]);
+      showToast('Announcement posted');
+    }
     setForm({ title: '', body: '', pinned: false });
-    setShowForm(false);
-    showToast('Announcement posted');
+    closeForm();
   };
 
   const handleDelete = async (id) => {
@@ -1023,19 +1050,22 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <SectionHead>Announcements</SectionHead>
-        <Btn small onClick={() => setShowForm(s => !s)}><Plus size={13} /> Post</Btn>
+        <Btn small onClick={openNew}><Plus size={13} /> Post</Btn>
       </div>
 
       {showForm && (
         <Card>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
+            {editingId ? '✏️ Edit Announcement' : '✏️ New Announcement'}
+          </div>
           <Field label="Title"><Inp value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Announcement title" /></Field>
           <Field label="Body">
             <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
               {['write', 'preview'].map(m => (
                 <button key={m} type="button" onClick={() => setPreview(m === 'preview')} style={{
                   padding: '4px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                  background: (preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.12)' : 'var(--text-muted)',
-                  border: `1px solid ${(preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
+                  background: (preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.12)' : 'var(--bg-input)',
+                  border: `1px solid ${(preview ? m === 'preview' : m === 'write') ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
                   color: (preview ? m === 'preview' : m === 'write') ? '#4ade80' : 'var(--text-secondary)',
                   fontFamily: "'DM Sans', sans-serif", textTransform: 'capitalize',
                 }}>{m}</button>
@@ -1064,9 +1094,9 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
             Pin to top of home screen
           </label>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Btn small variant="ghost" onClick={() => { setShowForm(false); setPreview(false); }}>Cancel</Btn>
+            <Btn small variant="ghost" onClick={closeForm}>Cancel</Btn>
             <Btn small onClick={handlePost} disabled={saving || !form.title.trim() || !form.body.trim()}>
-              {saving ? 'Posting...' : 'Post'}
+              {saving ? (editingId ? 'Saving...' : 'Posting...') : (editingId ? 'Save Changes' : 'Post')}
             </Btn>
           </div>
         </Card>
@@ -1084,6 +1114,7 @@ const AnnouncementsSection = ({ currentUser, showToast }) => {
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>{formatDate(a.created_at)}</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <Btn small variant="ghost" onClick={() => togglePin(a)}>{a.pinned ? 'Unpin' : '📌 Pin'}</Btn>
+            <Btn small variant="ghost" onClick={() => openEdit(a)}><Edit2 size={12} /> Edit</Btn>
             <Btn small variant="danger" onClick={() => handleDelete(a.id)}><Trash2 size={12} /> Delete</Btn>
           </div>
         </Card>
