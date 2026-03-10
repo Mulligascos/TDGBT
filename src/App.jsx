@@ -20,6 +20,7 @@ import { LostFoundPage } from './pages/LostFoundPage';
 import { CTPPage } from './pages/CTPPage';
 import { useAppBanners, AppBanners } from './components/AppBanner';
 import { BingoPage } from './pages/BingoPage';
+import { WallOfFamePage } from './pages/WallOfFamePage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -105,6 +106,7 @@ export default function App() {
       case 'lostfound': return <LostFoundPage currentUser={currentUser} isAdmin={isAdmin} courses={courses} />;
       case 'ctp': return <CTPPage currentUser={currentUser} isAdmin={isAdmin} courses={courses} />;
       case 'bingo': return <BingoPage currentUser={currentUser} isAdmin={isAdmin} players={players} />;
+      case 'walloffame': return <WallOfFamePage currentUser={currentUser} courses={courses} players={players} />;
       case 'profile': return <ProfilePage {...commonProps} onLogout={handleLogout} updateUser={updateUser} onThemeChange={handleThemeChange} />;
       default: return <HomePage {...commonProps} tournaments={tournaments} activeTournament={activeTournament}
         players={players} pendingRequestsCount={pendingRequestsCount} />;
