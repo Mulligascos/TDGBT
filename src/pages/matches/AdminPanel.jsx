@@ -1797,6 +1797,7 @@ const BagTagsSection = ({ players, showToast, onRefresh }) => {
 };
 
 
+const NAV_ITEMS = [
   { id: 'tournaments',   label: 'Tournaments',   icon: Trophy },
   { id: 'members',       label: 'Members',       icon: Users },
   { id: 'bagtags',       label: 'Bag Tags',      icon: Tag },
