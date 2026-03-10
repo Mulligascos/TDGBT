@@ -75,8 +75,8 @@ const RoundCard = ({ round, index, course, myScore, isAdmin, onStart, onStatusCh
               disabled={changingStatus}
               style={{
                 flex: 1, padding: '7px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-                background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)',
-                color: '#4ade80', cursor: 'pointer', fontFamily: "'Syne', sans-serif",
+                background: BRAND.primary, border: '1px solid rgba(74,222,128,0.3)',
+                color: '#ffffff', cursor: 'pointer', fontFamily: "'Syne', sans-serif",
               }}
             >▶ Open Round</button>
           )}
@@ -427,7 +427,7 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
 
             {isExpanded && (
               <div style={{
-                background: 'var(--text-muted)', border: '1px solid rgba(74,222,128,0.1)',
+                background: 'var(--bg-card)', border: '1px solid rgba(74,222,128,0.1)',
                 borderTop: 'none', borderRadius: '0 0 14px 14px', overflow: 'hidden',
               }}>
                 {/* Column headers */}
@@ -815,7 +815,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
                         style={{
                           width: '100%', marginTop: -4, marginBottom: 14,
                           padding: '8px', borderRadius: '0 0 12px 12px',
-                          background: 'var(--text-muted)', border: '1px solid var(--border)',
+                          background: 'var(--bg-input)', border: '1px solid var(--border)',
                           borderTop: 'none', color: 'var(--text-muted)',
                           fontFamily: "'DM Sans', sans-serif", fontSize: 12,
                           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
@@ -830,7 +830,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
                     {scheduledCount > 0 && (
                       <div style={{
                         display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
-                        background: 'var(--text-muted)', border: '1px dashed rgba(255,255,255,0.1)',
+                        background: 'var(--bg-input)', border: '1px dashed var(--border-card)',
                         borderRadius: 14, marginBottom: 10,
                       }}>
                         <div style={{ fontSize: 24 }}>📅</div>
@@ -893,7 +893,7 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
 const SubTabBar = ({ activeTab, setActiveTab, isAdmin }) => (
   <div style={{
     display: 'flex', borderBottom: '1px solid var(--border)',
-    background: 'rgba(0,0,0,0.3)', maxWidth: 520, margin: '0 auto', overflowX: 'auto',
+    background: 'var(--bg-nav)', maxWidth: 520, margin: '0 auto', overflowX: 'auto',
   }}>
     {[
       { id: 'rounds', label: 'Rounds', icon: <Calendar size={14} /> },
