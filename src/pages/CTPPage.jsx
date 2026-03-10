@@ -142,16 +142,16 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <button onClick={onBack} style={{ background: 'var(--bg-input)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
-            <ChevronLeft size={15} /> CTP Challenges
+            <ChevronLeft size={15} /> Virtual CTP
           </button>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>New CTP Challenge</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>New Virtual CTP</div>
         </div>
       </div>
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px' }}>
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Challenge Name *</div>
-          <Inp value={name} onChange={e => setName(e.target.value)} placeholder="e.g. October CTP — Hole 7" />
+          <Inp value={name} onChange={e => setName(e.target.value)} placeholder="e.g. October Virtual CTP — Hole 7" />
         </div>
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Description</div>
@@ -273,7 +273,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <button onClick={onBack} style={{ background: 'var(--bg-input)', border: 'none', borderRadius: 10, padding: '6px 12px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 14, fontFamily: "'DM Sans', sans-serif" }}>
-            <ChevronLeft size={15} /> CTP Challenges
+            <ChevronLeft size={15} /> Virtual CTP
           </button>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
             <div>
@@ -464,8 +464,8 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
         <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>🎯 CTP</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>Closest to Pin</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>🎯 Virtual CTP</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>Virtual CTP</div>
             <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{activeCount} active challenge{activeCount !== 1 ? 's' : ''}</div>
           </div>
           {isAdmin && (
@@ -501,7 +501,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
             <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>No challenges yet</div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-              {isAdmin ? 'Tap + New to create the first CTP challenge' : 'Check back when an admin creates a challenge'}
+              {isAdmin ? 'Tap + New to create the first Virtual CTP' : 'Check back when an admin creates a challenge'}
             </div>
           </div>
         ) : (
