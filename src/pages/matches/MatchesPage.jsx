@@ -773,13 +773,14 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
             <button onClick={handleResumeDraft} style={{
               padding: '7px 14px', borderRadius: 9, background: '#fbbf24',
               border: 'none', color: '#1a0a00', fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12, fontWeight: 800, cursor: 'pointer',
+              fontSize: 12, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap',
             }}>Resume</button>
-            <button onClick={handleDiscardDraft} style={{
-              padding: '7px 10px', borderRadius: 9, background: 'var(--bg-card)',
-              border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
-              fontFamily: "'DM Sans', sans-serif", fontSize: 12, cursor: 'pointer',
-            }}>✕</button>
+            <button onClick={() => { if (window.confirm('Cancel this match? Your progress will be lost.')) handleDiscardDraft(); }} style={{
+              padding: '7px 12px', borderRadius: 9, background: 'rgba(248,113,113,0.1)',
+              border: '1px solid rgba(248,113,113,0.3)', color: '#f87171',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
+              cursor: 'pointer', whiteSpace: 'nowrap',
+            }}>Cancel</button>
           </div>
         )}
 
