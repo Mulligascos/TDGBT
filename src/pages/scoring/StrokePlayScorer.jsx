@@ -177,9 +177,9 @@ const AddPlayersModal = ({ allPlayers, currentPlayers, onAdd, onClose }) => {
           {[['members', '👥 Members'], ['guest', '🙋 Guest']].map(([id, label]) => (
             <button key={id} onClick={() => setTab(id)} style={{
               flex: 1, padding: '8px', borderRadius: 10,
-              background: tab === id ? 'rgba(74,222,128,0.15)' : 'var(--text-muted)',
-              border: `1px solid ${tab === id ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
-              color: tab === id ? '#4ade80' : 'var(--text-secondary)',
+              background: tab === id ? BRAND.primary : 'var(--bg-input)',
+              border: `1px solid ${tab === id ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+              color: tab === id ? '#ffffff' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}>{label}</button>
           ))}
