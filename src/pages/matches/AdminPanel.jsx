@@ -1468,7 +1468,7 @@ const MessagesSection = ({ currentUser, players, showToast }) => {
             padding: '8px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
             background: view === id ? BRAND.primary : 'var(--bg-card)',
             border: `1px solid ${view === id ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
-            color: view === id ? 'var(--text-on-brand)' : 'var(--text-secondary)',
+            color: view === id ? '#ffffff' : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
         ))}
@@ -1508,12 +1508,12 @@ const MessagesSection = ({ currentUser, players, showToast }) => {
           {/* Preview */}
           {(title || body) && (
             <div style={{ marginBottom: 16, padding: '12px 14px', background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 12 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Preview</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Preview</div>
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <div style={{ fontSize: 22, flexShrink: 0 }}>📣</div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#ffffff', marginBottom: 3 }}>{title || 'Title'}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{body || 'Message body'}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 3 }}>{title || 'Title'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>{body || 'Message body'}</div>
                 </div>
               </div>
             </div>
@@ -1529,7 +1529,7 @@ const MessagesSection = ({ currentUser, players, showToast }) => {
                   flex: 1, padding: '9px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer',
                   background: allMembers === val ? BRAND.primary : 'var(--bg-card)',
                   border: `1px solid ${allMembers === val ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
-                  color: allMembers === val ? 'var(--text-on-brand)' : 'var(--text-secondary)',
+                  color: allMembers === val ? '#ffffff' : 'var(--text-secondary)',
                   fontFamily: "'DM Sans', sans-serif",
                 }}>
                   {val ? `👥 All Members (${normalised.length})` : '🎯 Specific Members'}
