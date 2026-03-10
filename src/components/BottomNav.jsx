@@ -12,7 +12,7 @@ const PRIMARY_TABS = [
 // Secondary tabs in the More drawer
 const MORE_TABS = [
   { id: 'courses',    label: 'Courses',     icon: CourseIcon,    emoji: '🏔️' },
-  { id: 'ctp',        label: 'CTP',         icon: CTPIcon,       emoji: '🎯' },
+  { id: 'ctp',        label: 'Virtual CTP',         icon: CTPIcon,       emoji: '🎯' },
   { id: 'lostfound',  label: 'Lost+Found',  icon: LostFoundIcon, emoji: '🔍' },
   { id: 'bingo',      label: 'Bingo',       icon: LostFoundIcon, emoji: '🎱' },
   { id: 'walloffame', label: 'Wall of Fame', icon: LostFoundIcon, emoji: '🏆' },
