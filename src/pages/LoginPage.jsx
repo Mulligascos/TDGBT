@@ -42,7 +42,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
           fontFamily: "'Syne', sans-serif",
           fontSize: 32, fontWeight: 800,
           color: 'var(--text-primary)', margin: 0, letterSpacing: -1,
-        }}>TDG Members</h1>
+        }}>TDG Portal</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 6 }}>
           Timaru Disc Golf Club
         </p>
@@ -155,7 +155,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
       </div>
 
       <p style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 32, textAlign: 'center' }}>
-        TDG Members App · Timaru Disc Golf Club
+        TDG Portal App · Timaru Disc Golf Club
       </p>
 
       <style>{`
@@ -163,7 +163,7 @@ export const LoginPage = ({ players, isLoadingPlayers, onLogin, loginError }) =>
         @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
         * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
         button { font-family: 'DM Sans', sans-serif; }
-        select option { background: #0d2b0d; }
+        select option { background: var(--bg-nav); }
       `}</style>
     </div>
   );
