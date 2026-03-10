@@ -6,7 +6,7 @@ import { Toast, Badge } from '../../components/ui';
 import {
   ChevronLeft, ChevronRight, Plus, Check, X, Edit2, Trash2,
   Users, Trophy, MapPin, Megaphone, FileText, Settings, Award, RotateCcw,
-  Mail, Send, Clock, AlertCircle
+  Mail, Send, Clock, AlertCircle, Tag
 } from 'lucide-react';
 
 
@@ -1635,9 +1635,171 @@ function BingoIcon({ size = 18, color = 'currentColor' }) {
   );
 }
 
-const NAV_ITEMS = [
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECTION: BAG TAGS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const BagTagsSection = ({ players, showToast, onRefresh }) => {
+  const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState(null); // player id being edited
+  const [editVal, setEditVal] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  // All active players sorted by tag number (untagged at bottom)
+  const sorted = [...(players || [])]
+    .filter(p => p.status === 'Active')
+    .sort((a, b) => {
+      if (a.bagTag && b.bagTag) return a.bagTag - b.bagTag;
+      if (a.bagTag) return -1;
+      if (b.bagTag) return 1;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+  const filtered = sorted.filter(p =>
+    !search || formatName(p.name).toLowerCase().includes(search.toLowerCase())
+  );
+
+  const tagsInUse = new Set(players.map(p => p.bagTag).filter(Boolean));
+
+  const startEdit = (p) => {
+    setEditing(p.id);
+    setEditVal(p.bagTag ? String(p.bagTag) : '');
+  };
+
+  const cancelEdit = () => { setEditing(null); setEditVal(''); };
+
+  const saveTag = async (p) => {
+    const newTag = editVal.trim() ? parseInt(editVal.trim()) : null;
+    if (editVal.trim() && (isNaN(newTag) || newTag < 1)) {
+      showToast('Tag must be a positive number', 'error'); return;
+    }
+    // Conflict check — another player already has this tag
+    if (newTag && tagsInUse.has(newTag) && p.bagTag !== newTag) {
+      const clash = players.find(x => x.bagTag === newTag && x.id !== p.id);
+      if (clash) { showToast(`#${newTag} is held by ${formatName(clash.name)}`, 'error'); return; }
+    }
+    setSaving(true);
+    const { error } = await supabase
+      .from('players')
+      .update({ bag_tag: newTag, updated_at: new Date().toISOString() })
+      .eq('player_id', p.id);
+    setSaving(false);
+    if (error) { showToast(`Error: ${error.message}`, 'error'); return; }
+    showToast(newTag ? `#${newTag} assigned to ${formatName(p.name)}` : `Tag cleared for ${formatName(p.name)}`);
+    setEditing(null);
+    setEditVal('');
+    onRefresh?.();
+  };
+
+  const clearTag = async (p) => {
+    if (!window.confirm(`Clear tag #${p.bagTag} from ${formatName(p.name)}?`)) return;
+    setSaving(true);
+    await supabase.from('players').update({ bag_tag: null }).eq('player_id', p.id);
+    setSaving(false);
+    showToast(`Tag cleared for ${formatName(p.name)}`);
+    onRefresh?.();
+  };
+
+  const tagged = sorted.filter(p => p.bagTag).length;
+  const untagged = sorted.length - tagged;
+
+  return (
+    <div>
+      <SectionHead>Bag Tags ({tagged} assigned · {untagged} untagged)</SectionHead>
+
+      <div style={{ marginBottom: 12 }}>
+        <Inp value={search} onChange={e => setSearch(e.target.value)} placeholder="Search players..." />
+      </div>
+
+      {filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: 13 }}>No players found</div>
+      ) : filtered.map(p => {
+        const isEditing = editing === p.id;
+        return (
+          <div key={p.id} style={{
+            background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+            borderRadius: 12, padding: '12px 14px', marginBottom: 8,
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            {/* Tag badge */}
+            <div style={{
+              width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+              background: p.bagTag
+                ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
+                : 'var(--bg-input)',
+              border: p.bagTag ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border-card)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {p.bagTag
+                ? <span style={{ fontSize: 13, fontWeight: 800, color: '#ffffff', fontFamily: "'Syne', sans-serif" }}>#{p.bagTag}</span>
+                : <Tag size={16} color="var(--text-muted)" />
+              }
+            </div>
+
+            {/* Name */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {formatName(p.name)}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{p.division}</div>
+            </div>
+
+            {/* Edit inline or action buttons */}
+            {isEditing ? (
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+                <input
+                  type="number" min="1" value={editVal}
+                  onChange={e => setEditVal(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') saveTag(p); if (e.key === 'Escape') cancelEdit(); }}
+                  placeholder="Tag #"
+                  autoFocus
+                  style={{
+                    width: 70, padding: '6px 8px', borderRadius: 8,
+                    background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                    color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13, fontWeight: 700, outline: 'none', textAlign: 'center',
+                  }}
+                />
+                <button onClick={() => saveTag(p)} disabled={saving} style={{
+                  padding: '6px 10px', borderRadius: 8, cursor: 'pointer',
+                  background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
+                  border: '1px solid rgba(74,222,128,0.3)', color: '#ffffff',
+                  fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                }}>Save</button>
+                <button onClick={cancelEdit} style={{
+                  padding: '6px 8px', borderRadius: 8, cursor: 'pointer',
+                  background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                  color: 'var(--text-secondary)', fontSize: 12, fontFamily: "'DM Sans', sans-serif",
+                }}>✕</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                <button onClick={() => startEdit(p)} style={{
+                  padding: '6px 12px', borderRadius: 8, cursor: 'pointer',
+                  background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+                  color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>{p.bagTag ? 'Change' : 'Assign'}</button>
+                {p.bagTag && (
+                  <button onClick={() => clearTag(p)} style={{
+                    padding: '6px 8px', borderRadius: 8, cursor: 'pointer',
+                    background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)',
+                    color: '#f87171', fontSize: 12, fontFamily: "'DM Sans', sans-serif",
+                  }}>✕</button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+
   { id: 'tournaments',   label: 'Tournaments',   icon: Trophy },
   { id: 'members',       label: 'Members',       icon: Users },
+  { id: 'bagtags',       label: 'Bag Tags',      icon: Tag },
   { id: 'courses',       label: 'Courses',       icon: MapPin },
   { id: 'requests',      label: 'Requests',      icon: FileText },
   { id: 'announcements', label: 'Announcements', icon: Megaphone },
@@ -1751,6 +1913,9 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
         )}
         {activeSection === 'members' && (
           <MembersSection players={players} onRefresh={onDataChanged} showToast={showToast} />
+        )}
+        {activeSection === 'bagtags' && (
+          <BagTagsSection players={players} onRefresh={onDataChanged} showToast={showToast} />
         )}
         {activeSection === 'courses' && (
           <CoursesSection courses={courses} onRefresh={onDataChanged} showToast={showToast} />
