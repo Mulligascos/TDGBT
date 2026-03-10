@@ -181,7 +181,7 @@ const Card = ({ children, onClick, style = {} }) => (
   </div>
 );
 
-const statusColor = { upcoming: '#fbbf24', active: '#4ade80', complete: 'var(--text-secondary)', pending: '#fbbf24', approved: '#4ade80', rejected: '#f87171' };
+const statusColor = { draft: '#94a3b8', upcoming: '#fbbf24', active: '#4ade80', complete: 'var(--text-secondary)', pending: '#fbbf24', approved: '#4ade80', rejected: '#f87171' };
 
 // ─── BACK HEADER ──────────────────────────────────────────────────────────────
 const BackHeader = ({ title, onBack }) => (
@@ -205,7 +205,7 @@ const TournamentForm = ({ existing, courses, onSave, onBack }) => {
     end_date: existing?.end_date || '',
     description: existing?.description || '',
     count_rounds: existing?.count_rounds || 6,
-    status: existing?.status || 'upcoming',
+    status: existing?.status || 'draft',
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -243,6 +243,7 @@ const TournamentForm = ({ existing, courses, onSave, onBack }) => {
       </Field>
       <Field label="Status">
         <Sel value={form.status} onChange={e => f('status', e.target.value)}>
+          <option value="draft" style={{ background: 'var(--bg-nav)' }}>🔒 Draft (admin only)</option>
           <option value="upcoming" style={{ background: 'var(--bg-nav)' }}>Upcoming</option>
           <option value="active" style={{ background: 'var(--bg-nav)' }}>Active</option>
           <option value="complete" style={{ background: 'var(--bg-nav)' }}>Complete</option>
@@ -390,13 +391,16 @@ const TournamentsSection = ({ tournaments, rounds, courses, onRefresh, showToast
         <Card key={t.id} onClick={() => { setSelected(t); setView('detail'); }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t.name}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: t.status === 'draft' ? 'var(--text-muted)' : 'var(--text-primary)' }}>{t.name}</div>
+                {t.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', background: 'rgba(148,163,184,0.12)', border: '1px solid rgba(148,163,184,0.25)', borderRadius: 4, padding: '1px 5px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Draft</span>}
+              </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t.format} · {tRounds(t.id).length} round{tRounds(t.id).length !== 1 ? 's' : ''}{t.start_date ? ` · ${formatDate(t.start_date)}` : ''}
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Badge label={t.status} color={statusColor[t.status]} />
+              {t.status !== 'draft' && <Badge label={t.status} color={statusColor[t.status]} />}
               <ChevronRight size={15} color="var(--text-muted)" />
             </div>
           </div>

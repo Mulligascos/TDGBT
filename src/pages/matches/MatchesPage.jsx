@@ -536,14 +536,17 @@ export const MatchesPage = ({ currentUser, isAdmin, courses, tournaments, player
 
   // Use stable key to avoid re-running when parent re-renders with new array reference
   const tournamentsKey = (tournaments || []).map(t => t.id + t.status).join(',');
-  useEffect(() => { setLocalTournaments(tournaments || []); },
+  useEffect(() => {
+    const visible = (tournaments || []).filter(t => isAdmin || t.status !== 'draft');
+    setLocalTournaments(visible);
+  },
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [tournamentsKey]);
+  [tournamentsKey, isAdmin]);
 
   useEffect(() => {
     const active = localTournaments.find(t => t.status === 'active');
     const upcoming = localTournaments.find(t => t.status === 'upcoming');
-    setActiveTournament(active || upcoming || localTournaments[0] || null);
+    setActiveTournament(active || upcoming || localTournaments.filter(t => t.status !== 'draft')[0] || null);
   }, [localTournaments]);
 
   const loadData = useCallback(async () => {
