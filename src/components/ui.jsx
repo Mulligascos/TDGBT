@@ -125,7 +125,7 @@ export const Button = ({ children, onClick, variant = 'primary', disabled, fullW
       color: 'var(--text-primary)',
     },
     secondary: {
-      background: 'var(--text-muted)',
+      background: 'var(--bg-input)',
       border: '1px solid var(--border-card)',
       color: 'var(--text-primary)',
     },
@@ -173,7 +173,7 @@ export const Input = ({ label, ...props }) => (
     )}
     <input style={{
       width: '100%', padding: '13px 16px', borderRadius: 12,
-      background: 'var(--text-muted)',
+      background: 'var(--bg-input)',
       border: '1px solid var(--border-card)',
       color: 'var(--text-primary)', fontSize: 15,
       fontFamily: "'DM Sans', sans-serif",
@@ -195,7 +195,7 @@ export const Select = ({ label, children, ...props }) => (
     )}
     <select style={{
       width: '100%', padding: '13px 16px', borderRadius: 12,
-      background: 'var(--text-muted)',
+      background: 'var(--bg-input)',
       border: '1px solid var(--border-card)',
       color: 'var(--text-primary)', fontSize: 15,
       fontFamily: "'DM Sans', sans-serif",
@@ -220,13 +220,13 @@ export const SectionLabel = ({ children }) => (
 
 // ─── DIVIDER ──────────────────────────────────────────────────────────────────
 export const Divider = () => (
-  <div style={{ height: 1, background: 'var(--text-muted)', margin: '16px 0' }} />
+  <div style={{ height: 1, background: 'var(--border)', margin: '16px 0' }} />
 );
 
 // ─── LOGO WATERMARK ──────────────────────────────────────────────────────────
-export const LogoWatermark = ({ size = 80, opacity = 0.18, style = {} }) => (
+export const LogoWatermark = ({ size = 80, opacity = 0.08, style = {} }) => (
   <img
-    src="/assets/TDG_LogoSmall.PNG"
+    src="/assets/tdg_logo.GIF"
     alt=""
     aria-hidden="true"
     style={{
