@@ -391,7 +391,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1 }}>Bingo Seasons</div>
-        <button onClick={() => setView('create')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: BRAND.primary, border: 'none', borderRadius: 10, color: 'var(--text-on-brand)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={() => setView('create')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, border: '1px solid rgba(74,222,128,0.3)', borderRadius: 10, color: '#ffffff', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
           <Plus size={14} /> New Season
         </button>
       </div>
@@ -411,7 +411,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
               ✏️ Edit Items
             </button>
             {s.status === 'active' && (
-              <button onClick={() => closeSeason(s.id)} style={{ flex: 1, padding: '8px', borderRadius: 8, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', color: '#f87171', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => closeSeason(s.id)} style={{ flex: 1, padding: '8px', borderRadius: 8, background: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.35)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 🔒 Close Season
               </button>
             )}
