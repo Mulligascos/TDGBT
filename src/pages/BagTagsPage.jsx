@@ -271,12 +271,12 @@ export const BagTagsPage = ({ currentUser, players }) => {
         borderBottom: '1px solid rgba(251,191,36,0.15)',
         position: 'relative', overflow: 'hidden',
       }}>
-        <LogoWatermark size={110} opacity={0.07} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
+        <LogoWatermark size={110} opacity={0.15} src="/assets/TDG_LogoSmall.PNG" style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
             🏷️ Bag Tags
           </div>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 20 }}>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: '#ffffff', marginBottom: 20 }}>
             Tag Challenge
           </div>
 
@@ -286,7 +286,7 @@ export const BagTagsPage = ({ currentUser, players }) => {
               <button key={t.id} onClick={() => setTab(t.id)} style={{
                 flex: 1, padding: '10px 4px', background: 'none', border: 'none',
                 borderBottom: `2px solid ${tab === t.id ? '#fbbf24' : 'transparent'}`,
-                color: tab === t.id ? '#fbbf24' : 'var(--text-muted)',
+                color: tab === t.id ? '#fbbf24' : 'rgba(255,255,255,0.5)',
                 fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: tab === t.id ? 700 : 500,
                 cursor: 'pointer', transition: 'all 0.15s',
               }}>
