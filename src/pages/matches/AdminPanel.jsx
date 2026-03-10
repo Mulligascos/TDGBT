@@ -141,10 +141,10 @@ const Sel = ({ children, ...props }) => (
 
 const Btn = ({ children, onClick, disabled, variant = 'primary', small = false, fullWidth = false }) => {
   const styles = {
-    primary: { background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-primary)' },
+    primary: { background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, border: '1px solid rgba(74,222,128,0.3)', color: '#ffffff' },
     ghost: { background: 'var(--bg-card)', border: '1px solid var(--border-card)', color: 'var(--text-secondary)' },
     danger: { background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', color: '#f87171' },
-    warning: { background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24' },
+    warning: { background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)', color: 'var(--text-primary)' },
   };
   return (
     <button onClick={onClick} disabled={disabled} style={{
