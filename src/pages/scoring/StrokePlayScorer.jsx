@@ -901,7 +901,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
             }}>
               <Target size={14} color="#fbbf24" />
               <span style={{ flex: 1, textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#fbbf24' }}>
-                🎯 CTP Challenge active — tap to record your shot
+                🎯 Virtual CTP active — tap to record your shot
               </span>
             </button>
           )}
@@ -1038,7 +1038,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
                 <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                   🎯 {ctpForHole.name}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>Hole {ctpForHole.hole} · Closest to Pin</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>Hole {ctpForHole.hole} · Virtual CTP</div>
               </div>
               <button onClick={() => setCtpSheet(false)} style={{ background: 'var(--bg-input)', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', color: 'var(--text-secondary)' }}>
                 <X size={16} />
