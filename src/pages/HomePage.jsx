@@ -56,14 +56,14 @@ const SectionTitle = ({ children, action }) => (
 // ─── QUICK ACTION BUTTON ──────────────────────────────────────────────────────
 const QuickAction = ({ icon: Icon, label, onClick, accent = false }) => (
   <button onClick={onClick} style={{
-    background: accent ? `linear-gradient(135deg, ${BRAND.primary}60, ${BRAND.accent}40)` : 'var(--text-muted)',
-    border: `1px solid ${accent ? BRAND.light + '30' : 'var(--text-muted)'}`,
+    background: accent ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--bg-input)',
+    border: `1px solid ${accent ? 'rgba(74,222,128,0.3)' : 'var(--border-card)'}`,
     borderRadius: 12, padding: '10px 6px', cursor: 'pointer', textAlign: 'center',
     fontFamily: "'DM Sans', sans-serif", display: 'flex', flexDirection: 'column',
     alignItems: 'center', gap: 5, flex: 1,
   }}>
-    <Icon size={18} color={accent ? BRAND.light : 'var(--text-secondary)'} />
-    <div style={{ fontSize: 11, fontWeight: 600, color: accent ? 'white' : 'var(--text-secondary)', lineHeight: 1.2 }}>{label}</div>
+    <Icon size={18} color={accent ? '#ffffff' : 'var(--text-secondary)'} />
+    <div style={{ fontSize: 11, fontWeight: 600, color: accent ? '#ffffff' : 'var(--text-primary)', lineHeight: 1.2 }}>{label}</div>
   </button>
 );
 
@@ -314,7 +314,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
                     borderRadius: '50%', width: 18, height: 18,
                     fontSize: 10, fontWeight: 800,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    border: '2px solid #071407',
+                    border: '2px solid var(--bg-base)',
                   }}>
                     {pendingRequestsCount}
                   </span>

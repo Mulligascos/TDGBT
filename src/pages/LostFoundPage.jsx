@@ -25,8 +25,8 @@ const GlobalStyles = () => (
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
     * { box-sizing: border-box; }
     button:active { transform: scale(0.97); }
-    select option { background: #0d2b0d; }
-    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.25); }
+    select option { background: var(--bg-nav); }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
   `}</style>
 );
 
@@ -261,9 +261,9 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
             {DISC_COLOURS.map(c => (
               <button key={c} onClick={() => set('colour', c)} style={{
                 padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-                background: form.colour === c ? BRAND.primary : 'var(--text-muted)',
-                border: `1px solid ${form.colour === c ? 'rgba(74,222,128,0.4)' : 'var(--text-muted)'}`,
-                color: form.colour === c ? '#4ade80' : 'var(--text-secondary)', cursor: 'pointer',
+                background: form.colour === c ? BRAND.primary : 'var(--bg-input)',
+                border: `1px solid ${form.colour === c ? 'rgba(74,222,128,0.4)' : 'var(--border)'}`,
+                color: form.colour === c ? '#ffffff' : 'var(--text-secondary)', cursor: 'pointer',
                 fontFamily: "'DM Sans', sans-serif",
               }}>{c}</button>
             ))}
@@ -541,7 +541,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           <button onClick={() => setShowForm(true)} style={{
             flex: 1, padding: '10px 14px', borderRadius: 12,
             background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-            border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
+            border: '1px solid rgba(74,222,128,0.3)', color: '#ffffff',
             fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
           }}>
@@ -550,7 +550,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           <button onClick={() => setShowLostForm(true)} style={{
             flex: 1, padding: '10px 14px', borderRadius: 12,
             background: 'linear-gradient(135deg, #92400e, #b45309)',
-            border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
+            border: '1px solid rgba(251,191,36,0.3)', color: '#ffffff',
             fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
           }}>
@@ -568,9 +568,9 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           ].map(tab => (
             <button key={tab.id} onClick={() => setFilter(tab.id)} style={{
               padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
-              background: filter === tab.id ? BRAND.primary : 'var(--text-muted)',
-              border: `1px solid ${filter === tab.id ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
-              color: filter === tab.id ? '#4ade80' : 'var(--text-secondary)',
+              background: filter === tab.id ? BRAND.primary : 'var(--bg-input)',
+              border: `1px solid ${filter === tab.id ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+              color: filter === tab.id ? '#ffffff' : 'var(--text-secondary)',
               cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
             }}>{tab.label}</button>
           ))}

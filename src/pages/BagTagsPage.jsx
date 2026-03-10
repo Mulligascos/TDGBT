@@ -29,8 +29,8 @@ const LeaderboardTab = ({ players, currentUserId }) => {
           <div key={p.id} style={{
             display: 'flex', alignItems: 'center', gap: 14,
             padding: '14px 16px', marginBottom: 8,
-            background: isMe ? 'rgba(74,222,128,0.06)' : 'var(--text-muted)',
-            border: `1px solid ${isMe ? 'rgba(74,222,128,0.2)' : 'var(--text-muted)'}`,
+            background: isMe ? 'rgba(74,222,128,0.06)' : 'var(--bg-card)',
+            border: `1px solid ${isMe ? 'rgba(74,222,128,0.2)' : 'var(--border-card)'}`,
             borderRadius: 14,
           }}>
             {/* Rank */}
@@ -43,8 +43,8 @@ const LeaderboardTab = ({ players, currentUserId }) => {
               width: 46, height: 46, borderRadius: 12, flexShrink: 0,
               background: i === 0
                 ? 'linear-gradient(135deg, #92400e, #d97706)'
-                : 'var(--text-muted)',
-              border: `1px solid ${i === 0 ? 'rgba(251,191,36,0.5)' : 'var(--text-muted)'}`,
+                : 'var(--bg-subtle2)',
+              border: `1px solid ${i === 0 ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`,
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             }}>
               <Tag size={11} color={i === 0 ? '#fbbf24' : 'var(--text-secondary)'} />
@@ -107,8 +107,8 @@ const HistoryTab = ({ currentUserId }) => {
 
         return (
           <div key={c.id} style={{
-            background: myEntry ? 'rgba(74,222,128,0.04)' : 'var(--text-muted)',
-            border: `1px solid ${myEntry ? 'rgba(74,222,128,0.15)' : 'var(--text-muted)'}`,
+            background: myEntry ? 'rgba(74,222,128,0.04)' : 'var(--bg-card)',
+            border: `1px solid ${myEntry ? 'rgba(74,222,128,0.15)' : 'var(--border-card)'}`,
             borderRadius: 16, padding: '16px', marginBottom: 12,
           }}>
             {/* Challenge header */}
@@ -221,8 +221,8 @@ const MyTagTab = ({ currentUser }) => {
         return (
           <div key={entry.id} style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-            background: tagChanged ? (entry.won ? 'rgba(74,222,128,0.06)' : 'rgba(248,113,113,0.06)') : 'var(--text-muted)',
-            border: `1px solid ${tagChanged ? (entry.won ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)') : 'var(--text-muted)'}`,
+            background: tagChanged ? (entry.won ? 'rgba(74,222,128,0.06)' : 'rgba(248,113,113,0.06)') : 'var(--bg-card)',
+            border: `1px solid ${tagChanged ? (entry.won ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)') : 'var(--border-card)'}`,
             borderRadius: 14, marginBottom: 8,
           }}>
             <div style={{ fontSize: 20, width: 24, textAlign: 'center' }}>

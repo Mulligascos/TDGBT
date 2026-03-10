@@ -44,7 +44,7 @@ const Btn = ({ children, onClick, disabled, variant = 'primary', style }) => (
     background: variant === 'danger' ? 'rgba(248,113,113,0.15)' :
                 variant === 'ghost'  ? 'var(--bg-card)' : BRAND.primary,
     color: variant === 'danger' ? '#f87171' :
-           variant === 'ghost'  ? 'rgba(255,255,255,0.6)' : '#052e0f',
+           variant === 'ghost'  ? 'var(--text-secondary)' : '#ffffff',
     ...style,
   }}>{children}</button>
 );
@@ -83,8 +83,8 @@ const GpsButton = ({ label, onCapture, captured, hint }) => {
           background: captured ? 'rgba(74,222,128,0.2)' : 'var(--text-muted)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          {loading ? <div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> :
-           captured ? <Check size={18} color="#4ade80" /> : <MapPin size={18} color="rgba(255,255,255,0.5)" />}
+          {loading ? <div style={{ width: 18, height: 18, border: '2px solid var(--border-card)', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> :
+           captured ? <Check size={18} color="#4ade80" /> : <MapPin size={18} color="var(--text-muted)" />}
         </div>
         <div style={{ textAlign: 'left' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: captured ? '#4ade80' : 'white' }}>
@@ -472,7 +472,7 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
             <button onClick={() => setView('create')} style={{
               display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
               background: BRAND.primary, border: 'none', borderRadius: 12,
-              color: 'var(--text-on-brand)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
+              color: '#ffffff', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}>
               <Plus size={15} /> New
             </button>
@@ -486,9 +486,9 @@ export const CTPPage = ({ currentUser, isAdmin, courses }) => {
           {[['active', '🟢 Active'], ['closed', '🔒 Closed'], ['all', 'All']].map(([val, label]) => (
             <button key={val} onClick={() => setFilter(val)} style={{
               padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              background: filter === val ? BRAND.primary : 'var(--text-muted)',
-              border: `1px solid ${filter === val ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
-              color: filter === val ? '#4ade80' : 'var(--text-secondary)',
+              background: filter === val ? BRAND.primary : 'var(--bg-input)',
+              border: `1px solid ${filter === val ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+              color: filter === val ? '#ffffff' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif",
             }}>{label}</button>
           ))}

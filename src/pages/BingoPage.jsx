@@ -511,7 +511,7 @@ export const BingoPage = ({ currentUser, isAdmin, players }) => {
     <div style={{ minHeight: '100vh', background: 'var(--bg-page)', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90 }}>
 
       {toast && (
-        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: '#15803d', color: 'white', padding: '12px 20px', borderRadius: 14, fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', fontFamily: "'DM Sans', sans-serif" }}>
+        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, color: '#ffffff', padding: '12px 20px', borderRadius: 14, fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', fontFamily: "'DM Sans', sans-serif" }}>
           {toast}
         </div>
       )}
@@ -534,7 +534,7 @@ export const BingoPage = ({ currentUser, isAdmin, players }) => {
               padding: '7px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
               background: tab === val ? BRAND.primary : 'var(--bg-card)',
               border: `1px solid ${tab === val ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
-              color: tab === val ? 'var(--text-on-brand)' : 'var(--text-secondary)',
+              color: tab === val ? '#ffffff' : 'var(--text-secondary)',
               fontFamily: "'DM Sans', sans-serif",
             }}>{label}</button>
           ))}

@@ -190,7 +190,7 @@ const EditProfileView = ({ currentUser, onBack, onSaved }) => {
             ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
             : 'var(--text-muted)',
           border: isDirty ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
-          color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
+          color: isDirty ? '#ffffff' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
           cursor: isDirty ? 'pointer' : 'not-allowed',
           opacity: saving ? 0.6 : 1,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

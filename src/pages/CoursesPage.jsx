@@ -327,9 +327,9 @@ const HoleStats = ({ course, currentUser }) => {
         {[['club', '🏌️ Club'], ['mine', '👤 Mine']].map(([v, label]) => (
           <button key={v} onClick={() => setView(v)} style={{
             padding: '7px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-            background: view === v ? BRAND.primary : 'var(--text-muted)',
-            border: `1px solid ${view === v ? 'rgba(74,222,128,0.3)' : 'var(--text-muted)'}`,
-            color: view === v ? '#4ade80' : 'var(--text-secondary)',
+            background: view === v ? BRAND.primary : 'var(--bg-input)',
+            border: `1px solid ${view === v ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+            color: view === v ? '#ffffff' : 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif",
           }}>{label}</button>
         ))}
@@ -558,8 +558,8 @@ const CourseDetail = ({ course, currentUser, isAdmin, myRoundsCount, onBack }) =
             {!showHazardForm && (
               <button onClick={() => setShowHazardForm(true)} style={{
                 display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 8,
-                background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
-                color: '#fbbf24', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                background: 'rgba(251,191,36,0.18)', border: '1px solid rgba(251,191,36,0.4)',
+                color: 'var(--text-primary)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
                 fontFamily: "'DM Sans', sans-serif",
               }}>
                 <Plus size={13} /> Report
@@ -680,7 +680,7 @@ const CourseCard = ({ course, myRoundsCount, activeHazards, onClick }) => {
           )}
         </div>
       </div>
-      <ChevronRight size={18} color="rgba(255,255,255,0.2)" />
+      <ChevronRight size={18} color="var(--text-muted)" />
     </div>
   );
 };
