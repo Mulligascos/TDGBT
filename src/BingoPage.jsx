@@ -271,7 +271,7 @@ const Leaderboard = ({ seasonId, players }) => {
 
 // ─── SHARED FORM COMPONENTS ──────────────────────────────────────────────────
 const Inp = ({ style, ...props }) => (
-  <input style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none', boxSizing: 'border-box', ...style }} {...props} />
+  <input style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, outline: 'none', boxSizing: 'border-box', ...style }} {...props} />
 );
 const Label = ({ children }) => (
   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{children}</div>
@@ -331,7 +331,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
   if (view === 'create') return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <button onClick={() => setView('list')} style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => setView('list')} style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
           <ChevronLeft size={14} /> Back
         </button>
         <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>New Bingo Season</div>
@@ -345,7 +345,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>📋 Default items will be seeded</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>25 squares will be pre-filled with the default bingo items. You can edit individual squares after creating the season.</div>
       </div>
-      <button onClick={createSeason} disabled={saving} style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: BRAND.primary, color: 'var(--text-on-brand)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, cursor: saving ? 'wait' : 'pointer' }}>
+      <button onClick={createSeason} disabled={saving} style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: BRAND.primary, color: 'var(--text-on-brand)', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 800, cursor: saving ? 'wait' : 'pointer' }}>
         {saving ? 'Creating...' : '✓ Create Season'}
       </button>
     </div>
@@ -354,7 +354,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
   if (view === 'edit' && selected) return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <button onClick={() => setView('list')} style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => setView('list')} style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
           <ChevronLeft size={14} /> Back
         </button>
         <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>Edit: {selected.name}</div>
@@ -368,7 +368,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
               value={item.label}
               onChange={e => setItems(prev => prev.map(it => it.id === item.id ? { ...it, label: e.target.value } : it))}
               onBlur={e => updateItem(item, { label: e.target.value })}
-              style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, width: '100%', outline: 'none' }}
+              style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 600, width: '100%', outline: 'none' }}
             />
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
               {item.type === 'auto' ? `⚡ Auto · ${item.auto_key}` : '👆 Manual'}
@@ -380,7 +380,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
             value={item.icon}
             onChange={e => setItems(prev => prev.map(it => it.id === item.id ? { ...it, icon: e.target.value } : it))}
             onBlur={e => updateItem(item, { icon: e.target.value })}
-            style={{ width: 44, background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 8, textAlign: 'center', fontSize: 18, padding: '4px', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", outline: 'none' }}
+            style={{ width: 44, background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 8, textAlign: 'center', fontSize: 18, padding: '4px', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", outline: 'none' }}
           />
         </div>
       ))}
@@ -391,7 +391,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1 }}>Bingo Seasons</div>
-        <button onClick={() => setView('create')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: BRAND.primary, border: 'none', borderRadius: 10, color: 'var(--text-on-brand)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={() => setView('create')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: BRAND.primary, border: 'none', borderRadius: 10, color: 'var(--text-on-brand)', fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
           <Plus size={14} /> New Season
         </button>
       </div>
@@ -407,11 +407,11 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
             <span style={{ fontSize: 11, fontWeight: 700, color: s.status === 'active' ? '#4ade80' : 'var(--text-muted)', textTransform: 'uppercase' }}>{s.status === 'active' ? '🟢 Active' : '🔒 Closed'}</span>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => { setSelected(s); loadItems(s.id); setView('edit'); }} style={{ flex: 1, padding: '8px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            <button onClick={() => { setSelected(s); loadItems(s.id); setView('edit'); }} style={{ flex: 1, padding: '8px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               ✏️ Edit Items
             </button>
             {s.status === 'active' && (
-              <button onClick={() => closeSeason(s.id)} style={{ flex: 1, padding: '8px', borderRadius: 8, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', color: '#f87171', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => closeSeason(s.id)} style={{ flex: 1, padding: '8px', borderRadius: 8, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', color: '#f87171', fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 🔒 Close Season
               </button>
             )}
@@ -508,10 +508,10 @@ export const BingoPage = ({ currentUser, isAdmin, players }) => {
   const isDone = detailItem && completions.some(c => c.position === detailItem.position);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', paddingBottom: 90 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', fontFamily: "'Syne', sans-serif", color: 'var(--text-primary)', paddingBottom: 90 }}>
 
       {toast && (
-        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, color: '#ffffff', padding: '12px 20px', borderRadius: 14, fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', fontFamily: "'DM Sans', sans-serif" }}>
+        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`, color: '#ffffff', padding: '12px 20px', borderRadius: 14, fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', fontFamily: "'Syne', sans-serif" }}>
           {toast}
         </div>
       )}
@@ -535,7 +535,7 @@ export const BingoPage = ({ currentUser, isAdmin, players }) => {
               background: tab === val ? BRAND.primary : 'var(--bg-card)',
               border: `1px solid ${tab === val ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
               color: tab === val ? 'var(--text-on-brand)' : 'var(--text-secondary)',
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Syne', sans-serif",
             }}>{label}</button>
           ))}
         </div>
@@ -577,11 +577,11 @@ export const BingoPage = ({ currentUser, isAdmin, players }) => {
                 flex: 1, padding: '13px', borderRadius: 12, border: 'none', cursor: claiming ? 'wait' : 'pointer',
                 background: isDone ? 'rgba(248,113,113,0.1)' : BRAND.primary,
                 color: isDone ? '#f87171' : 'var(--text-on-brand)',
-                fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800,
+                fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 800,
               }}>
                 {claiming ? '...' : isDone ? '✗ Unclaim' : '✓ Claim Square'}
               </button>
-              <button onClick={() => setDetailItem(null)} style={{ padding: '13px 18px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, cursor: 'pointer' }}>
+              <button onClick={() => setDetailItem(null)} style={{ padding: '13px 18px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", fontSize: 14, cursor: 'pointer' }}>
                 Cancel
               </button>
             </div>
