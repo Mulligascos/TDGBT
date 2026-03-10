@@ -271,7 +271,7 @@ const Leaderboard = ({ seasonId, players }) => {
 
 // ─── SHARED FORM COMPONENTS ──────────────────────────────────────────────────
 const Inp = ({ style, ...props }) => (
-  <input style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none', boxSizing: 'border-box', ...style }} {...props} />
+  <input style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-card)', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, outline: 'none', boxSizing: 'border-box', ...style }} {...props} />
 );
 const Label = ({ children }) => (
   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{children}</div>
