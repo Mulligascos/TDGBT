@@ -65,66 +65,143 @@ const loadLeaflet = () => new Promise((resolve) => {
   document.head.appendChild(script);
 });
 
-const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
+const CTPMap = ({ pinLat, pinLng, discLat, discLng, onDiscPlace }) => {
   const mapRef = React.useRef(null);
   const instanceRef = React.useRef(null);
   const markersRef = React.useRef({});
+  const onDiscPlaceRef = React.useRef(onDiscPlace);
+  const touchStartRef = React.useRef(null);
+
+  useEffect(() => { onDiscPlaceRef.current = onDiscPlace; }, [onDiscPlace]);
+
+  const placeDiscAtPixel = (map, L, clientX, clientY) => {
+    if (!onDiscPlaceRef.current) return;
+    const rect = mapRef.current.getBoundingClientRect();
+    const latlng = map.containerPointToLatLng(L.point(clientX - rect.left, clientY - rect.top));
+    const discIcon = L.divIcon({
+      html: `<div style="width:28px;height:28px;background:#4ade80;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.5)">🥏</div>`,
+      className: '', iconAnchor: [14, 14],
+    });
+    if (markersRef.current.disc) {
+      markersRef.current.disc.setLatLng(latlng);
+    } else {
+      markersRef.current.disc = L.marker(latlng, { icon: discIcon, interactive: false }).addTo(map);
+    }
+    if (markersRef.current.line) map.removeLayer(markersRef.current.line);
+    markersRef.current.line = L.polyline([[pinLat, pinLng], [latlng.lat, latlng.lng]], {
+      color: '#4ade80', weight: 2, dashArray: '6,6', opacity: 0.7,
+    }).addTo(map);
+    onDiscPlaceRef.current(latlng.lat, latlng.lng);
+  };
 
   useEffect(() => {
-    let map;
     loadLeaflet().then(L => {
       if (!mapRef.current || instanceRef.current) return;
-      map = L.map(mapRef.current, { zoomControl: true, attributionControl: false });
+      const map = L.map(mapRef.current, { zoomControl: true, attributionControl: false, tap: false });
       instanceRef.current = map;
+
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 21, attribution: 'Tiles © Esri',
+        maxZoom: 21,
       }).addTo(map);
 
       const pinIcon = L.divIcon({
         html: `<div style="width:28px;height:28px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.4)">🎯</div>`,
         className: '', iconAnchor: [14, 14],
       });
-      markersRef.current.pin = L.marker([pinLat, pinLng], { icon: pinIcon }).addTo(map).bindPopup('📍 Pin / Basket');
+      markersRef.current.pin = L.marker([pinLat, pinLng], { icon: pinIcon, interactive: false }).addTo(map);
 
       if (discLat && discLng) {
         const discIcon = L.divIcon({
-          html: `<div style="width:24px;height:24px;background:#4ade80;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.4)">🥏</div>`,
-          className: '', iconAnchor: [12, 12],
+          html: `<div style="width:28px;height:28px;background:#4ade80;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.5)">🥏</div>`,
+          className: '', iconAnchor: [14, 14],
         });
-        markersRef.current.disc = L.marker([discLat, discLng], { icon: discIcon }).addTo(map).bindPopup('🥏 Your disc');
-        L.polyline([[pinLat, pinLng], [discLat, discLng]], { color: '#4ade80', weight: 2, dashArray: '6,6', opacity: 0.7 }).addTo(map);
-        map.fitBounds(L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]), { padding: [40, 40] });
+        markersRef.current.disc = L.marker([discLat, discLng], { icon: discIcon, interactive: false }).addTo(map);
+        markersRef.current.line = L.polyline([[pinLat, pinLng], [discLat, discLng]], { color: '#4ade80', weight: 2, dashArray: '6,6', opacity: 0.7 }).addTo(map);
+        map.fitBounds(L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]), { padding: [50, 50] });
       } else {
         map.setView([pinLat, pinLng], 19);
       }
+
+      // Native tap/click handling — same pattern as PinPickerMap
+      if (onDiscPlace) {
+        const el = mapRef.current;
+        let mouseDownPos = null;
+
+        const onTouchStart = (e) => {
+          if (e.touches.length === 1)
+            touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now() };
+        };
+        const onTouchEnd = (e) => {
+          if (!touchStartRef.current || e.changedTouches.length !== 1) return;
+          const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
+          const dy = e.changedTouches[0].clientY - touchStartRef.current.y;
+          const dt = Date.now() - touchStartRef.current.time;
+          touchStartRef.current = null;
+          if (dt < 300 && Math.sqrt(dx*dx + dy*dy) < 10) {
+            e.preventDefault();
+            placeDiscAtPixel(map, L, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+          }
+        };
+        const onMouseDown = (e) => { mouseDownPos = { x: e.clientX, y: e.clientY }; };
+        const onMouseUp = (e) => {
+          if (!mouseDownPos) return;
+          const dx = e.clientX - mouseDownPos.x;
+          const dy = e.clientY - mouseDownPos.y;
+          mouseDownPos = null;
+          if (Math.sqrt(dx*dx + dy*dy) < 8) placeDiscAtPixel(map, L, e.clientX, e.clientY);
+        };
+
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchend', onTouchEnd, { passive: false });
+        el.addEventListener('mousedown', onMouseDown);
+        el.addEventListener('mouseup', onMouseUp);
+        map._ctpMapCleanup = () => {
+          el.removeEventListener('touchstart', onTouchStart);
+          el.removeEventListener('touchend', onTouchEnd);
+          el.removeEventListener('mousedown', onMouseDown);
+          el.removeEventListener('mouseup', onMouseUp);
+        };
+      }
     });
-    return () => { if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; } };
+    return () => {
+      if (instanceRef.current) {
+        if (instanceRef.current._ctpMapCleanup) instanceRef.current._ctpMapCleanup();
+        instanceRef.current.remove();
+        instanceRef.current = null;
+      }
+    };
   }, []);
 
+  // Update disc marker when GPS position changes
   useEffect(() => {
     if (!instanceRef.current || !window.L) return;
     const L = window.L;
     if (discLat && discLng) {
+      const discIcon = L.divIcon({
+        html: `<div style="width:28px;height:28px;background:#4ade80;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.5)">🥏</div>`,
+        className: '', iconAnchor: [14, 14],
+      });
       if (markersRef.current.disc) {
         markersRef.current.disc.setLatLng([discLat, discLng]);
       } else {
-        const discIcon = L.divIcon({
-          html: `<div style="width:24px;height:24px;background:#4ade80;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.4)">🥏</div>`,
-          className: '', iconAnchor: [12, 12],
-        });
-        markersRef.current.disc = L.marker([discLat, discLng], { icon: discIcon }).addTo(instanceRef.current);
+        markersRef.current.disc = L.marker([discLat, discLng], { icon: discIcon, interactive: false }).addTo(instanceRef.current);
       }
       if (markersRef.current.line) instanceRef.current.removeLayer(markersRef.current.line);
       markersRef.current.line = L.polyline([[pinLat, pinLng], [discLat, discLng]], { color: '#4ade80', weight: 2, dashArray: '6,6', opacity: 0.7 }).addTo(instanceRef.current);
-      instanceRef.current.fitBounds(window.L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]), { padding: [40, 40] });
+      instanceRef.current.fitBounds(L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]), { padding: [50, 50] });
     }
   }, [discLat, discLng]);
 
   return (
     <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-card)', marginBottom: 14 }}>
-      <div ref={mapRef} style={{ height: 220, width: '100%' }} />
-      <div style={{ padding: '8px 12px', background: 'var(--bg-input)', display: 'flex', gap: 16, fontSize: 11, color: 'var(--text-muted)' }}>
-        <span>🎯 Pin / basket</span>
+      {onDiscPlace && (
+        <div style={{ padding: '7px 12px', background: 'rgba(74,222,128,0.08)', fontSize: 12, fontWeight: 600, color: '#4ade80', borderBottom: '1px solid rgba(74,222,128,0.15)' }}>
+          🥏 Tap the map to place your disc
+        </div>
+      )}
+      <div ref={mapRef} style={{ height: 240, width: '100%', cursor: onDiscPlace ? 'crosshair' : 'default' }} />
+      <div style={{ padding: '7px 12px', background: 'var(--bg-input)', display: 'flex', gap: 16, fontSize: 11, color: 'var(--text-muted)' }}>
+        <span>🎯 Basket</span>
         {discLat && <span>🥏 Your disc</span>}
         <span style={{ marginLeft: 'auto' }}>© Esri World Imagery</span>
       </div>
@@ -308,6 +385,12 @@ const DistanceCapture = ({ pinLat, pinLng, onCapture, captured, hint }) => {
     );
   };
 
+  const handleMapTap = (lat, lng) => {
+    const p = { lat, lng, acc: 0, manual: false };
+    setDiscPos(p);
+    onCapture({ lat, lng, acc: 0, manual: false });
+  };
+
   const submitManual = () => {
     const val = parseFloat(manualVal);
     if (!val || val <= 0) return;
@@ -351,14 +434,22 @@ const DistanceCapture = ({ pinLat, pinLng, onCapture, captured, hint }) => {
                 {gpsLoading ? 'Getting location...' : discPos ? '✓ Position captured' : "I'm standing at my disc"}
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                {discPos ? `±${Math.round(discPos.acc)}m accuracy · tap Submit to record` : 'Walk to your disc, then tap'}
+                {discPos ? `Position set · tap map to adjust` : 'Use GPS or tap the map below'}
               </div>
             </div>
           </button>
           {gpsError && <div style={{ fontSize: 12, color: '#f87171', marginBottom: 8, paddingLeft: 4 }}>⚠️ {gpsError}</div>}
-          {/* Map — show once pin position known */}
           {pinLat && pinLng && (
-            <CTPMap pinLat={pinLat} pinLng={pinLng} discLat={discPos?.lat} discLng={discPos?.lng} />
+            <CTPMap
+              pinLat={pinLat} pinLng={pinLng}
+              discLat={discPos?.lat} discLng={discPos?.lng}
+              onDiscPlace={handleMapTap}
+            />
+          )}
+          {discPos && (
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, paddingLeft: 2 }}>
+              {discPos.acc > 0 ? `📡 GPS ±${Math.round(discPos.acc)}m` : '📍 Map placement'} · tap Submit to record
+            </div>
           )}
         </>
       ) : (
