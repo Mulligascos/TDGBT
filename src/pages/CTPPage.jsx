@@ -77,11 +77,9 @@ const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
       map = L.map(mapRef.current, { zoomControl: true, attributionControl: false });
       instanceRef.current = map;
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 21,
-        attribution: 'Tiles © Esri',
+        maxZoom: 21, attribution: 'Tiles © Esri',
       }).addTo(map);
 
-      // Pin marker (basket)
       const pinIcon = L.divIcon({
         html: `<div style="width:28px;height:28px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.4)">🎯</div>`,
         className: '', iconAnchor: [14, 14],
@@ -95,8 +93,7 @@ const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
         });
         markersRef.current.disc = L.marker([discLat, discLng], { icon: discIcon }).addTo(map).bindPopup('🥏 Your disc');
         L.polyline([[pinLat, pinLng], [discLat, discLng]], { color: '#4ade80', weight: 2, dashArray: '6,6', opacity: 0.7 }).addTo(map);
-        const bounds = L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]);
-        map.fitBounds(bounds, { padding: [40, 40] });
+        map.fitBounds(L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]), { padding: [40, 40] });
       } else {
         map.setView([pinLat, pinLng], 19);
       }
@@ -104,7 +101,6 @@ const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
     return () => { if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; } };
   }, []);
 
-  // Update disc marker without re-mounting map
   useEffect(() => {
     if (!instanceRef.current || !window.L) return;
     const L = window.L;
@@ -120,8 +116,7 @@ const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
       }
       if (markersRef.current.line) instanceRef.current.removeLayer(markersRef.current.line);
       markersRef.current.line = L.polyline([[pinLat, pinLng], [discLat, discLng]], { color: '#4ade80', weight: 2, dashArray: '6,6', opacity: 0.7 }).addTo(instanceRef.current);
-      const bounds = L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]);
-      instanceRef.current.fitBounds(bounds, { padding: [40, 40] });
+      instanceRef.current.fitBounds(window.L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]), { padding: [40, 40] });
     }
   }, [discLat, discLng]);
 
@@ -136,6 +131,74 @@ const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
     </div>
   );
 };
+
+// ─── PIN PICKER MAP (admin — tap to place pin) ────────────────────────────────
+const PinPickerMap = ({ initialLat, initialLng, onPinSet }) => {
+  const mapRef = React.useRef(null);
+  const instanceRef = React.useRef(null);
+  const markerRef = React.useRef(null);
+  const [tapped, setTapped] = useState(!!initialLat);
+
+  useEffect(() => {
+    loadLeaflet().then(L => {
+      if (!mapRef.current || instanceRef.current) return;
+      const map = L.map(mapRef.current, { zoomControl: true, attributionControl: false });
+      instanceRef.current = map;
+
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 21, attribution: 'Tiles © Esri',
+      }).addTo(map);
+
+      const pinIcon = (confirmed) => L.divIcon({
+        html: `<div style="width:32px;height:32px;background:${confirmed ? '#fbbf24' : '#94a3b8'};border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 10px rgba(0,0,0,0.5);transition:background 0.2s">🎯</div>`,
+        className: '', iconAnchor: [16, 16],
+      });
+
+      if (initialLat && initialLng) {
+        map.setView([initialLat, initialLng], 20);
+        markerRef.current = L.marker([initialLat, initialLng], { icon: pinIcon(true), draggable: true }).addTo(map);
+        markerRef.current.on('dragend', () => {
+          const { lat, lng } = markerRef.current.getLatLng();
+          onPinSet(lat, lng);
+        });
+      } else {
+        map.setView([-44.4, 171.2], 13); // Default NZ view
+      }
+
+      // Tap to place / move pin
+      map.on('click', (e) => {
+        const { lat, lng } = e.latlng;
+        if (markerRef.current) {
+          markerRef.current.setLatLng([lat, lng]);
+          markerRef.current.setIcon(pinIcon(true));
+        } else {
+          markerRef.current = L.marker([lat, lng], { icon: pinIcon(true), draggable: true }).addTo(map);
+          markerRef.current.on('dragend', () => {
+            const p = markerRef.current.getLatLng();
+            onPinSet(p.lat, p.lng);
+          });
+        }
+        setTapped(true);
+        onPinSet(lat, lng);
+      });
+    });
+    return () => { if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; markerRef.current = null; } };
+  }, []);
+
+  return (
+    <div style={{ borderRadius: 12, overflow: 'hidden', border: `2px solid ${tapped ? 'rgba(251,191,36,0.5)' : 'var(--border-card)'}`, marginBottom: 8, transition: 'border-color 0.2s' }}>
+      <div style={{ background: tapped ? 'rgba(251,191,36,0.15)' : 'var(--bg-input)', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: tapped ? '#fbbf24' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
+        {tapped ? '🎯 Pin placed — drag to adjust' : '👆 Tap the map to place the basket pin'}
+      </div>
+      <div ref={mapRef} style={{ height: 280, width: '100%' }} />
+      <div style={{ padding: '6px 12px', background: 'var(--bg-input)', fontSize: 11, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
+        <span>Tap to place · drag to fine-tune</span>
+        <span>© Esri World Imagery</span>
+      </div>
+    </div>
+  );
+};
+
 
 // ─── DISTANCE CAPTURE (GPS + Manual) ─────────────────────────────────────────
 const DistanceCapture = ({ pinLat, pinLng, onCapture, captured, hint }) => {
@@ -328,8 +391,9 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Pin Position *</div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.5 }}>
-            📍 Stand at the basket and tap the button below to record the pin's GPS position.
+            Tap the satellite map to place the 🎯 basket pin, or use GPS to jump to your current location first.
           </div>
+          {/* GPS locate button */}
           <button onClick={() => {
             navigator.geolocation.getCurrentPosition(
               pos => setPinPos({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }),
@@ -337,25 +401,26 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
               { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
           }} style={{
-            width: '100%', padding: '14px', borderRadius: 14, cursor: 'pointer', marginBottom: 8,
-            background: pinPos ? 'rgba(74,222,128,0.1)' : 'var(--bg-input)',
-            border: `2px solid ${pinPos ? 'rgba(74,222,128,0.4)' : 'var(--border)'}`,
-            color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
-            display: 'flex', alignItems: 'center', gap: 12,
+            display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px',
+            borderRadius: 10, marginBottom: 10, cursor: 'pointer',
+            background: pinPos ? 'rgba(74,222,128,0.08)' : 'var(--bg-input)',
+            border: `1px solid ${pinPos ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+            color: pinPos ? '#4ade80' : 'var(--text-secondary)',
+            fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
           }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: pinPos ? 'rgba(74,222,128,0.2)' : 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {pinPos ? <Check size={18} color="#4ade80" /> : <MapPin size={18} color="var(--text-muted)" />}
-            </div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: pinPos ? '#4ade80' : 'var(--text-primary)' }}>
-                {pinPos ? '✓ Pin position captured' : 'Capture Pin Position'}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                {pinPos ? `${pinPos.lat.toFixed(6)}, ${pinPos.lng.toFixed(6)} · ±${Math.round(pinPos.acc)}m` : 'Stand at the basket, then tap'}
-              </div>
-            </div>
+            <MapPin size={14} />
+            {pinPos ? `📡 GPS located · ±${Math.round(pinPos.acc)}m — tap map to refine` : '📡 Use GPS to locate me on map'}
           </button>
-          {pinPos && <CTPMap pinLat={pinPos.lat} pinLng={pinPos.lng} />}
+          <PinPickerMap
+            initialLat={pinPos?.lat}
+            initialLng={pinPos?.lng}
+            onPinSet={(lat, lng) => setPinPos(p => ({ ...p, lat, lng, acc: 0 }))}
+          />
+          {pinPos && (
+            <div style={{ fontSize: 11, color: '#4ade80', padding: '4px 8px', marginBottom: 8 }}>
+              ✓ Pin set: {pinPos.lat.toFixed(6)}, {pinPos.lng.toFixed(6)}
+            </div>
+          )}
         </div>
 
         {error && <div style={{ color: '#f87171', fontSize: 13, marginBottom: 12 }}>⚠️ {error}</div>}
