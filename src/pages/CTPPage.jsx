@@ -76,8 +76,9 @@ const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
       if (!mapRef.current || instanceRef.current) return;
       map = L.map(mapRef.current, { zoomControl: true, attributionControl: false });
       instanceRef.current = map;
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 21,
+        attribution: 'Tiles © Esri',
       }).addTo(map);
 
       // Pin marker (basket)
@@ -130,7 +131,7 @@ const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
       <div style={{ padding: '8px 12px', background: 'var(--bg-input)', display: 'flex', gap: 16, fontSize: 11, color: 'var(--text-muted)' }}>
         <span>🎯 Pin / basket</span>
         {discLat && <span>🥏 Your disc</span>}
-        <span style={{ marginLeft: 'auto' }}>© OpenStreetMap</span>
+        <span style={{ marginLeft: 'auto' }}>© Esri World Imagery</span>
       </div>
     </div>
   );
