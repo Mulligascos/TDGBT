@@ -137,68 +137,96 @@ const PinPickerMap = ({ initialLat, initialLng, onPinSet }) => {
   const mapRef = React.useRef(null);
   const instanceRef = React.useRef(null);
   const markerRef = React.useRef(null);
+  const onPinSetRef = React.useRef(onPinSet);
   const [tapped, setTapped] = useState(!!initialLat);
+  const [coords, setCoords] = useState(initialLat ? { lat: initialLat, lng: initialLng } : null);
+
+  // Keep callback ref fresh without re-running effect
+  useEffect(() => { onPinSetRef.current = onPinSet; }, [onPinSet]);
 
   useEffect(() => {
     loadLeaflet().then(L => {
       if (!mapRef.current || instanceRef.current) return;
-      const map = L.map(mapRef.current, { zoomControl: true, attributionControl: false });
+
+      const map = L.map(mapRef.current, {
+        zoomControl: true,
+        attributionControl: false,
+        tap: true,          // enable Leaflet tap handler for mobile
+        tapTolerance: 15,   // pixels of movement still counts as tap
+      });
       instanceRef.current = map;
 
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 21, attribution: 'Tiles © Esri',
       }).addTo(map);
 
-      const pinIcon = (confirmed) => L.divIcon({
-        html: `<div style="width:32px;height:32px;background:${confirmed ? '#fbbf24' : '#94a3b8'};border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 10px rgba(0,0,0,0.5);transition:background 0.2s">🎯</div>`,
-        className: '', iconAnchor: [16, 16],
+      const makePinIcon = () => L.divIcon({
+        html: `<div style="width:36px;height:36px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,0.6)">🎯</div>`,
+        className: '', iconAnchor: [18, 18],
       });
+
+      const placePin = (lat, lng) => {
+        if (markerRef.current) {
+          markerRef.current.setLatLng([lat, lng]);
+        } else {
+          markerRef.current = L.marker([lat, lng], { icon: makePinIcon() }).addTo(map);
+        }
+        setTapped(true);
+        setCoords({ lat, lng });
+        onPinSetRef.current(lat, lng);
+      };
 
       if (initialLat && initialLng) {
         map.setView([initialLat, initialLng], 20);
-        markerRef.current = L.marker([initialLat, initialLng], { icon: pinIcon(true), draggable: true }).addTo(map);
-        markerRef.current.on('dragend', () => {
-          const { lat, lng } = markerRef.current.getLatLng();
-          onPinSet(lat, lng);
-        });
+        placePin(initialLat, initialLng);
       } else {
-        map.setView([-44.4, 171.2], 13); // Default NZ view
+        map.setView([-44.4, 171.2], 13);
       }
 
-      // Tap to place / move pin
+      // Works on both desktop (click) and mobile (tap via Leaflet tap handler)
       map.on('click', (e) => {
-        const { lat, lng } = e.latlng;
-        if (markerRef.current) {
-          markerRef.current.setLatLng([lat, lng]);
-          markerRef.current.setIcon(pinIcon(true));
-        } else {
-          markerRef.current = L.marker([lat, lng], { icon: pinIcon(true), draggable: true }).addTo(map);
-          markerRef.current.on('dragend', () => {
-            const p = markerRef.current.getLatLng();
-            onPinSet(p.lat, p.lng);
-          });
-        }
-        setTapped(true);
-        onPinSet(lat, lng);
+        placePin(e.latlng.lat, e.latlng.lng);
       });
     });
-    return () => { if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; markerRef.current = null; } };
+    return () => {
+      if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; markerRef.current = null; }
+    };
   }, []);
+
+  // When GPS locates and updates initialLat/initialLng, fly map to new position
+  const prevLatRef = React.useRef(initialLat);
+  useEffect(() => {
+    if (!instanceRef.current || !initialLat || initialLat === prevLatRef.current) return;
+    prevLatRef.current = initialLat;
+    instanceRef.current.setView([initialLat, initialLng], 20);
+    if (markerRef.current) {
+      markerRef.current.setLatLng([initialLat, initialLng]);
+    } else if (window.L) {
+      const L = window.L;
+      const icon = L.divIcon({
+        html: `<div style="width:36px;height:36px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,0.6)">🎯</div>`,
+        className: '', iconAnchor: [18, 18],
+      });
+      markerRef.current = L.marker([initialLat, initialLng], { icon }).addTo(instanceRef.current);
+    }
+    setTapped(true);
+    setCoords({ lat: initialLat, lng: initialLng });
+  }, [initialLat, initialLng]);
 
   return (
     <div style={{ borderRadius: 12, overflow: 'hidden', border: `2px solid ${tapped ? 'rgba(251,191,36,0.5)' : 'var(--border-card)'}`, marginBottom: 8, transition: 'border-color 0.2s' }}>
-      <div style={{ background: tapped ? 'rgba(251,191,36,0.15)' : 'var(--bg-input)', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: tapped ? '#fbbf24' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
-        {tapped ? '🎯 Pin placed — drag to adjust' : '👆 Tap the map to place the basket pin'}
+      <div style={{ background: tapped ? 'rgba(251,191,36,0.15)' : 'var(--bg-input)', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: tapped ? '#fbbf24' : 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span>{tapped ? '🎯 Pin placed — tap to move' : '👆 Tap the map to place the basket pin'}</span>
+        {coords && <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>{coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</span>}
       </div>
       <div ref={mapRef} style={{ height: 280, width: '100%' }} />
       <div style={{ padding: '6px 12px', background: 'var(--bg-input)', fontSize: 11, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-        <span>Tap to place · drag to fine-tune</span>
+        <span>Tap anywhere to place / move pin</span>
         <span>© Esri World Imagery</span>
       </div>
     </div>
   );
 };
-
 
 // ─── DISTANCE CAPTURE (GPS + Manual) ─────────────────────────────────────────
 const DistanceCapture = ({ pinLat, pinLng, onCapture, captured, hint }) => {
