@@ -533,7 +533,7 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
         </div>
       </div>
 
-      <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px' }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px 120px' }}>
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Challenge Name *</div>
           <Inp value={name} onChange={e => setName(e.target.value)} placeholder="e.g. October Virtual CTP — Hole 7" />
