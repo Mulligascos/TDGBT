@@ -8,9 +8,9 @@ const PRECACHE_URLS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/apple-touch-icon.png',
+  '/assets/icon-192.png',
+  '/assets/icon-512.png',
+  '/assets/apple-touch-icon.png',
 ];
 
 // Install — pre-cache shell
@@ -38,6 +38,9 @@ self.addEventListener('activate', (event) => {
 // Fetch — network-first for Supabase API, cache-first for everything else
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+
+  // Only handle http/https — ignore chrome-extension, data, blob etc.
+  if (!url.protocol.startsWith('http')) return;
 
   // Always go to network for Supabase, Esri tiles, Leaflet CDN
   const networkOnly = [
