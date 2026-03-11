@@ -463,22 +463,23 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
   const handleSubmit = async () => {
     if (!capture) return;
     setSubmitting(true);
-    let distance, disc_lat, disc_lng;
-    if (capture.manual) {
-      distance = capture.distance_m;
-      disc_lat = null; disc_lng = null;
-    } else {
-      distance = haversineDistance(challenge.pin_lat, challenge.pin_lng, capture.lat, capture.lng);
-      disc_lat = capture.lat; disc_lng = capture.lng;
-    }
-    const { error } = await supabase.from('ctp_entries').upsert({
+    let distance;
+    const row = {
       challenge_id: challenge.id,
       player_id: currentUser.id,
       player_name: currentUser.name,
-      disc_lat, disc_lng,
-      distance_m: distance,
+      distance_m: 0,
       submitted_at: new Date().toISOString(),
-    }, { onConflict: 'challenge_id,player_id' });
+    };
+    if (capture.manual) {
+      distance = capture.distance_m;
+    } else {
+      distance = haversineDistance(challenge.pin_lat, challenge.pin_lng, capture.lat, capture.lng);
+      row.disc_lat = capture.lat;
+      row.disc_lng = capture.lng;
+    }
+    row.distance_m = distance;
+    const { error } = await supabase.from('ctp_entries').upsert(row, { onConflict: 'challenge_id,player_id' });
     setSubmitting(false);
     if (!error) {
       showToast(`📍 Recorded! Your distance: ${formatDistance(distance)}`);
