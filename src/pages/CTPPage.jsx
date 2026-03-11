@@ -138,76 +138,130 @@ const PinPickerMap = ({ initialLat, initialLng, onPinSet }) => {
   const instanceRef = React.useRef(null);
   const markerRef = React.useRef(null);
   const onPinSetRef = React.useRef(onPinSet);
+  const touchStartRef = React.useRef(null);
   const [tapped, setTapped] = useState(!!initialLat);
   const [coords, setCoords] = useState(initialLat ? { lat: initialLat, lng: initialLng } : null);
 
-  // Keep callback ref fresh without re-running effect
   useEffect(() => { onPinSetRef.current = onPinSet; }, [onPinSet]);
+
+  const placePinAtPixel = (map, L, x, y) => {
+    const rect = mapRef.current.getBoundingClientRect();
+    const point = L.point(x - rect.left, y - rect.top);
+    const latlng = map.containerPointToLatLng(point);
+    if (markerRef.current) {
+      markerRef.current.setLatLng(latlng);
+    } else {
+      const icon = L.divIcon({
+        html: `<div style="width:36px;height:36px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 12px rgba(0,0,0,0.6)">🎯</div>`,
+        className: '', iconAnchor: [18, 18],
+      });
+      markerRef.current = L.marker(latlng, { icon, interactive: false }).addTo(map);
+    }
+    setTapped(true);
+    setCoords({ lat: latlng.lat, lng: latlng.lng });
+    onPinSetRef.current(latlng.lat, latlng.lng);
+  };
 
   useEffect(() => {
     loadLeaflet().then(L => {
       if (!mapRef.current || instanceRef.current) return;
 
       const map = L.map(mapRef.current, {
-        zoomControl: true,
-        attributionControl: false,
-        tap: true,          // enable Leaflet tap handler for mobile
-        tapTolerance: 15,   // pixels of movement still counts as tap
+        zoomControl: true, attributionControl: false,
+        tap: false, // disable Leaflet's own tap — we handle it ourselves
       });
       instanceRef.current = map;
 
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 21, attribution: 'Tiles © Esri',
+        maxZoom: 21,
       }).addTo(map);
-
-      const makePinIcon = () => L.divIcon({
-        html: `<div style="width:36px;height:36px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,0.6)">🎯</div>`,
-        className: '', iconAnchor: [18, 18],
-      });
-
-      const placePin = (lat, lng) => {
-        if (markerRef.current) {
-          markerRef.current.setLatLng([lat, lng]);
-        } else {
-          markerRef.current = L.marker([lat, lng], { icon: makePinIcon() }).addTo(map);
-        }
-        setTapped(true);
-        setCoords({ lat, lng });
-        onPinSetRef.current(lat, lng);
-      };
 
       if (initialLat && initialLng) {
         map.setView([initialLat, initialLng], 20);
-        placePin(initialLat, initialLng);
+        placePinAtPixel; // just set marker directly
+        const icon = L.divIcon({
+          html: `<div style="width:36px;height:36px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 12px rgba(0,0,0,0.6)">🎯</div>`,
+          className: '', iconAnchor: [18, 18],
+        });
+        markerRef.current = L.marker([initialLat, initialLng], { icon, interactive: false }).addTo(map);
       } else {
         map.setView([-44.4, 171.2], 13);
       }
 
-      // Works on both desktop (click) and mobile (tap via Leaflet tap handler)
-      map.on('click', (e) => {
-        placePin(e.latlng.lat, e.latlng.lng);
-      });
+      const el = mapRef.current;
+
+      // Track touch start position to distinguish tap from pan
+      const onTouchStart = (e) => {
+        if (e.touches.length === 1) {
+          touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now() };
+        }
+      };
+
+      const onTouchEnd = (e) => {
+        if (!touchStartRef.current || e.changedTouches.length !== 1) return;
+        const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
+        const dy = e.changedTouches[0].clientY - touchStartRef.current.y;
+        const dt = Date.now() - touchStartRef.current.time;
+        const moved = Math.sqrt(dx * dx + dy * dy);
+        touchStartRef.current = null;
+        // Only treat as tap if: short duration, minimal movement
+        if (dt < 300 && moved < 10) {
+          e.preventDefault();
+          placePinAtPixel(map, L, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }
+      };
+
+      // Desktop click — check it's not a drag
+      let mouseDownPos = null;
+      const onMouseDown = (e) => { mouseDownPos = { x: e.clientX, y: e.clientY }; };
+      const onMouseUp = (e) => {
+        if (!mouseDownPos) return;
+        const dx = e.clientX - mouseDownPos.x;
+        const dy = e.clientY - mouseDownPos.y;
+        mouseDownPos = null;
+        if (Math.sqrt(dx * dx + dy * dy) < 8) {
+          placePinAtPixel(map, L, e.clientX, e.clientY);
+        }
+      };
+
+      el.addEventListener('touchstart', onTouchStart, { passive: true });
+      el.addEventListener('touchend', onTouchEnd, { passive: false });
+      el.addEventListener('mousedown', onMouseDown);
+      el.addEventListener('mouseup', onMouseUp);
+
+      map._pinPickerCleanup = () => {
+        el.removeEventListener('touchstart', onTouchStart);
+        el.removeEventListener('touchend', onTouchEnd);
+        el.removeEventListener('mousedown', onMouseDown);
+        el.removeEventListener('mouseup', onMouseUp);
+      };
     });
+
     return () => {
-      if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; markerRef.current = null; }
+      if (instanceRef.current) {
+        if (instanceRef.current._pinPickerCleanup) instanceRef.current._pinPickerCleanup();
+        instanceRef.current.remove();
+        instanceRef.current = null;
+        markerRef.current = null;
+      }
     };
   }, []);
 
-  // When GPS locates and updates initialLat/initialLng, fly map to new position
+  // Fly to GPS position when it arrives
   const prevLatRef = React.useRef(initialLat);
   useEffect(() => {
-    if (!instanceRef.current || !initialLat || initialLat === prevLatRef.current) return;
+    if (!instanceRef.current || !window.L || !initialLat || initialLat === prevLatRef.current) return;
     prevLatRef.current = initialLat;
+    const L = window.L;
     instanceRef.current.setView([initialLat, initialLng], 20);
     if (markerRef.current) {
       markerRef.current.setLatLng([initialLat, initialLng]);
-    } else if (window.L) {
-      const L = window.L;
+    } else {
       const icon = L.divIcon({
-        html: `<div style="width:36px;height:36px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,0.6)">🎯</div>`,
+        html: `<div style="width:36px;height:36px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 12px rgba(0,0,0,0.6)">🎯</div>`,
         className: '', iconAnchor: [18, 18],
       });
-      markerRef.current = L.marker([initialLat, initialLng], { icon }).addTo(instanceRef.current);
+      markerRef.current = L.marker([initialLat, initialLng], { icon, interactive: false }).addTo(instanceRef.current);
     }
     setTapped(true);
     setCoords({ lat: initialLat, lng: initialLng });
@@ -219,9 +273,9 @@ const PinPickerMap = ({ initialLat, initialLng, onPinSet }) => {
         <span>{tapped ? '🎯 Pin placed — tap to move' : '👆 Tap the map to place the basket pin'}</span>
         {coords && <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>{coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</span>}
       </div>
-      <div ref={mapRef} style={{ height: 280, width: '100%' }} />
+      <div ref={mapRef} style={{ height: 280, width: '100%', cursor: 'crosshair' }} />
       <div style={{ padding: '6px 12px', background: 'var(--bg-input)', fontSize: 11, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-        <span>Tap anywhere to place / move pin</span>
+        <span>Tap to place · tap again to move</span>
         <span>© Esri World Imagery</span>
       </div>
     </div>
