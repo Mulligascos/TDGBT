@@ -49,58 +49,206 @@ const Btn = ({ children, onClick, disabled, variant = 'primary', style }) => (
   }}>{children}</button>
 );
 
-// ─── GPS CAPTURE BUTTON ───────────────────────────────────────────────────────
-const GpsButton = ({ label, onCapture, captured, hint }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+// ─── LEAFLET MAP ──────────────────────────────────────────────────────────────
+// Loads Leaflet from CDN on first use — no API key required (OpenStreetMap tiles)
+let leafletLoaded = false;
+const loadLeaflet = () => new Promise((resolve) => {
+  if (window.L) { resolve(window.L); return; }
+  if (leafletLoaded) { const t = setInterval(() => { if (window.L) { clearInterval(t); resolve(window.L); } }, 100); return; }
+  leafletLoaded = true;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet'; link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  document.head.appendChild(link);
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  script.onload = () => resolve(window.L);
+  document.head.appendChild(script);
+});
 
-  const capture = () => {
-    setLoading(true); setError('');
+const CTPMap = ({ pinLat, pinLng, discLat, discLng }) => {
+  const mapRef = React.useRef(null);
+  const instanceRef = React.useRef(null);
+  const markersRef = React.useRef({});
+
+  useEffect(() => {
+    let map;
+    loadLeaflet().then(L => {
+      if (!mapRef.current || instanceRef.current) return;
+      map = L.map(mapRef.current, { zoomControl: true, attributionControl: false });
+      instanceRef.current = map;
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 21,
+      }).addTo(map);
+
+      // Pin marker (basket)
+      const pinIcon = L.divIcon({
+        html: `<div style="width:28px;height:28px;background:#fbbf24;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.4)">🎯</div>`,
+        className: '', iconAnchor: [14, 14],
+      });
+      markersRef.current.pin = L.marker([pinLat, pinLng], { icon: pinIcon }).addTo(map).bindPopup('📍 Pin / Basket');
+
+      if (discLat && discLng) {
+        const discIcon = L.divIcon({
+          html: `<div style="width:24px;height:24px;background:#4ade80;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.4)">🥏</div>`,
+          className: '', iconAnchor: [12, 12],
+        });
+        markersRef.current.disc = L.marker([discLat, discLng], { icon: discIcon }).addTo(map).bindPopup('🥏 Your disc');
+        L.polyline([[pinLat, pinLng], [discLat, discLng]], { color: '#4ade80', weight: 2, dashArray: '6,6', opacity: 0.7 }).addTo(map);
+        const bounds = L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]);
+        map.fitBounds(bounds, { padding: [40, 40] });
+      } else {
+        map.setView([pinLat, pinLng], 19);
+      }
+    });
+    return () => { if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; } };
+  }, []);
+
+  // Update disc marker without re-mounting map
+  useEffect(() => {
+    if (!instanceRef.current || !window.L) return;
+    const L = window.L;
+    if (discLat && discLng) {
+      if (markersRef.current.disc) {
+        markersRef.current.disc.setLatLng([discLat, discLng]);
+      } else {
+        const discIcon = L.divIcon({
+          html: `<div style="width:24px;height:24px;background:#4ade80;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.4)">🥏</div>`,
+          className: '', iconAnchor: [12, 12],
+        });
+        markersRef.current.disc = L.marker([discLat, discLng], { icon: discIcon }).addTo(instanceRef.current);
+      }
+      if (markersRef.current.line) instanceRef.current.removeLayer(markersRef.current.line);
+      markersRef.current.line = L.polyline([[pinLat, pinLng], [discLat, discLng]], { color: '#4ade80', weight: 2, dashArray: '6,6', opacity: 0.7 }).addTo(instanceRef.current);
+      const bounds = L.latLngBounds([[pinLat, pinLng], [discLat, discLng]]);
+      instanceRef.current.fitBounds(bounds, { padding: [40, 40] });
+    }
+  }, [discLat, discLng]);
+
+  return (
+    <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-card)', marginBottom: 14 }}>
+      <div ref={mapRef} style={{ height: 220, width: '100%' }} />
+      <div style={{ padding: '8px 12px', background: 'var(--bg-input)', display: 'flex', gap: 16, fontSize: 11, color: 'var(--text-muted)' }}>
+        <span>🎯 Pin / basket</span>
+        {discLat && <span>🥏 Your disc</span>}
+        <span style={{ marginLeft: 'auto' }}>© OpenStreetMap</span>
+      </div>
+    </div>
+  );
+};
+
+// ─── DISTANCE CAPTURE (GPS + Manual) ─────────────────────────────────────────
+const DistanceCapture = ({ pinLat, pinLng, onCapture, captured, hint }) => {
+  const [mode, setMode] = useState('gps'); // 'gps' | 'manual'
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState('');
+  const [manualVal, setManualVal] = useState('');
+  const [manualUnit, setManualUnit] = useState('m'); // 'm' | 'ft'
+  const [discPos, setDiscPos] = useState(null); // {lat, lng, acc} — GPS only
+
+  const captureGps = () => {
+    setGpsLoading(true); setGpsError('');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setLoading(false);
-        onCapture(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
+        setGpsLoading(false);
+        const p = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy };
+        setDiscPos(p);
+        onCapture({ lat: p.lat, lng: p.lng, acc: p.acc, manual: false });
       },
       (err) => {
-        setLoading(false);
-        setError(err.code === 1 ? 'Location permission denied' : 'Could not get location — try outside');
+        setGpsLoading(false);
+        setGpsError(err.code === 1 ? 'Location permission denied' : 'Could not get location — try outside');
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
+  const submitManual = () => {
+    const val = parseFloat(manualVal);
+    if (!val || val <= 0) return;
+    const metres = manualUnit === 'ft' ? val * 0.3048 : val;
+    onCapture({ manual: true, distance_m: metres });
+  };
+
+  const modeBtn = (id, label) => (
+    <button onClick={() => { setMode(id); onCapture(null); setDiscPos(null); setManualVal(''); }} style={{
+      flex: 1, padding: '8px', borderRadius: 8, cursor: 'pointer',
+      background: mode === id ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--bg-input)',
+      border: `1px solid ${mode === id ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+      color: mode === id ? '#ffffff' : 'var(--text-secondary)',
+      fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700,
+    }}>{label}</button>
+  );
+
   return (
-    <div style={{ marginBottom: 14 }}>
-      <button onClick={capture} disabled={loading} style={{
-        width: '100%', padding: '14px', borderRadius: 14, cursor: loading ? 'wait' : 'pointer',
-        background: captured ? 'rgba(74,222,128,0.1)' : 'var(--text-muted)',
-        border: `2px solid ${captured ? 'rgba(74,222,128,0.4)' : 'var(--text-muted)'}`,
-        color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
-        display: 'flex', alignItems: 'center', gap: 12,
-      }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-          background: captured ? 'rgba(74,222,128,0.2)' : 'var(--text-muted)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          {loading ? <div style={{ width: 18, height: 18, border: '2px solid var(--border-card)', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> :
-           captured ? <Check size={18} color="#4ade80" /> : <MapPin size={18} color="var(--text-muted)" />}
-        </div>
-        <div style={{ textAlign: 'left' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: captured ? '#4ade80' : 'white' }}>
-            {loading ? 'Getting location...' : captured ? `✓ ${label} captured` : label}
-          </div>
-          {captured ? (
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{hint}</div>
-          ) : (
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>Tap to capture your GPS position</div>
+    <div>
+      {/* Mode toggle */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        {modeBtn('gps', '📡 GPS')}
+        {modeBtn('manual', '✏️ Manual')}
+      </div>
+
+      {mode === 'gps' ? (
+        <>
+          <button onClick={captureGps} disabled={gpsLoading} style={{
+            width: '100%', padding: '14px', borderRadius: 14, cursor: gpsLoading ? 'wait' : 'pointer',
+            background: discPos ? 'rgba(74,222,128,0.1)' : 'var(--bg-input)',
+            border: `2px solid ${discPos ? 'rgba(74,222,128,0.4)' : 'var(--border)'}`,
+            color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
+            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8,
+          }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: discPos ? 'rgba(74,222,128,0.2)' : 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {gpsLoading ? <div style={{ width: 18, height: 18, border: '2px solid var(--border-card)', borderTopColor: BRAND.light, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> :
+               discPos ? <Check size={18} color="#4ade80" /> : <MapPin size={18} color="var(--text-muted)" />}
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: discPos ? '#4ade80' : 'var(--text-primary)' }}>
+                {gpsLoading ? 'Getting location...' : discPos ? '✓ Position captured' : "I'm standing at my disc"}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                {discPos ? `±${Math.round(discPos.acc)}m accuracy · tap Submit to record` : 'Walk to your disc, then tap'}
+              </div>
+            </div>
+          </button>
+          {gpsError && <div style={{ fontSize: 12, color: '#f87171', marginBottom: 8, paddingLeft: 4 }}>⚠️ {gpsError}</div>}
+          {/* Map — show once pin position known */}
+          {pinLat && pinLng && (
+            <CTPMap pinLat={pinLat} pinLng={pinLng} discLat={discPos?.lat} discLng={discPos?.lng} />
           )}
-        </div>
-      </button>
-      {error && <div style={{ fontSize: 12, color: '#f87171', marginTop: 6, paddingLeft: 4 }}>⚠️ {error}</div>}
+        </>
+      ) : (
+        <>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.5 }}>
+            Measure the distance from your disc to the basket and enter it below.
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <Inp
+              type="number" min="0" step="0.1"
+              value={manualVal} onChange={e => { setManualVal(e.target.value); onCapture(null); }}
+              placeholder={`Distance in ${manualUnit}`}
+              style={{ flex: 1 }}
+            />
+            <div style={{ display: 'flex', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-card)', flexShrink: 0 }}>
+              {['m', 'ft'].map(u => (
+                <button key={u} onClick={() => setManualUnit(u)} style={{
+                  padding: '0 14px', background: manualUnit === u ? BRAND.primary : 'var(--bg-input)',
+                  border: 'none', color: manualUnit === u ? '#ffffff' : 'var(--text-secondary)',
+                  fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                }}>{u}</button>
+              ))}
+            </div>
+          </div>
+          {manualVal && parseFloat(manualVal) > 0 && (
+            <Btn onClick={submitManual} style={{ width: '100%', marginBottom: 4 }}>
+              <Check size={15} /> Confirm {parseFloat(manualVal)}{manualUnit}
+              {manualUnit === 'ft' ? ` (${(parseFloat(manualVal) * 0.3048).toFixed(1)}m)` : ''}
+            </Btn>
+          )}
+        </>
+      )}
     </div>
   );
 };
+
 
 // ─── CREATE CHALLENGE (Admin) ─────────────────────────────────────────────────
 const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
@@ -181,12 +329,32 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.5 }}>
             📍 Stand at the basket and tap the button below to record the pin's GPS position.
           </div>
-          <GpsButton
-            label="Capture Pin Position"
-            onCapture={(lat, lng, acc) => setPinPos({ lat, lng, acc })}
-            captured={!!pinPos}
-            hint={pinPos ? `${pinPos.lat.toFixed(6)}, ${pinPos.lng.toFixed(6)} · ±${Math.round(pinPos.acc)}m accuracy` : ''}
-          />
+          <button onClick={() => {
+            navigator.geolocation.getCurrentPosition(
+              pos => setPinPos({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }),
+              () => setError('Could not get location'),
+              { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+          }} style={{
+            width: '100%', padding: '14px', borderRadius: 14, cursor: 'pointer', marginBottom: 8,
+            background: pinPos ? 'rgba(74,222,128,0.1)' : 'var(--bg-input)',
+            border: `2px solid ${pinPos ? 'rgba(74,222,128,0.4)' : 'var(--border)'}`,
+            color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif",
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: pinPos ? 'rgba(74,222,128,0.2)' : 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {pinPos ? <Check size={18} color="#4ade80" /> : <MapPin size={18} color="var(--text-muted)" />}
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: pinPos ? '#4ade80' : 'var(--text-primary)' }}>
+                {pinPos ? '✓ Pin position captured' : 'Capture Pin Position'}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                {pinPos ? `${pinPos.lat.toFixed(6)}, ${pinPos.lng.toFixed(6)} · ±${Math.round(pinPos.acc)}m` : 'Stand at the basket, then tap'}
+              </div>
+            </div>
+          </button>
+          {pinPos && <CTPMap pinLat={pinPos.lat} pinLng={pinPos.lng} />}
         </div>
 
         {error && <div style={{ color: '#f87171', fontSize: 13, marginBottom: 12 }}>⚠️ {error}</div>}
@@ -203,7 +371,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [myEntry, setMyEntry] = useState(null);
-  const [discPos, setDiscPos] = useState(null);
+  const [capture, setCapture] = useState(null); // {lat,lng,acc,manual:false} | {manual:true,distance_m}
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -227,22 +395,28 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
   useEffect(() => { loadEntries(); }, [loadEntries]);
 
   const handleSubmit = async () => {
-    if (!discPos) return;
+    if (!capture) return;
     setSubmitting(true);
-    const distance = haversineDistance(challenge.pin_lat, challenge.pin_lng, discPos.lat, discPos.lng);
+    let distance, disc_lat, disc_lng;
+    if (capture.manual) {
+      distance = capture.distance_m;
+      disc_lat = null; disc_lng = null;
+    } else {
+      distance = haversineDistance(challenge.pin_lat, challenge.pin_lng, capture.lat, capture.lng);
+      disc_lat = capture.lat; disc_lng = capture.lng;
+    }
     const { error } = await supabase.from('ctp_entries').upsert({
       challenge_id: challenge.id,
       player_id: currentUser.id,
       player_name: currentUser.name,
-      disc_lat: discPos.lat,
-      disc_lng: discPos.lng,
+      disc_lat, disc_lng,
       distance_m: distance,
       submitted_at: new Date().toISOString(),
     }, { onConflict: 'challenge_id,player_id' });
     setSubmitting(false);
     if (!error) {
       showToast(`📍 Recorded! Your distance: ${formatDistance(distance)}`);
-      setDiscPos(null);
+      setCapture(null);
       loadEntries();
     }
   };
@@ -312,17 +486,17 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
               </div>
             )}
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
-              🥏 Throw your disc, walk to where it landed, then tap below.
+              🥏 Throw your disc, then use GPS or enter the distance manually.
             </div>
-            <GpsButton
-              label="I'm standing at my disc"
-              onCapture={(lat, lng, acc) => setDiscPos({ lat, lng, acc })}
-              captured={!!discPos}
-              hint={discPos ? `±${Math.round(discPos.acc)}m GPS accuracy · tap Submit to record` : ''}
+            <DistanceCapture
+              pinLat={challenge.pin_lat}
+              pinLng={challenge.pin_lng}
+              onCapture={setCapture}
+              captured={!!capture}
             />
-            {discPos && (
+            {capture && (
               <Btn onClick={handleSubmit} disabled={submitting} style={{ width: '100%', marginTop: 4 }}>
-                <Target size={15} />{submitting ? 'Submitting...' : `Submit — ${formatDistance(haversineDistance(challenge.pin_lat, challenge.pin_lng, discPos.lat, discPos.lng))} from pin`}
+                <Target size={15} />{submitting ? 'Submitting...' : `Submit — ${formatDistance(capture.manual ? capture.distance_m : haversineDistance(challenge.pin_lat, challenge.pin_lng, capture.lat, capture.lng))} from pin`}
               </Btn>
             )}
           </div>
