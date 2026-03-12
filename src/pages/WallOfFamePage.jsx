@@ -146,11 +146,9 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
       ] = await Promise.allSettled([
         supabase.from('round_scores').select('player_id, total_strokes, vs_par, scores, submitted_at, round_id'),
         supabase.from('rounds').select('id, course_id, status, scheduled_date').eq('status', 'complete'),
-        supabase.from('bag_tag_participants')
-          .select('player_id, tag_after, tag_before, won, players(player_name), bag_tag_challenges(challenge_date)')
-          .order('created_at', { ascending: false }),
-        supabase.from('bingo_squares').select('player_id, checked, players(player_name)').eq('checked', true),
-        supabase.from('achievement_awards').select('player_id, players(player_name)'),
+        supabase.from('bag_tag_participants').select('player_id, tag_after, tag_before, won, challenge_id'),
+        supabase.from('bingo_completions').select('player_id, position, season_id'),
+        supabase.from('achievement_awards').select('player_id'),
       ]);
 
       const allScores   = roundScoresRes.value?.data   || [];
@@ -159,15 +157,24 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
       const bingoData   = bingoRes.value?.data          || [];
       const awardData   = achievementAwardsRes.value?.data || [];
 
+      // Build player name lookup from the players prop (already normalised: {id, name})
+      const playerNameMap = {};
+      players.forEach(p => { playerNameMap[p.id] = p.name; });
+
       // ── Course Records ───────────────────────────────────────────────────
       const courseMap = {};
       courses.forEach(c => { courseMap[c.id] = c.name; });
 
+      // Only count scores for completed rounds
+      const completedRoundIds = new Set(allRounds.map(r => r.id));
       const roundCourseMap = {};
-      allRounds.forEach(r => { roundCourseMap[r.id] = r.course_id; });
+      const roundDateMap = {};
+      allRounds.forEach(r => { roundCourseMap[r.id] = r.course_id; roundDateMap[r.id] = r.scheduled_date; });
+
+      const completedScores = allScores.filter(s => completedRoundIds.has(s.round_id));
 
       const recordsByCourse = {};
-      allScores.forEach(s => {
+      completedScores.forEach(s => {
         if (s.vs_par == null || s.total_strokes == null) return;
         const courseId = roundCourseMap[s.round_id];
         if (!courseId) return;
@@ -176,20 +183,17 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
         }
       });
 
-      const playerNameMap = {};
-      players.forEach(p => { playerNameMap[p.id] = p.name || p.player_name; });
-
       const courseRecords = Object.entries(recordsByCourse).map(([courseId, s]) => ({
         courseName: courseMap[courseId] || 'Unknown Course',
         holderName: formatName(playerNameMap[s.player_id] || 'Unknown'),
         score: s.total_strokes,
         vsPar: s.vs_par,
-        date: s.submitted_at,
+        date: roundDateMap[s.round_id] || s.submitted_at,
       })).sort((a, b) => a.courseName.localeCompare(b.courseName));
 
       // ── Rounds Played ───────────────────────────────────────────────────
       const roundsPerPlayer = {};
-      allScores.forEach(s => {
+      completedScores.forEach(s => {
         roundsPerPlayer[s.player_id] = (roundsPerPlayer[s.player_id] || 0) + 1;
       });
       const mostRounds = Object.entries(roundsPerPlayer)
@@ -198,7 +202,7 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
 
       // ── Most Under-Par Rounds ───────────────────────────────────────────
       const underParPerPlayer = {};
-      allScores.forEach(s => {
+      completedScores.forEach(s => {
         if ((s.vs_par ?? 0) < 0) underParPerPlayer[s.player_id] = (underParPerPlayer[s.player_id] || 0) + 1;
       });
       const mostUnderPar = Object.entries(underParPerPlayer)
@@ -207,7 +211,7 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
 
       // ── Best Single Round vs Par ────────────────────────────────────────
       const bestRoundPerPlayer = {};
-      allScores.forEach(s => {
+      completedScores.forEach(s => {
         if (s.vs_par == null) return;
         if (bestRoundPerPlayer[s.player_id] == null || s.vs_par < bestRoundPerPlayer[s.player_id]) {
           bestRoundPerPlayer[s.player_id] = s.vs_par;
@@ -219,30 +223,25 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
 
       // ── Longest Under-Par Streak ─────────────────────────────────────────
       const scoresByPlayer = {};
-      allScores.forEach(s => {
+      completedScores.forEach(s => {
         if (!scoresByPlayer[s.player_id]) scoresByPlayer[s.player_id] = [];
-        scoresByPlayer[s.player_id].push(s);
+        scoresByPlayer[s.player_id].push({ ...s, roundDate: roundDateMap[s.round_id] || s.submitted_at });
       });
       const streaks = Object.entries(scoresByPlayer).map(([id, scores]) => {
-        const sorted = [...scores].sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
+        const sorted = [...scores].sort((a, b) => new Date(a.roundDate) - new Date(b.roundDate));
         let best = 0, cur = 0;
         sorted.forEach(s => { if ((s.vs_par ?? 1) < 0) { cur++; best = Math.max(best, cur); } else cur = 0; });
         return { name: formatName(playerNameMap[id] || '?'), streak: best };
       }).filter(x => x.streak > 0).sort((a, b) => b.streak - a.streak).slice(0, 5);
 
-      // ── Bag Tag: current #1 ──────────────────────────────────────────────
-      const tag1Holders = bagTagData
-        .filter(p => p.tag_after === 1)
-        .sort((a, b) => new Date(b.bag_tag_challenges?.challenge_date) - new Date(a.bag_tag_challenges?.challenge_date));
-      const currentTag1 = tag1Holders.length > 0 ? {
-        name: formatName(tag1Holders[0].players?.player_name || '?'),
-        date: tag1Holders[0].bag_tag_challenges?.challenge_date,
-      } : null;
+      // ── Bag Tag: current #1 — use players prop for current tag ──────────
+      const tag1Player = players.find(p => p.bagTag === 1);
+      const currentTag1 = tag1Player ? { name: formatName(tag1Player.name) } : null;
 
       // ── Bag Tag: most times held #1 ─────────────────────────────────────
       const tag1Count = {};
       bagTagData.filter(p => p.tag_after === 1).forEach(p => {
-        const name = formatName(p.players?.player_name || '?');
+        const name = formatName(playerNameMap[p.player_id] || '?');
         tag1Count[name] = (tag1Count[name] || 0) + 1;
       });
       const mostTag1 = Object.entries(tag1Count)
@@ -252,17 +251,17 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
       // ── Bag Tag: most challenge wins ─────────────────────────────────────
       const tagWins = {};
       bagTagData.filter(p => p.won).forEach(p => {
-        const name = formatName(p.players?.player_name || '?');
+        const name = formatName(playerNameMap[p.player_id] || '?');
         tagWins[name] = (tagWins[name] || 0) + 1;
       });
       const mostTagWins = Object.entries(tagWins)
         .map(([name, wins]) => ({ name, wins }))
         .sort((a, b) => b.wins - a.wins).slice(0, 5);
 
-      // ── Bingo Squares ────────────────────────────────────────────────────
+      // ── Bingo Squares — from bingo_completions ───────────────────────────
       const bingoCount = {};
       bingoData.forEach(s => {
-        const name = formatName(s.players?.player_name || '?');
+        const name = formatName(playerNameMap[s.player_id] || '?');
         bingoCount[name] = (bingoCount[name] || 0) + 1;
       });
       const mostBingo = Object.entries(bingoCount)
@@ -272,7 +271,7 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
       // ── Achievement Leaders ───────────────────────────────────────────────
       const achieveCount = {};
       awardData.forEach(a => {
-        const name = formatName(a.players?.player_name || '?');
+        const name = formatName(playerNameMap[a.player_id] || '?');
         achieveCount[name] = (achieveCount[name] || 0) + 1;
       });
       const achievementLeaders = Object.entries(achieveCount)
