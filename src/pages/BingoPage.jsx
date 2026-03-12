@@ -15,7 +15,7 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
     // Get all completed rounds for player in season
     const { data: myScores } = await supabase
       .from('round_scores')
-      .select('round_id, scores, handicap')
+      .select('round_id, scores, total_strokes, vs_par')
       .eq('player_id', playerId);
 
     if (!myScores?.length) return achieved;
@@ -57,6 +57,17 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
     for (const score of seasonScores) {
       const round = rounds.find(r => r.id === score.round_id);
       if (!round) continue;
+
+      uniqueCourses.add(round.course_id);
+      roundDates.push(round.scheduled_date);
+
+      // Use stored vs_par for round-level checks (reliable)
+      if (score.vs_par != null) {
+        if (score.vs_par < 0)  achieved.add('under_par');
+        if (score.vs_par <= -3) achieved.add('three_under');
+      }
+
+      // Need hole-by-hole data for birdie/eagle/ace/turkey
       const course = courseMap[round.course_id];
       if (!course) continue;
 
@@ -67,36 +78,29 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
 
       if (!pars.length || !scores.length) continue;
 
-      uniqueCourses.add(round.course_id);
-      roundDates.push(round.scheduled_date);
-
       let consecBirdies = 0;
-      let roundTotal = 0;
-      let roundPar = 0;
+      let roundBirdies = 0;
 
       for (let i = 0; i < Math.min(scores.length, pars.length); i++) {
         const s = scores[i];
         const p = pars[i];
         if (s == null || p == null) continue;
-        roundTotal += s;
-        roundPar += p;
         const diff = s - p;
         if (s === 1) { hasAce = true; achieved.add('ace'); }
         if (diff <= -2) { hasEagle = true; achieved.add('eagle'); }
         if (diff <= -1) {
           totalBirdies++;
+          roundBirdies++;
           consecBirdies++;
           maxConsecBirdies = Math.max(maxConsecBirdies, consecBirdies);
         } else {
           consecBirdies = 0;
         }
       }
-      if (roundTotal <= roundPar) achieved.add('under_par');
-      if (roundTotal <= roundPar - 3) achieved.add('three_under');
+      if (roundBirdies >= 5) achieved.add('five_birdies');
     }
 
     if (totalBirdies >= 1)  achieved.add('birdie');
-    if (totalBirdies >= 5)  achieved.add('five_birdies');
     if (hasEagle)           achieved.add('eagle');
     if (hasAce)             achieved.add('ace');
     if (maxConsecBirdies >= 3) achieved.add('turkey');
