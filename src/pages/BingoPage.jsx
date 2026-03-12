@@ -71,8 +71,13 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
       const course = courseMap[round.course_id];
       if (!course) { console.log('[Bingo] No course found for round', round.id, round.course_id); continue; }
 
-      const pars = Array.isArray(course.pars) ? course.pars :
-        (typeof course.pars === 'string' ? JSON.parse(course.pars) : []);
+      // pars stored as {"1":3,"2":4,...} object — convert to array
+      const parsRaw = course.pars || {};
+      const parsObj = typeof parsRaw === 'string' ? JSON.parse(parsRaw) : parsRaw;
+      const pars = Array.isArray(parsObj)
+        ? parsObj
+        : Object.keys(parsObj).sort((a, b) => parseInt(a) - parseInt(b)).map(k => parsObj[k]);
+
       const scores = Array.isArray(score.scores) ? score.scores :
         (typeof score.scores === 'string' ? JSON.parse(score.scores) : []);
 
