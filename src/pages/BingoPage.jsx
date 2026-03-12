@@ -26,12 +26,16 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
       .select('id, course_id, status, scheduled_date')
       .in('id', roundIds)
       .eq('status', 'complete')
-      .gte('scheduled_date', start)
-      .lte('scheduled_date', end);
+      .gte('scheduled_date', start ? start.substring(0, 10) : '2000-01-01')
+      .lte('scheduled_date', end ? end.substring(0, 10) : '2099-12-31');
 
-    if (!rounds?.length) return achieved;
+    if (!rounds?.length) {
+      console.log('[Bingo] No completed rounds found in season date range', { start, end, roundIds });
+      return achieved;
+    }
     const seasonRoundIds = new Set(rounds.map(r => r.id));
     const seasonScores = myScores.filter(s => seasonRoundIds.has(s.round_id));
+    console.log('[Bingo] Auto-check:', { rounds: rounds.length, seasonScores: seasonScores.length });
 
     // Get course pars for each round
     const courseIds = [...new Set(rounds.map(r => r.course_id))];
@@ -109,6 +113,7 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
       if (week) dateCounts[week] = (dateCounts[week] || 0) + 1;
     });
     if (Object.values(dateCounts).some(n => n >= 3)) achieved.add('three_rounds_week');
+    console.log('[Bingo] Achieved auto keys:', [...achieved]);
 
   } catch (e) {
     console.error('Auto-check error:', e);
