@@ -69,14 +69,16 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
 
       // Need hole-by-hole data for birdie/eagle/ace/turkey
       const course = courseMap[round.course_id];
-      if (!course) continue;
+      if (!course) { console.log('[Bingo] No course found for round', round.id, round.course_id); continue; }
 
       const pars = Array.isArray(course.pars) ? course.pars :
         (typeof course.pars === 'string' ? JSON.parse(course.pars) : []);
       const scores = Array.isArray(score.scores) ? score.scores :
         (typeof score.scores === 'string' ? JSON.parse(score.scores) : []);
 
-      if (!pars.length || !scores.length) continue;
+      console.log('[Bingo] Round', round.id.substring(0,8), '| vs_par:', score.vs_par, '| scores:', scores, '| pars:', pars);
+
+      if (!pars.length || !scores.length) { console.log('[Bingo] Skipping — empty scores or pars'); continue; }
 
       let consecBirdies = 0;
       let roundBirdies = 0;
@@ -97,6 +99,7 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
           consecBirdies = 0;
         }
       }
+      console.log('[Bingo] Round birdies:', roundBirdies, '| total so far:', totalBirdies);
       if (roundBirdies >= 5) achieved.add('five_birdies');
     }
 
