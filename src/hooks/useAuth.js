@@ -64,6 +64,8 @@ export const useAuth = () => {
     const user = normalisePlayer(data);
     localStorage.setItem('tdg-user', JSON.stringify(user));
     setCurrentUser(user);
+    // Fire-and-forget: update last_seen timestamp
+    supabase.from('players').update({ last_seen: new Date().toISOString() }).eq('player_id', data.player_id);
     return true;
   }, []);
 
