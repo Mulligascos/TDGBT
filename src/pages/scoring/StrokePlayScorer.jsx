@@ -382,38 +382,57 @@ const ScorecardSummary = ({ players, scores, pars, onSubmit, onBack, submitting,
 
 // ─── BAG TAG CHALLENGE SCREEN ─────────────────────────────────────────────────
 const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId, onComplete, updateUser }) => {
-  const [playoff, setPlayoff] = useState(false);
-  const [playoffWinnerId, setPlayoffWinnerId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const { eligible, winner, tied, lowestTag, swaps, isTie, scoredPlayers } = result;
+  const { eligible, winner, swaps, isTie, scoredPlayers } = result;
+  const tagsSorted = [...eligible].map(p => Number(p.bagTag)).sort((a, b) => a - b);
 
-  // If tie was resolved via playoff, recalculate swaps using the same multi-player logic
-  const effectiveWinner = isTie && playoffWinnerId
-    ? eligible.find(p => p.id === playoffWinnerId)
-    : winner;
+  // Build initial finishing order from scores, preserving score groups
+  const buildInitialOrder = () => {
+    return [...eligible].sort((a, b) => {
+      if (a.vs_par !== b.vs_par) return a.vs_par - b.vs_par;
+      return Number(a.bagTag) - Number(b.bagTag); // tiebreak default: lower tag wins
+    });
+  };
 
-  const effectiveSwaps = isTie && effectiveWinner
-    ? (() => {
-        const tagsSorted = [...eligible].map(p => Number(p.bagTag)).sort((a, b) => a - b);
-        const ranked = [...eligible].sort((a, b) => {
-          if (a.id === effectiveWinner.id) return -1;
-          if (b.id === effectiveWinner.id) return 1;
-          return Number(a.bagTag) - Number(b.bagTag);
-        });
-        return ranked.map((player, i) => ({
-          player,
-          tagBefore: Number(player.bagTag),
-          tagAfter: tagsSorted[i],
-        }));
-      })()
-    : swaps;
+  const [order, setOrder] = useState(buildInitialOrder);
 
+  // Compute which positions are tied (same vs_par, adjacent in order)
+  const tiedPositions = new Set();
+  order.forEach((p, i) => {
+    if (i > 0 && p.vs_par === order[i - 1].vs_par) {
+      tiedPositions.add(i - 1);
+      tiedPositions.add(i);
+    }
+  });
+  const hasTies = tiedPositions.size > 0;
+
+  // Derive swaps from current order
+  const effectiveSwaps = order.map((player, i) => ({
+    player,
+    tagBefore: Number(player.bagTag),
+    tagAfter: tagsSorted[i],
+  }));
   const hasSwap = effectiveSwaps.some(s => s.tagBefore !== s.tagAfter);
+  const effectiveWinner = order[0];
+
+  const moveUp = (i) => {
+    if (i === 0) return;
+    const next = [...order];
+    [next[i - 1], next[i]] = [next[i], next[i - 1]];
+    setOrder(next);
+  };
+
+  const moveDown = (i) => {
+    if (i === order.length - 1) return;
+    const next = [...order];
+    [next[i], next[i + 1]] = [next[i + 1], next[i]];
+    setOrder(next);
+  };
 
   const handleConfirm = async () => {
-    if (isTie && !playoffWinnerId) { setError('Select a playoff winner first.'); return; }
+    if (hasTies) { setError('Resolve all tied positions before confirming.'); return; }
     setSaving(true);
     try {
       await persistBagTagChallenge({
@@ -424,13 +443,8 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
         scoredPlayers,
         createdBy: currentUser.id,
       });
-      // Refresh currentUser so profile shows updated bag tag immediately
       if (updateUser) {
-        const { data: fresh } = await supabase
-          .from('players')
-          .select('*')
-          .eq('player_id', currentUser.id)
-          .single();
+        const { data: fresh } = await supabase.from('players').select('*').eq('player_id', currentUser.id).single();
         if (fresh) updateUser({ ...currentUser, bagTag: fresh.bag_tag });
       }
       onComplete?.();
@@ -440,10 +454,11 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
     }
   };
 
-  const handleSkip = () => onComplete?.();
+  const vsParLabel = (v) => v === 0 ? 'E' : v > 0 ? `+${v}` : `${v}`;
+  const vsParColor = (v) => v < 0 ? '#4ade80' : v === 0 ? '#fbbf24' : '#f87171';
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'var(--text-primary)', paddingBottom: 40 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'var(--text-primary)', paddingBottom: 60 }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #92400e, #d97706)', padding: '52px 20px 24px', borderBottom: '1px solid rgba(251,191,36,0.2)' }}>
         <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
@@ -459,121 +474,98 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px' }}>
 
-        {/* Scores summary */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Scores</div>
-          {scoredPlayers
-            .filter(p => eligible.find(e => e.id === p.id))
-            .sort((a, b) => a.vs_par - b.vs_par)
-            .map(p => {
-              const isWinner = effectiveWinner?.id === p.id;
-              const isTied = isTie && tied.find(t => t.id === p.id);
-              return (
-                <div key={p.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-                  background: isWinner ? 'rgba(251,191,36,0.1)' : 'var(--text-muted)',
-                  border: `1px solid ${isWinner ? 'rgba(251,191,36,0.3)' : 'var(--text-muted)'}`,
-                  borderRadius: 14, marginBottom: 8,
-                }}>
-                  <div style={{ fontSize: 20, width: 28, textAlign: 'center' }}>
-                    {isWinner ? '🏆' : isTied ? '🤝' : ''}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
-                    <div style={{ display: 'flex', gap: 8, marginTop: 3, alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: '#fbbf24' }}>🏷️ #{p.bagTag}</span>
-                      <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{p.total_strokes} strokes</span>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: p.vs_par < 0 ? '#4ade80' : p.vs_par === 0 ? '#fbbf24' : '#f87171' }}>
-                    {p.vs_par === 0 ? 'E' : p.vs_par > 0 ? `+${p.vs_par}` : p.vs_par}
-                  </div>
-                </div>
-              );
-            })}
+        {/* Tie notice */}
+        {hasTies && (
+          <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 14, padding: '12px 16px', marginBottom: 20, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <span style={{ fontSize: 20, flexShrink: 0 }}>🤝</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24', marginBottom: 2 }}>Tied positions detected</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Use the arrows to set the final finishing order for tied players (e.g. after a playoff hole). Tags are assigned top to bottom.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Finishing order */}
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
+          Finishing Order
         </div>
+        {order.map((p, i) => {
+          const isTied = tiedPositions.has(i);
+          const canUp = i > 0 && p.vs_par === order[i - 1].vs_par;
+          const canDown = i < order.length - 1 && p.vs_par === order[i + 1].vs_par;
+          const tagAfter = tagsSorted[i];
+          const tagChanged = Number(p.bagTag) !== tagAfter;
+          const medals = ['🥇', '🥈', '🥉'];
 
-        {/* Tie — pick playoff winner */}
-        {isTie && (
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
-              🤝 Tie — Select Playoff Winner
-            </div>
-            <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 14, padding: '14px', marginBottom: 10, fontSize: 13, color: 'var(--text-secondary)' }}>
-              Tied players must play a sudden death playoff hole. Select the winner below.
-            </div>
-            {tied.map(p => (
-              <button key={p.id} onClick={() => setPlayoffWinnerId(p.id)} style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px',
-                background: playoffWinnerId === p.id ? 'rgba(251,191,36,0.15)' : 'var(--text-muted)',
-                border: `1px solid ${playoffWinnerId === p.id ? 'rgba(251,191,36,0.4)' : 'var(--text-muted)'}`,
-                borderRadius: 12, marginBottom: 8, cursor: 'pointer', textAlign: 'left',
-                fontFamily: "'DM Sans', sans-serif",
-              }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${playoffWinnerId === p.id ? '#fbbf24' : 'var(--text-muted)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {playoffWinnerId === p.id && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24' }} />}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
-                  <div style={{ fontSize: 11, color: '#fbbf24' }}>🏷️ #{p.bagTag}</div>
-                </div>
-                {playoffWinnerId === p.id && <Check size={16} color="#fbbf24" />}
-              </button>
-            ))}
-          </div>
-        )}
+          return (
+            <div key={p.id} style={{
+              display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+              marginBottom: 8, borderRadius: 14,
+              background: isTied ? 'rgba(251,191,36,0.06)' : i === 0 ? 'rgba(74,222,128,0.06)' : 'var(--bg-card)',
+              border: `1px solid ${isTied ? 'rgba(251,191,36,0.3)' : i === 0 ? 'rgba(74,222,128,0.2)' : 'var(--border-card)'}`,
+            }}>
+              {/* Position */}
+              <div style={{ width: 28, textAlign: 'center', fontSize: i < 3 ? 18 : 13, color: 'var(--text-muted)', fontWeight: 700, flexShrink: 0 }}>
+                {isTied ? '🤝' : (medals[i] || `${i + 1}`)}
+              </div>
 
-        {/* Tag swap preview */}
-        {(effectiveWinner || (isTie && playoffWinnerId)) && effectiveSwaps.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
-              Tag Changes
-            </div>
-            {effectiveSwaps.map(s => {
-              const isSwap = s.tagBefore !== s.tagAfter;
-              return (
-                <div key={s.player.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '10px 14px', marginBottom: 8, borderRadius: 14,
-                  background: isSwap ? 'rgba(251,191,36,0.06)' : 'var(--bg-card)',
-                  border: `1px solid ${isSwap ? 'rgba(251,191,36,0.2)' : 'var(--border-card)'}`,
+              {/* Name + score */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {formatName(p.name)}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+                  {p.total_strokes} strokes · <span style={{ color: vsParColor(p.vs_par), fontWeight: 700 }}>{vsParLabel(p.vs_par)}</span>
+                  {' · '}🏷️ #{p.bagTag}
+                </div>
+              </div>
+
+              {/* Tag outcome */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                <div style={{
+                  minWidth: 36, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: tagChanged ? 'rgba(248,113,113,0.15)' : 'var(--bg-input)',
+                  border: `1px solid ${tagChanged ? 'rgba(248,113,113,0.35)' : 'var(--border)'}`,
                 }}>
-                  {/* Player name */}
-                  <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {formatName(s.player.name)}
-                  </div>
-                  {/* Old tag */}
-                  <div style={{
-                    minWidth: 40, height: 36, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: isSwap ? 'rgba(248,113,113,0.15)' : 'var(--bg-input)',
-                    border: `1px solid ${isSwap ? 'rgba(248,113,113,0.35)' : 'var(--border)'}`,
-                  }}>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: isSwap ? '#f87171' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
-                      #{s.tagBefore}
-                    </span>
-                  </div>
-                  {/* Arrow or bar */}
-                  <div style={{ width: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {isSwap
-                      ? <span style={{ fontSize: 18, color: '#fbbf24' }}>➜</span>
-                      : <span style={{ display: 'block', width: 16, height: 2, borderRadius: 2, background: 'var(--text-muted)' }} />
-                    }
-                  </div>
-                  {/* New tag */}
-                  <div style={{
-                    minWidth: 40, height: 36, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: isSwap ? 'rgba(74,222,128,0.15)' : 'var(--bg-input)',
-                    border: `1px solid ${isSwap ? 'rgba(74,222,128,0.35)' : 'var(--border)'}`,
-                  }}>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: isSwap ? '#4ade80' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
-                      #{s.tagAfter}
-                    </span>
-                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: tagChanged ? '#f87171' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>#{p.bagTag}</span>
                 </div>
-              );
-            })}
-          </div>
-        )}
+                <div style={{ width: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {tagChanged
+                    ? <span style={{ fontSize: 14, color: '#fbbf24' }}>➜</span>
+                    : <span style={{ display: 'block', width: 12, height: 2, borderRadius: 2, background: 'var(--text-muted)' }} />
+                  }
+                </div>
+                <div style={{
+                  minWidth: 36, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: tagChanged ? 'rgba(74,222,128,0.15)' : 'var(--bg-input)',
+                  border: `1px solid ${tagChanged ? 'rgba(74,222,128,0.35)' : 'var(--border)'}`,
+                }}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: tagChanged ? '#4ade80' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>#{tagAfter}</span>
+                </div>
+              </div>
+
+              {/* Up/Down arrows — only shown for tied players */}
+              {(canUp || canDown) && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
+                  <button onClick={() => moveUp(i)} disabled={!canUp} style={{
+                    width: 28, height: 26, borderRadius: 6, border: 'none', cursor: canUp ? 'pointer' : 'default',
+                    background: canUp ? 'rgba(251,191,36,0.15)' : 'transparent',
+                    color: canUp ? '#fbbf24' : 'transparent', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>▲</button>
+                  <button onClick={() => moveDown(i)} disabled={!canDown} style={{
+                    width: 28, height: 26, borderRadius: 6, border: 'none', cursor: canDown ? 'pointer' : 'default',
+                    background: canDown ? 'rgba(251,191,36,0.15)' : 'transparent',
+                    color: canDown ? '#fbbf24' : 'transparent', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>▼</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        <div style={{ height: 20 }} />
 
         {error && (
           <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#f87171', marginBottom: 16 }}>
@@ -581,17 +573,18 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
           </div>
         )}
 
-        <button onClick={handleConfirm} disabled={saving || (isTie && !playoffWinnerId)} style={{
+        <button onClick={handleConfirm} disabled={saving || hasTies} style={{
           width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10,
-          background: (isTie && !playoffWinnerId) ? 'var(--bg-card)' : 'linear-gradient(135deg, #92400e, #d97706)',
-          border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
-          fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer',
-          opacity: saving ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          background: hasTies ? 'var(--bg-card)' : 'linear-gradient(135deg, #92400e, #d97706)',
+          border: '1px solid rgba(251,191,36,0.3)', color: hasTies ? 'var(--text-muted)' : 'var(--text-primary)',
+          fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
+          cursor: hasTies || saving ? 'not-allowed' : 'pointer',
+          opacity: saving ? 0.6 : 1,
         }}>
-          <Tag size={16} /> {saving ? 'Saving...' : hasSwap ? 'Confirm Tag Swap' : 'Confirm — No Swap'}
+          🏷️ {saving ? 'Saving...' : hasTies ? 'Resolve ties to continue' : hasSwap ? 'Confirm Tag Swap' : 'Confirm — No Swap'}
         </button>
 
-        <button onClick={handleSkip} style={{
+        <button onClick={() => onComplete?.()} style={{
           width: '100%', padding: '12px', borderRadius: 12,
           background: 'transparent', border: '1px solid var(--border-card)',
           color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer',
