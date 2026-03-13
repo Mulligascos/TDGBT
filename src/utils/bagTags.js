@@ -14,29 +14,30 @@ export const resolveBagTagChallenge = (scoredPlayers) => {
   const best = Math.min(...eligible.map(p => p.vs_par));
   const winners = eligible.filter(p => p.vs_par === best);
 
-  const sorted = [...eligible].sort((a, b) => Number(a.bagTag) - Number(b.bagTag));
-  const lowestTag = Number(sorted[0].bagTag);
+  // Tags available in the challenge, sorted lowest first
+  const tagsSorted = [...eligible].map(p => Number(p.bagTag)).sort((a, b) => a - b);
+  const lowestTag = tagsSorted[0];
 
   if (winners.length > 1) {
     return { eligible, winner: null, tied: winners, lowestTag, swaps: [], isTie: true };
   }
 
   const winner = winners[0];
-  const swaps = [];
 
-  if (Number(winner.bagTag) !== lowestTag) {
-    const lowestHolder = sorted[0];
-    swaps.push({ player: winner,       tagBefore: Number(winner.bagTag),       tagAfter: lowestTag });
-    swaps.push({ player: lowestHolder, tagBefore: Number(lowestHolder.bagTag), tagAfter: Number(winner.bagTag) });
-    eligible.forEach(p => {
-      if (p.id !== winner.id && p.id !== lowestHolder.id)
-        swaps.push({ player: p, tagBefore: Number(p.bagTag), tagAfter: Number(p.bagTag) });
-    });
-  } else {
-    eligible.forEach(p =>
-      swaps.push({ player: p, tagBefore: Number(p.bagTag), tagAfter: Number(p.bagTag) })
-    );
-  }
+  // ── Multi-player redistribution ──────────────────────────────────────────
+  // Sort players by score (best first). In case of equal scores among non-winners,
+  // preserve relative tag order (lower current tag = better position).
+  const ranked = [...eligible].sort((a, b) => {
+    if (a.vs_par !== b.vs_par) return a.vs_par - b.vs_par;
+    return Number(a.bagTag) - Number(b.bagTag); // tiebreak: keep lower tag
+  });
+
+  // Assign tags: 1st place gets lowest tag, 2nd gets next, etc.
+  const swaps = ranked.map((player, i) => ({
+    player,
+    tagBefore: Number(player.bagTag),
+    tagAfter: tagsSorted[i],
+  }));
 
   return { eligible, winner, tied: [], lowestTag, swaps, isTie: false };
 };
