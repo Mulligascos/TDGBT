@@ -374,30 +374,46 @@ const MPBagTagScreen = ({ p1, p2, winnerPlayer, onComplete, updateUser, currentU
         <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 }}>Both players hold bag tags</div>
       </div>
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 20px' }}>
-        {[p1, p2].map(p => {
-          const isWinner = winnerPlayer?.id === p.id;
-          const swap = swaps.find(s => s.player.id === p.id);
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Tag Changes</div>
+        {swaps.map(s => {
+          const isSwap = s.tagBefore !== s.tagAfter;
           return (
-            <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: isWinner ? 'rgba(251,191,36,0.1)' : 'var(--text-muted)', border: `1px solid ${isWinner ? 'rgba(251,191,36,0.3)' : 'var(--text-muted)'}`, borderRadius: 14, marginBottom: 8 }}>
-              <div style={{ fontSize: 22, width: 28 }}>{isWinner ? '🏆' : ''}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{formatName(p.name)}</div>
-                <div style={{ fontSize: 11, color: '#fbbf24', marginTop: 2 }}>🏷️ #{p.bagTag ?? p.bag_tag}</div>
+            <div key={s.player.id} style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '10px 14px', marginBottom: 8, borderRadius: 14,
+              background: isSwap ? 'rgba(251,191,36,0.06)' : 'var(--bg-card)',
+              border: `1px solid ${isSwap ? 'rgba(251,191,36,0.2)' : 'var(--border-card)'}`,
+            }}>
+              <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {formatName(s.player.name)}
               </div>
-              {swap && swap.tagBefore !== swap.tagAfter && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
-                  <span style={{ color: '#f87171', fontWeight: 700 }}>#{swap.tagBefore}</span>
-                  <span style={{ color: 'var(--text-muted)' }}>→</span>
-                  <span style={{ color: '#4ade80', fontWeight: 700 }}>#{swap.tagAfter}</span>
-                </div>
-              )}
-              {swap && swap.tagBefore === swap.tagAfter && (
-                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>#{swap.tagBefore}</span>
-              )}
+              <div style={{
+                minWidth: 40, height: 36, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: isSwap ? 'rgba(248,113,113,0.15)' : 'var(--bg-input)',
+                border: `1px solid ${isSwap ? 'rgba(248,113,113,0.35)' : 'var(--border)'}`,
+              }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: isSwap ? '#f87171' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
+                  #{s.tagBefore}
+                </span>
+              </div>
+              <div style={{ width: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {isSwap
+                  ? <span style={{ fontSize: 18, color: '#fbbf24' }}>➜</span>
+                  : <span style={{ display: 'block', width: 16, height: 2, borderRadius: 2, background: 'var(--text-muted)' }} />
+                }
+              </div>
+              <div style={{
+                minWidth: 40, height: 36, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: isSwap ? 'rgba(74,222,128,0.15)' : 'var(--bg-input)',
+                border: `1px solid ${isSwap ? 'rgba(74,222,128,0.35)' : 'var(--border)'}`,
+              }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: isSwap ? '#4ade80' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
+                  #{s.tagAfter}
+                </span>
+              </div>
             </div>
           );
         })}
-        {!hasSwap && <div style={{ fontSize: 13, color: 'var(--text-secondary)', padding: '6px 0 12px' }}>Winner already holds the lowest tag — no change needed.</div>}
         {error && <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#f87171', marginBottom: 12 }}>⚠️ {error}</div>}
         <button onClick={handleConfirm} disabled={saving} style={{ width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10, background: 'linear-gradient(135deg, #92400e, #d97706)', border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
           🏷️ {saving ? 'Saving...' : hasSwap ? 'Confirm Tag Swap' : 'Confirm — No Swap'}

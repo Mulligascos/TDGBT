@@ -389,27 +389,24 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
 
   const { eligible, winner, tied, lowestTag, swaps, isTie, scoredPlayers } = result;
 
-  // If tie was resolved via playoff, recalculate swaps with playoff winner
+  // If tie was resolved via playoff, recalculate swaps using the same multi-player logic
   const effectiveWinner = isTie && playoffWinnerId
     ? eligible.find(p => p.id === playoffWinnerId)
     : winner;
 
   const effectiveSwaps = isTie && effectiveWinner
     ? (() => {
-        const sorted = [...eligible].sort((a, b) => a.bagTag - b.bagTag);
-        const sw = [];
-        if (effectiveWinner.bagTag !== lowestTag) {
-          const lowestHolder = sorted[0];
-          sw.push({ player: effectiveWinner, tagBefore: effectiveWinner.bagTag, tagAfter: lowestTag });
-          sw.push({ player: lowestHolder, tagBefore: lowestHolder.bagTag, tagAfter: effectiveWinner.bagTag });
-          eligible.forEach(p => {
-            if (p.id !== effectiveWinner.id && p.id !== lowestHolder.id)
-              sw.push({ player: p, tagBefore: p.bagTag, tagAfter: p.bagTag });
-          });
-        } else {
-          eligible.forEach(p => sw.push({ player: p, tagBefore: p.bagTag, tagAfter: p.bagTag }));
-        }
-        return sw;
+        const tagsSorted = [...eligible].map(p => Number(p.bagTag)).sort((a, b) => a - b);
+        const ranked = [...eligible].sort((a, b) => {
+          if (a.id === effectiveWinner.id) return -1;
+          if (b.id === effectiveWinner.id) return 1;
+          return Number(a.bagTag) - Number(b.bagTag);
+        });
+        return ranked.map((player, i) => ({
+          player,
+          tagBefore: Number(player.bagTag),
+          tagAfter: tagsSorted[i],
+        }));
       })()
     : swaps;
 
@@ -532,22 +529,49 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
             <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
               Tag Changes
             </div>
-            {hasSwap ? (
-              effectiveSwaps.filter(s => s.tagBefore !== s.tagAfter).map(s => (
-                <div key={s.player.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, marginBottom: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{formatName(s.player.name)}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#f87171', fontFamily: "'Syne', sans-serif" }}>#{s.tagBefore}</span>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>→</span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#4ade80', fontFamily: "'Syne', sans-serif" }}>#{s.tagAfter}</span>
+            {effectiveSwaps.map(s => {
+              const isSwap = s.tagBefore !== s.tagAfter;
+              return (
+                <div key={s.player.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 14px', marginBottom: 8, borderRadius: 14,
+                  background: isSwap ? 'rgba(251,191,36,0.06)' : 'var(--bg-card)',
+                  border: `1px solid ${isSwap ? 'rgba(251,191,36,0.2)' : 'var(--border-card)'}`,
+                }}>
+                  {/* Player name */}
+                  <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {formatName(s.player.name)}
+                  </div>
+                  {/* Old tag */}
+                  <div style={{
+                    minWidth: 40, height: 36, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: isSwap ? 'rgba(248,113,113,0.15)' : 'var(--bg-input)',
+                    border: `1px solid ${isSwap ? 'rgba(248,113,113,0.35)' : 'var(--border)'}`,
+                  }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: isSwap ? '#f87171' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
+                      #{s.tagBefore}
+                    </span>
+                  </div>
+                  {/* Arrow or bar */}
+                  <div style={{ width: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {isSwap
+                      ? <span style={{ fontSize: 18, color: '#fbbf24' }}>➜</span>
+                      : <span style={{ display: 'block', width: 16, height: 2, borderRadius: 2, background: 'var(--text-muted)' }} />
+                    }
+                  </div>
+                  {/* New tag */}
+                  <div style={{
+                    minWidth: 40, height: 36, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: isSwap ? 'rgba(74,222,128,0.15)' : 'var(--bg-input)',
+                    border: `1px solid ${isSwap ? 'rgba(74,222,128,0.35)' : 'var(--border)'}`,
+                  }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: isSwap ? '#4ade80' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
+                      #{s.tagAfter}
+                    </span>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', padding: '8px 0' }}>
-                {effectiveWinner?.name ? formatName(effectiveWinner.name) : 'Winner'} already holds the lowest tag — no changes needed.
-              </div>
-            )}
+              );
+            })}
           </div>
         )}
 
