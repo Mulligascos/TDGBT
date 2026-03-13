@@ -6,7 +6,7 @@ import { Toast, Badge } from '../../components/ui';
 import {
   ChevronLeft, ChevronRight, Plus, Check, X, Edit2, Trash2,
   Users, Trophy, MapPin, Megaphone, FileText, Settings, Award, RotateCcw,
-  Mail, Send, Clock, AlertCircle, Tag
+  Mail, Send, Clock, AlertCircle, Tag, BarChart2, UserPlus
 } from 'lucide-react';
 
 
@@ -1832,16 +1832,328 @@ const BagTagsSection = ({ players, showToast, onRefresh }) => {
 };
 
 
+// ─── ANALYTICS SECTION ───────────────────────────────────────────────────────
+const AnalyticsSection = ({ players }) => {
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState([]);
+  const [summary, setSummary] = useState({ totalRounds: 0, totalPlayers: 0, activeThisMonth: 0 });
+  const [sort, setSort] = useState('rounds'); // rounds | name | last_active
+
+  useEffect(() => { loadAnalytics(); }, []);
+
+  const loadAnalytics = async () => {
+    setLoading(true);
+    try {
+      const { data: scores } = await supabase
+        .from('round_scores')
+        .select('player_id, round_id, submitted_at');
+
+      const { data: rounds } = await supabase
+        .from('rounds')
+        .select('id, scheduled_date, status')
+        .eq('status', 'complete');
+
+      // Fetch players with last_seen directly (prop may not have it)
+      const { data: rawPlayers } = await supabase
+        .from('players')
+        .select('player_id, player_name, last_seen')
+        .eq('player_status', 'Active');
+
+      const completedIds = new Set((rounds || []).map(r => r.id));
+      const roundDateMap = {};
+      (rounds || []).forEach(r => { roundDateMap[r.id] = r.scheduled_date; });
+
+      const now = new Date();
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).toISOString();
+
+      const playerMap = {};
+      (rawPlayers || []).forEach(p => {
+        playerMap[p.player_id] = { id: p.player_id, name: p.player_name, rounds: 0, lastRound: null, lastSeen: p.last_seen };
+      });
+
+      (scores || []).forEach(s => {
+        if (!completedIds.has(s.round_id)) return;
+        if (!playerMap[s.player_id]) return;
+        playerMap[s.player_id].rounds++;
+        const d = roundDateMap[s.round_id] || s.submitted_at;
+        if (!playerMap[s.player_id].lastRound || d > playerMap[s.player_id].lastRound)
+          playerMap[s.player_id].lastRound = d;
+      });
+
+      const rows = Object.values(playerMap);
+      const activeThisMonth = rows.filter(r => r.lastSeen && r.lastSeen > monthAgo).length;
+
+      setSummary({
+        totalRounds: (scores || []).filter(s => completedIds.has(s.round_id)).length,
+        totalPlayers: rows.length,
+        activeThisMonth,
+      });
+      setStats(rows);
+    } catch (e) {
+      console.error('Analytics load error:', e);
+    }
+    setLoading(false);
+  };
+
+  const sorted = [...stats].sort((a, b) => {
+    if (sort === 'rounds') return b.rounds - a.rounds;
+    if (sort === 'name') return (a.name || '').localeCompare(b.name || '');
+    if (sort === 'last_active') {
+      const al = a.lastSeen || a.lastRound || '';
+      const bl = b.lastSeen || b.lastRound || '';
+      return bl.localeCompare(al);
+    }
+    return 0;
+  });
+
+  const StatPill = ({ label, value, color = BRAND.light }) => (
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 14, padding: '14px 16px', textAlign: 'center', flex: 1 }}>
+      <div style={{ fontSize: 24, fontWeight: 800, color, fontFamily: "'Syne', sans-serif" }}>{value}</div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 }}>{label}</div>
+    </div>
+  );
+
+  const SortBtn = ({ id, label }) => (
+    <button onClick={() => setSort(id)} style={{
+      padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+      background: sort === id ? BRAND.primary : 'var(--bg-input)',
+      color: sort === id ? '#fff' : 'var(--text-secondary)',
+      fontFamily: "'DM Sans', sans-serif",
+    }}>{label}</button>
+  );
+
+  const daysSince = (dateStr) => {
+    if (!dateStr) return null;
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7) return `${diff}d ago`;
+    if (diff < 30) return `${Math.floor(diff / 7)}w ago`;
+    if (diff < 365) return `${Math.floor(diff / 30)}mo ago`;
+    return `${Math.floor(diff / 365)}y ago`;
+  };
+
+  return (
+    <div style={{ padding: '0 0 40px' }}>
+      <SectionTitle>App Analytics</SectionTitle>
+
+      {/* Summary pills */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+        <StatPill label="Members" value={summary.totalPlayers} />
+        <StatPill label="Total Rounds" value={summary.totalRounds} color="#60a5fa" />
+        <StatPill label="Active (30d)" value={summary.activeThisMonth} color="#4ade80" />
+      </div>
+
+      {/* Sort controls */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+        <SortBtn id="rounds" label="Most Rounds" />
+        <SortBtn id="last_active" label="Last Active" />
+        <SortBtn id="name" label="Name" />
+      </div>
+
+      {/* Player rows */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 14, overflow: 'hidden' }}>
+        {loading ? (
+          [1,2,3,4,5].map(i => (
+            <div key={i} style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 12, alignItems: 'center' }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg-input)' }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ width: '40%', height: 13, borderRadius: 4, background: 'var(--bg-input)', marginBottom: 6 }} />
+                <div style={{ width: '25%', height: 11, borderRadius: 4, background: 'var(--bg-input)' }} />
+              </div>
+            </div>
+          ))
+        ) : sorted.length === 0 ? (
+          <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No data yet</div>
+        ) : sorted.map((p, i) => {
+          const lastActive = p.lastSeen || p.lastRound;
+          const recentDays = lastActive ? Math.floor((Date.now() - new Date(lastActive)) / 86400000) : 999;
+          const activityColor = recentDays <= 7 ? '#4ade80' : recentDays <= 30 ? '#fbbf24' : 'var(--text-muted)';
+          return (
+            <div key={p.id} style={{
+              padding: '11px 16px', display: 'flex', alignItems: 'center', gap: 12,
+              borderBottom: i < sorted.length - 1 ? '1px solid var(--border)' : 'none',
+            }}>
+              {/* Avatar */}
+              <div style={{
+                width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+                background: `linear-gradient(135deg, ${BRAND.primary}40, ${BRAND.accent}40)`,
+                border: `1px solid ${BRAND.primary}30`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13, fontWeight: 700, color: BRAND.light,
+              }}>
+                {formatName(p.name).charAt(0).toUpperCase()}
+              </div>
+
+              {/* Name + last active */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {formatName(p.name)}
+                </div>
+                <div style={{ fontSize: 11, color: activityColor, marginTop: 1 }}>
+                  {lastActive ? `Last active ${daysSince(lastActive)}` : 'Never logged in'}
+                </div>
+              </div>
+
+              {/* Rounds badge */}
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: p.rounds > 0 ? '#60a5fa' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
+                  {p.rounds}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8 }}>rounds</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', marginTop: 10 }}>
+        Last active = most recent login or scored round
+      </div>
+    </div>
+  );
+};
+
+// ─── MEMBER REQUESTS ADMIN SECTION ───────────────────────────────────────────
+const MemberRequestsAdminSection = ({ currentUser, showToast }) => {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('pending');
+  const [notes, setNotes] = useState({});
+  const [acting, setActing] = useState(null);
+
+  useEffect(() => { loadRequests(); }, [filter]);
+
+  const loadRequests = async () => {
+    setLoading(true);
+    const q = supabase.from('member_requests').select('*').order('created_at', { ascending: false });
+    if (filter !== 'all') q.eq('status', filter);
+    const { data } = await q;
+    setRequests(data || []);
+    setLoading(false);
+  };
+
+  const handleAction = async (id, status) => {
+    setActing(id + status);
+    const { error } = await supabase.from('member_requests').update({
+      status,
+      admin_notes: notes[id] || null,
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: currentUser?.id,
+    }).eq('id', id);
+    if (error) { showToast('Error updating request', 'error'); }
+    else { showToast(status === 'approved' ? 'Request approved ✓' : 'Request declined', status === 'approved' ? 'success' : 'info'); loadRequests(); }
+    setActing(null);
+  };
+
+  const statusColor = { pending: '#fbbf24', approved: '#4ade80', declined: '#f87171' };
+  const FilterBtn = ({ id, label }) => (
+    <button onClick={() => setFilter(id)} style={{
+      padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+      background: filter === id ? BRAND.primary : 'var(--bg-input)',
+      color: filter === id ? '#fff' : 'var(--text-secondary)',
+      fontFamily: "'DM Sans', sans-serif",
+    }}>{label}</button>
+  );
+
+  return (
+    <div style={{ padding: '0 0 40px' }}>
+      <SectionTitle>Member Requests</SectionTitle>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+        <FilterBtn id="pending" label="Pending" />
+        <FilterBtn id="approved" label="Approved" />
+        <FilterBtn id="declined" label="Declined" />
+        <FilterBtn id="all" label="All" />
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 32, color: 'var(--text-muted)' }}>Loading…</div>
+      ) : requests.length === 0 ? (
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 14, padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
+          No {filter === 'all' ? '' : filter} requests
+        </div>
+      ) : requests.map(r => (
+        <div key={r.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 14, padding: 16, marginBottom: 12 }}>
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{r.full_name}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{formatDate(r.created_at)}</div>
+            </div>
+            <span style={{
+              fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1,
+              padding: '3px 8px', borderRadius: 6,
+              color: statusColor[r.status],
+              background: `${statusColor[r.status]}18`,
+              border: `1px solid ${statusColor[r.status]}40`,
+            }}>{r.status}</span>
+          </div>
+
+          {/* Contact info */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
+            {r.email && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>📧 {r.email}</div>}
+            {r.phone && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>📱 {r.phone}</div>}
+            {r.message && (
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', background: 'var(--bg-input)', borderRadius: 8, padding: '8px 10px', marginTop: 4 }}>
+                💬 {r.message}
+              </div>
+            )}
+          </div>
+
+          {/* Actions for pending */}
+          {r.status === 'pending' && (
+            <>
+              <textarea
+                placeholder="Admin notes (optional)…"
+                value={notes[r.id] || ''}
+                onChange={e => setNotes(n => ({ ...n, [r.id]: e.target.value }))}
+                rows={2}
+                style={{
+                  width: '100%', padding: '8px 10px', borderRadius: 8, marginBottom: 10,
+                  background: 'var(--bg-input)', border: '1px solid var(--border)',
+                  color: 'var(--text-primary)', fontSize: 13, resize: 'vertical',
+                  fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box',
+                }}
+              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => handleAction(r.id, 'approved')} disabled={!!acting} style={{
+                  flex: 1, padding: '9px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                  background: 'rgba(74,222,128,0.15)', color: '#4ade80',
+                  fontSize: 13, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  {acting === r.id + 'approved' ? '…' : '✓ Approve'}
+                </button>
+                <button onClick={() => handleAction(r.id, 'declined')} disabled={!!acting} style={{
+                  flex: 1, padding: '9px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                  background: 'rgba(248,113,113,0.1)', color: '#f87171',
+                  fontSize: 13, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  {acting === r.id + 'declined' ? '…' : '✕ Decline'}
+                </button>
+              </div>
+            </>
+          )}
+          {r.admin_notes && r.status !== 'pending' && (
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, fontStyle: 'italic' }}>Notes: {r.admin_notes}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
 const NAV_ITEMS = [
-  { id: 'tournaments',   label: 'Tournaments',   icon: Trophy },
-  { id: 'members',       label: 'Members',       icon: Users },
-  { id: 'bagtags',       label: 'Bag Tags',      icon: Tag },
-  { id: 'courses',       label: 'Courses',       icon: MapPin },
-  { id: 'requests',      label: 'Requests',      icon: FileText },
-  { id: 'announcements', label: 'Announcements', icon: Megaphone },
-  { id: 'achievements',  label: 'Achievements',  icon: Award },
-  { id: 'messages',      label: 'Messages',      icon: Mail },
-  { id: 'bingo',         label: 'Bingo',         icon: BingoIcon },
+  { id: 'tournaments',      label: 'Tournaments',    icon: Trophy },
+  { id: 'members',          label: 'Members',        icon: Users },
+  { id: 'bagtags',          label: 'Bag Tags',       icon: Tag },
+  { id: 'courses',          label: 'Courses',        icon: MapPin },
+  { id: 'requests',         label: 'Requests',       icon: FileText },
+  { id: 'announcements',    label: 'Announcements',  icon: Megaphone },
+  { id: 'achievements',     label: 'Achievements',   icon: Award },
+  { id: 'messages',         label: 'Messages',       icon: Mail },
+  { id: 'bingo',            label: 'Bingo',          icon: BingoIcon },
+  { id: 'memberrequests',   label: 'Join Requests',  icon: UserPlus },
+  { id: 'analytics',        label: 'Analytics',      icon: BarChart2 },
 ];
 
 export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, courses, players, onDataChanged, onBack, pendingRequestsCount = 0 }) => {
@@ -1970,6 +2282,12 @@ export const AdminPanel = ({ currentUser, tournaments, rounds: roundsProp, cours
         )}
         {activeSection === 'messages' && (
           <MessagesSection currentUser={currentUser} players={players} showToast={showToast} />
+        )}
+        {activeSection === 'analytics' && (
+          <AnalyticsSection players={players} />
+        )}
+        {activeSection === 'memberrequests' && (
+          <MemberRequestsAdminSection currentUser={currentUser} showToast={showToast} />
         )}
       </div>
 
