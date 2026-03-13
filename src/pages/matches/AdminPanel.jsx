@@ -1935,7 +1935,7 @@ const AnalyticsSection = ({ players }) => {
 
   return (
     <div style={{ padding: '0 0 40px' }}>
-      <SectionTitle>App Analytics</SectionTitle>
+      <SectionHead>App Analytics</SectionHead>
 
       {/* Summary pills */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
@@ -2057,7 +2057,7 @@ const MemberRequestsAdminSection = ({ currentUser, showToast }) => {
 
   return (
     <div style={{ padding: '0 0 40px' }}>
-      <SectionTitle>Member Requests</SectionTitle>
+      <SectionHead>Member Requests</SectionHead>
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         <FilterBtn id="pending" label="Pending" />
         <FilterBtn id="approved" label="Approved" />
