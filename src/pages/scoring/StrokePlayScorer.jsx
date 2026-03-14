@@ -432,7 +432,6 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
   };
 
   const handleConfirm = async () => {
-    if (hasTies) { setError('Resolve all tied positions before confirming.'); return; }
     setSaving(true);
     try {
       await persistBagTagChallenge({
@@ -573,15 +572,15 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
           </div>
         )}
 
-        <button onClick={handleConfirm} disabled={saving || hasTies} style={{
+        <button onClick={handleConfirm} disabled={saving} style={{
           width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10,
-          background: hasTies ? 'var(--bg-card)' : 'linear-gradient(135deg, #92400e, #d97706)',
-          border: '1px solid rgba(251,191,36,0.3)', color: hasTies ? 'var(--text-muted)' : 'var(--text-primary)',
+          background: 'linear-gradient(135deg, #92400e, #d97706)',
+          border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
           fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
-          cursor: hasTies || saving ? 'not-allowed' : 'pointer',
+          cursor: saving ? 'not-allowed' : 'pointer',
           opacity: saving ? 0.6 : 1,
         }}>
-          🏷️ {saving ? 'Saving...' : hasTies ? 'Resolve ties to continue' : hasSwap ? 'Confirm Tag Swap' : 'Confirm — No Swap'}
+          🏷️ {saving ? 'Saving...' : hasSwap ? 'Confirm Tag Swap' : 'Confirm — No Swap'}
         </button>
 
         <button onClick={() => onComplete?.()} style={{
