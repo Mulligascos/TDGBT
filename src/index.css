@@ -2,6 +2,7 @@
 
 /* Override Syne with Arial everywhere — cleaner for numbers */
 [style*="Syne"] { font-family: Arial, sans-serif !important; }
+@font-face { font-family: 'Syne'; src: local('Arial'); }
 
 :root {
   --bg: #080c0a;
