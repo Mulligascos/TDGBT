@@ -48,7 +48,7 @@ const LeaderboardTab = ({ players, currentUserId }) => {
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             }}>
               <Tag size={11} color={i === 0 ? '#fbbf24' : 'var(--text-secondary)'} />
-              <div style={{ fontSize: 13, fontWeight: 800, color: i === 0 ? '#fbbf24' : 'white', fontFamily: "'Syne', sans-serif", lineHeight: 1.2 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: i === 0 ? '#fbbf24' : 'white', fontFamily: "'Syne', sans-serif", lineHeight: 1.2 }}>
                 {p.bagTag ?? p.bag_tag}
               </div>
             </div>
