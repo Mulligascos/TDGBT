@@ -1,5 +1,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Override Syne with Arial everywhere — cleaner for numbers */
+[style*="Syne"] { font-family: Arial, sans-serif !important; }
+
 :root {
   --bg: #080c0a;
   --surface: #0f1612;
