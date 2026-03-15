@@ -102,7 +102,7 @@ const HoleGrid = ({ scores, pars }) => {
                   padding: '5px 3px', textAlign: 'center',
                   color: diff == null ? 'rgba(255,255,255,0.2)'
                     : diff < 0 ? '#4ade80'
-                    : diff === 0 ? 'white'
+                    : diff === 0 ? 'var(--text-secondary)'
                     : '#f87171',
                   fontWeight: diff != null && diff < 0 ? 700 : 400,
                 }}>
