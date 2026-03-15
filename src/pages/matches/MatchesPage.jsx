@@ -460,7 +460,7 @@ const LiveLeaderboard = ({ rounds, courses, players, currentUser }) => {
                       </div>
                       {/* Name */}
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: entry.isMe ? 700 : 500, color: entry.isMe ? BRAND.light : 'white' }}>
+                        <div style={{ fontSize: 13, fontWeight: entry.isMe ? 700 : 500, color: entry.isMe ? BRAND.light : 'var(--text-primary)' }}>
                           {formatName(entry.player?.name || 'Unknown')}
                           {entry.isMe && <span style={{ fontSize: 10, color: BRAND.light, marginLeft: 4 }}>you</span>}
                         </div>
