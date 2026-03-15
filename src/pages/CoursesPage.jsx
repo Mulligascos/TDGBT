@@ -167,7 +167,7 @@ const ReportHazardForm = ({ courseId, holes, currentUser, onSaved, onCancel }) =
         <button onClick={handleSave} disabled={saving || !description.trim()} style={{
           flex: 2, padding: '10px', borderRadius: 10,
           background: description.trim() ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
-          border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
+          border: '1px solid rgba(74,222,128,0.3)', color: '#ffffff',
           fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
         }}>
           {saving ? 'Reporting...' : 'Report Hazard'}
@@ -248,7 +248,7 @@ const ChangeRequestForm = ({ courseId, courseName, currentUser, onSaved, onCance
         <button onClick={handleSave} disabled={saving || !form.title.trim() || !form.description.trim()} style={{
           flex: 2, padding: '10px', borderRadius: 10,
           background: (form.title.trim() && form.description.trim()) ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
-          border: '1px solid rgba(74,222,128,0.3)', color: 'var(--text-on-brand)',
+          border: '1px solid rgba(74,222,128,0.3)', color: '#ffffff',
           fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
         }}>
           {saving ? 'Submitting...' : 'Submit Request'}

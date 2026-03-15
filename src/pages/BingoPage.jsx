@@ -30,11 +30,13 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
       .lte('scheduled_date', end ? end.substring(0, 10) : '2099-12-31');
 
     if (!rounds?.length) {
-            return achieved;
+      console.log('[Bingo] No completed rounds found in season date range', { start, end, roundIds });
+      return achieved;
     }
     const seasonRoundIds = new Set(rounds.map(r => r.id));
     const seasonScores = myScores.filter(s => seasonRoundIds.has(s.round_id));
-    
+    console.log('[Bingo] Auto-check:', { rounds: rounds.length, seasonScores: seasonScores.length });
+
     // Get course pars for each round
     const courseIds = [...new Set(rounds.map(r => r.course_id))];
     const { data: courses } = await supabase
@@ -67,7 +69,8 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
 
       // Need hole-by-hole data for birdie/eagle/ace/turkey
       const course = courseMap[round.course_id];
-   
+      if (!course) { console.log('[Bingo] No course found for round', round.id, round.course_id); continue; }
+
       // pars stored as {"1":3,"2":4,...} object — convert to array
       const parsRaw = course.pars || {};
       const parsObj = typeof parsRaw === 'string' ? JSON.parse(parsRaw) : parsRaw;
@@ -77,6 +80,10 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
 
       const scores = Array.isArray(score.scores) ? score.scores :
         (typeof score.scores === 'string' ? JSON.parse(score.scores) : []);
+
+      console.log('[Bingo] Round', round.id.substring(0,8), '| vs_par:', score.vs_par, '| scores:', scores, '| pars:', pars);
+
+      if (!pars.length || !scores.length) { console.log('[Bingo] Skipping — empty scores or pars'); continue; }
 
       let consecBirdies = 0;
       let roundBirdies = 0;
@@ -97,7 +104,7 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
           consecBirdies = 0;
         }
       }
-
+      console.log('[Bingo] Round birdies:', roundBirdies, '| total so far:', totalBirdies);
       if (roundBirdies >= 5) achieved.add('five_birdies');
     }
 
@@ -118,6 +125,7 @@ const computeAutoKeys = async (playerId, seasonStart, seasonEnd) => {
       if (week) dateCounts[week] = (dateCounts[week] || 0) + 1;
     });
     if (Object.values(dateCounts).some(n => n >= 3)) achieved.add('three_rounds_week');
+    console.log('[Bingo] Achieved auto keys:', [...achieved]);
 
   } catch (e) {
     console.error('Auto-check error:', e);
@@ -354,7 +362,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>📋 Default items will be seeded</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>25 squares will be pre-filled with the default bingo items. You can edit individual squares after creating the season.</div>
       </div>
-      <button onClick={createSeason} disabled={saving} style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: BRAND.primary, color: 'var(--text-on-brand)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, cursor: saving ? 'wait' : 'pointer' }}>
+      <button onClick={createSeason} disabled={saving} style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: BRAND.primary, color: '#ffffff', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, cursor: saving ? 'wait' : 'pointer' }}>
         {saving ? 'Creating...' : '✓ Create Season'}
       </button>
     </div>
@@ -585,7 +593,7 @@ export const BingoPage = ({ currentUser, isAdmin, players }) => {
               <button onClick={() => claimItem(detailItem)} disabled={claiming} style={{
                 flex: 1, padding: '13px', borderRadius: 12, border: 'none', cursor: claiming ? 'wait' : 'pointer',
                 background: isDone ? 'rgba(248,113,113,0.1)' : BRAND.primary,
-                color: isDone ? '#f87171' : 'var(--text-on-brand)',
+                color: isDone ? '#f87171' : '#ffffff',
                 fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800,
               }}>
                 {claiming ? '...' : isDone ? '✗ Unclaim' : '✓ Claim Square'}
