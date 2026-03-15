@@ -776,14 +776,14 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
                   {medal || `${i + 1}`}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: isMe ? 700 : 600, color: isMe ? BRAND.light : 'white' }}>
+                  <div style={{ fontSize: 14, fontWeight: isMe ? 700 : 600, color: isMe ? BRAND.light : 'var(--text-primary)' }}>
                     {formatName(entry.player_name)}
                     {isMe && <span style={{ fontSize: 11, color: BRAND.light, marginLeft: 6 }}>you</span>}
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{formatDate(entry.submitted_at)}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: i === 0 ? '#fbbf24' : isMe ? BRAND.light : 'white', fontFamily: "'Syne', sans-serif" }}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: i === 0 ? '#fbbf24' : isMe ? BRAND.light : 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
                     {formatDistance(entry.distance_m)}
                   </div>
                   <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>from pin</div>

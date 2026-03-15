@@ -47,13 +47,13 @@ const LeaderboardTab = ({ players, currentUserId }) => {
               border: `1px solid ${i === 0 ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: i === 0 ? '#fbbf24' : 'white', fontFamily: 'Arial, sans-serif', lineHeight: 1 }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: i === 0 ? '#fbbf24' : 'var(--text-primary)', fontFamily: 'Arial, sans-serif', lineHeight: 1 }}>
                 {p.bagTag ?? p.bag_tag}
               </div>
             </div>
 
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: isMe ? 700 : 600, color: isMe ? BRAND.light : 'white' }}>
+              <div style={{ fontSize: 15, fontWeight: isMe ? 700 : 600, color: isMe ? BRAND.light : 'var(--text-primary)' }}>
                 {formatName(p.name ?? p.player_name)}
                 {isMe && <span style={{ fontSize: 11, color: BRAND.light, marginLeft: 6 }}>you</span>}
               </div>

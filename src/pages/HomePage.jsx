@@ -83,7 +83,7 @@ const Top3 = ({ entries, currentUserId, onViewAll }) => {
           }}>
             <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{medals[i]}</span>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: isMe ? 700 : 600, color: isMe ? BRAND.light : 'white' }}>
+              <div style={{ fontSize: 14, fontWeight: isMe ? 700 : 600, color: isMe ? BRAND.light : 'var(--text-primary)' }}>
                 {formatName(entry.player?.name || 'Unknown')}
                 {isMe && <span style={{ fontSize: 11, color: BRAND.light, marginLeft: 6 }}>you</span>}
               </div>
