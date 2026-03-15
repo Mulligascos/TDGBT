@@ -39,7 +39,7 @@ const PersonalBests = ({ myScores }) => {
         }}>
           <div style={{
             fontSize: 22, fontWeight: 800, color,
-            fontFamily: "'Syne', sans-serif", lineHeight: 1, marginBottom: 4,
+          fontFamily: 'Arial, sans-serif', lineHeight: 1, marginBottom: 4,
           }}>{value}</div>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
             {label}
@@ -54,7 +54,7 @@ const PersonalBests = ({ myScores }) => {
 const HoleGrid = ({ scores, pars }) => {
   if (!scores || !pars || pars.length === 0) {
     return (
-      <div style={{ fontSize: 12, fontFamily: 'Arial, sans-serif', color: 'var(--text-muted)', padding: '8px 0' }}>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '8px 0' }}>
         No hole-by-hole data available
       </div>
     );
