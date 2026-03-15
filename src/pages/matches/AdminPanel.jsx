@@ -1612,7 +1612,7 @@ const MessagesSection = ({ currentUser, players, showToast }) => {
             width: '100%', padding: '13px', borderRadius: 12, border: 'none',
             cursor: sending || !title || !body ? 'not-allowed' : 'pointer',
             background: sending || !title || !body ? 'var(--bg-input)' : BRAND.primary,
-            color: sending || !title || !body ? 'var(--text-muted)' : 'var(--text-on-brand)',
+            color: sending || !title || !body ? 'var(--text-muted)' : '#ffffff',
             fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             opacity: sending || !title || !body ? 0.6 : 1,
