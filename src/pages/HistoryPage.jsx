@@ -39,7 +39,7 @@ const PersonalBests = ({ myScores }) => {
         }}>
           <div style={{
             fontSize: 22, fontWeight: 800, color,
-          fontFamily: 'Arial, sans-serif', lineHeight: 1, marginBottom: 4,
+            fontFamily: 'Arial, sans-serif', lineHeight: 1, marginBottom: 4,
           }}>{value}</div>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
             {label}
@@ -414,7 +414,7 @@ const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <button onClick={prevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>‹</button>
-        <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 16, fontWeight: 800, color: 'var(--text-primary)' }}>
+        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 800, color: 'var(--text-primary)' }}>
           {monthNames[viewMonth]} {viewYear}
         </div>
         <button onClick={nextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>›</button>
@@ -606,7 +606,7 @@ export const HistoryPage = ({ currentUser, players }) => {
           <div style={{ fontSize: 11, fontWeight: 700, color: BRAND.light, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
             📋 History
           </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Arial, sans-serif' }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
             My Rounds
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
