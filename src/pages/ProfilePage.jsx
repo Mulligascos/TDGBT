@@ -582,23 +582,18 @@ const AchievementsSection = ({ currentUser }) => {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Earned · {earnedList.length}/{ACHIEVEMENTS.length}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
             {earnedList.map(a => {
               const tier = TIER_COLORS[a.tier];
               return (
                 <div key={a.id} onClick={() => setPopup({ ...a, earned: true, earnedData: earned.get(a.id) })} style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  textAlign: 'center', gap: 6,
+                  textAlign: 'center', gap: 4,
                   background: tier.bg, border: `1px solid ${tier.border}`,
-                  borderRadius: 12, padding: '12px 8px', cursor: 'pointer',
+                  borderRadius: 10, padding: '8px 4px', cursor: 'pointer',
                 }}>
-                  <span style={{ fontSize: 26 }}>{a.icon}</span>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: tier.color, lineHeight: 1.2 }}>{a.label}</div>
-                  <div style={{
-                    fontSize: 8, fontWeight: 700, color: tier.color,
-                    textTransform: 'uppercase', letterSpacing: 1,
-                    background: tier.border, padding: '2px 5px', borderRadius: 4,
-                  }}>{a.tier}</div>
+                  <span style={{ fontSize: 20 }}>{a.icon}</span>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: tier.color, lineHeight: 1.2 }}>{a.label}</div>
                 </div>
               );
             })}
@@ -612,17 +607,17 @@ const AchievementsSection = ({ currentUser }) => {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Locked
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
             {lockedList.map(a => (
               <div key={a.id} onClick={() => setPopup({ ...a, earned: false })} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
-                textAlign: 'center', gap: 5,
+                textAlign: 'center', gap: 4,
                 background: 'var(--bg-card)', border: '1px solid var(--border)',
-                borderRadius: 12, padding: '12px 8px',
+                borderRadius: 10, padding: '8px 4px',
                 opacity: 0.4, cursor: 'pointer',
               }}>
-                <span style={{ fontSize: 22, filter: 'grayscale(1)' }}>{a.icon}</span>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.2 }}>{a.label}</span>
+                <span style={{ fontSize: 20, filter: 'grayscale(1)' }}>{a.icon}</span>
+                <span style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.2 }}>{a.label}</span>
               </div>
             ))}
           </div>
