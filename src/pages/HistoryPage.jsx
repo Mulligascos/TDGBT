@@ -39,7 +39,7 @@ const PersonalBests = ({ myScores }) => {
         }}>
           <div style={{
             fontSize: 22, fontWeight: 800, color,
-            fontFamily: 'Arial, sans-serif', lineHeight: 1, marginBottom: 4,
+            fontFamily: "'Syne', sans-serif", lineHeight: 1, marginBottom: 4,
           }}>{value}</div>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
             {label}
