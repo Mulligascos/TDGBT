@@ -67,26 +67,26 @@ const HoleGrid = ({ scores, pars }) => {
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr>
-            <td style={{ padding: '4px 6px', color: 'var(--text-muted)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+            <td style={{ padding: '4px 6px', color: 'var(--text-secondary)', fontWeight: 700, whiteSpace: 'nowrap' }}>
               Hole
             </td>
             {pars.map((_, i) => (
-              <td key={i} style={{ padding: '4px 3px', color: 'var(--text-muted)', textAlign: 'center', fontWeight: 700 }}>
+              <td key={i} style={{ padding: '4px 3px', color: 'var(--text-secondary)', textAlign: 'center', fontWeight: 700 }}>
                 {i + 1}
               </td>
             ))}
-            <td style={{ padding: '4px 6px', color: 'var(--text-muted)', textAlign: 'right', fontWeight: 700 }}>
+            <td style={{ padding: '4px 6px', color: 'var(--text-secondary)', textAlign: 'right', fontWeight: 700 }}>
               Tot
             </td>
           </tr>
           <tr>
-            <td style={{ padding: '3px 6px', color: 'var(--text-muted)', fontSize: 10 }}>Par</td>
+            <td style={{ padding: '3px 6px', color: 'var(--text-secondary)', fontSize: 10 }}>Par</td>
             {pars.map((p, i) => (
-              <td key={i} style={{ padding: '3px', color: 'var(--text-muted)', textAlign: 'center', fontSize: 10 }}>
+              <td key={i} style={{ padding: '3px', color: 'var(--text-secondary)', textAlign: 'center', fontSize: 10 }}>
                 {p}
               </td>
             ))}
-            <td style={{ padding: '3px 6px', color: 'var(--text-muted)', textAlign: 'right', fontSize: 10 }}>
+            <td style={{ padding: '3px 6px', color: 'var(--text-secondary)', textAlign: 'right', fontSize: 10 }}>
               {totalPar(pars)}
             </td>
           </tr>
@@ -100,9 +100,9 @@ const HoleGrid = ({ scores, pars }) => {
               return (
                 <td key={i} style={{
                   padding: '5px 3px', textAlign: 'center',
-                  color: diff == null ? 'rgba(255,255,255,0.2)'
+                  color: diff == null ? 'var(--text-muted)'
                     : diff < 0 ? '#4ade80'
-                    : diff === 0 ? 'var(--text-secondary)'
+                    : diff === 0 ? 'var(--text-primary)'
                     : '#f87171',
                   fontWeight: diff != null && diff < 0 ? 700 : 400,
                 }}>
@@ -461,7 +461,7 @@ const ActivityCalendar = ({ myScores, playedRounds, allScheduledRounds, onClose 
             }}>
               <span style={{
                 fontSize: 12, fontWeight: isToday || hasPlayed ? 700 : 400,
-                color: hasPlayed ? '#4ade80' : isToday ? BRAND.light : isScheduled || isActive ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)',
+                color: hasPlayed ? '#4ade80' : isToday ? BRAND.light : isScheduled || isActive ? 'var(--text-secondary)' : 'var(--text-muted)',
                 lineHeight: 1,
               }}>
                 {day}
