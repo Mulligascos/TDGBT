@@ -575,7 +575,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
         <button onClick={handleConfirm} disabled={saving} style={{
           width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10,
           background: 'linear-gradient(135deg, #92400e, #d97706)',
-          border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
+          border: '1px solid rgba(251,191,36,0.3)', color: '#ffffff',
           fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700,
           cursor: saving ? 'not-allowed' : 'pointer',
           opacity: saving ? 0.6 : 1,
@@ -1078,7 +1078,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
                   : ctpPos ? <Check size={16} color="#4ade80" /> : <MapPin size={16} color="var(--text-muted)" />}
               </div>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: ctpPos ? '#4ade80' : 'white' }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: ctpPos ? '#4ade80' : 'var(--text-primary)' }}>
                   {ctpGpsLoading ? 'Getting location...' : ctpPos ? 'Position captured' : "I'm standing at my disc"}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>

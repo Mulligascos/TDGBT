@@ -415,7 +415,7 @@ const MPBagTagScreen = ({ p1, p2, winnerPlayer, onComplete, updateUser, currentU
           );
         })}
         {error && <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#f87171', marginBottom: 12 }}>⚠️ {error}</div>}
-        <button onClick={handleConfirm} disabled={saving} style={{ width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10, background: 'linear-gradient(135deg, #92400e, #d97706)', border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
+        <button onClick={handleConfirm} disabled={saving} style={{ width: '100%', padding: '16px', borderRadius: 14, marginBottom: 10, background: 'linear-gradient(135deg, #92400e, #d97706)', border: '1px solid rgba(251,191,36,0.3)', color: '#ffffff', fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
           🏷️ {saving ? 'Saving...' : hasSwap ? 'Confirm Tag Swap' : 'Confirm — No Swap'}
         </button>
         <button onClick={onComplete} style={{ width: '100%', padding: '12px', borderRadius: 12, background: 'transparent', border: '1px solid var(--border-card)', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, cursor: 'pointer' }}>Skip</button>
