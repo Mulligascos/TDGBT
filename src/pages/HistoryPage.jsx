@@ -54,7 +54,7 @@ const PersonalBests = ({ myScores }) => {
 const HoleGrid = ({ scores, pars }) => {
   if (!scores || !pars || pars.length === 0) {
     return (
-      <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '8px 0' }}>
+      <div style={{ fontSize: 12, fontFamily: 'Arial, sans-serif', color: 'var(--text-muted)', padding: '8px 0' }}>
         No hole-by-hole data available
       </div>
     );
