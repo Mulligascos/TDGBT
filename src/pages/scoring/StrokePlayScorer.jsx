@@ -829,6 +829,11 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   const totalHoles = pars.length;
   const isLastHole = currentHole === totalHoles - 1;
 
+  // All non-guest players must have a score on the last hole before allowing review
+  const lastHoleScored = cardPlayers
+    .filter(p => !p.isGuest)
+    .every(p => (scores[p.id] || [])[totalHoles - 1] != null);
+
   const setScore = useCallback((playerId, holeIdx, val) => {
     setScores(prev => {
       const arr = [...(prev[playerId] || Array(totalHoles).fill(null))];
@@ -1154,14 +1159,21 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           </button>
 
           {isLastHole ? (
-            <button onClick={() => setView('summary')} style={{
-              flex: 2, padding: '13px', borderRadius: 14,
-              background: `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`,
-              border: `1px solid ${BRAND.light}40`, color: '#ffffff',
-              fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            }}>
-              <Check size={18} /> Review Card
+            <button
+              onClick={() => lastHoleScored && setView('summary')}
+              disabled={!lastHoleScored}
+              style={{
+                flex: 2, padding: '13px', borderRadius: 14,
+                background: lastHoleScored
+                  ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})`
+                  : 'var(--bg-input)',
+                border: `1px solid ${lastHoleScored ? `${BRAND.light}40` : 'var(--border-card)'}`,
+                color: lastHoleScored ? '#ffffff' : 'var(--text-muted)',
+                fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+                cursor: lastHoleScored ? 'pointer' : 'not-allowed',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}>
+              <Check size={18} /> {lastHoleScored ? 'Review Card' : 'Score last hole first'}
             </button>
           ) : (
             <button onClick={() => goToHole(currentHole + 1)} style={{
