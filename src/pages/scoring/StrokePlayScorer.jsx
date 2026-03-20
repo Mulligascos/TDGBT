@@ -83,18 +83,18 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <button onClick={() => { haptic('light'); onChange(Math.max(1, (score || par) - 1)); }} style={{
-          width: 36, height: 36, borderRadius: '50%',
+          width: 44, height: 44, borderRadius: '50%',
           background: 'var(--bg-input)', border: '1px solid var(--border-card)',
           color: 'var(--text-primary)', fontSize: 20, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Minus size={16} />
+          <Minus size={20} />
         </button>
 
         <div style={{
-          width: 44, height: 44, borderRadius: 12,
+          width: 60, height: 60, borderRadius: 14,
           background: diff == null ? 'var(--bg-card)' :
             diff < 0 ? 'rgba(74,222,128,0.15)' :
             diff === 0 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
@@ -102,7 +102,7 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
             diff < 0 ? 'rgba(74,222,128,0.3)' :
             diff === 0 ? 'rgba(251,191,36,0.3)' : 'rgba(248,113,113,0.3)'}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'Arial, sans-serif', fontSize: 18, fontWeight: 800,
+          fontFamily: 'Arial, sans-serif', fontSize: 26, fontWeight: 800,
           color: diff == null ? 'var(--text-muted)' :
             diff < 0 ? '#4ade80' : diff === 0 ? '#fbbf24' : '#f87171',
         }}>
@@ -110,12 +110,12 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
         </div>
 
         <button onClick={() => { haptic('light'); onChange((score || par) + 1); }} style={{
-          width: 36, height: 36, borderRadius: '50%',
+          width: 44, height: 44, borderRadius: '50%',
           background: 'var(--bg-input)', border: '1px solid var(--border-card)',
           color: 'var(--text-primary)', fontSize: 20, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Plus size={16} />
+          <Plus size={20} />
         </button>
       </div>
 
@@ -1102,32 +1102,6 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
               <UserMinus size={14} />
             </button>
           )}
-        </div>
-
-        {/* Running totals */}
-        <div style={{
-          background: 'var(--bg-card)', border: '1px solid var(--border)',
-          borderRadius: 12, padding: '10px 14px', marginBottom: 16,
-        }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-            Running Totals
-          </div>
-          {cardPlayers.map(p => {
-            const playerScores = scores[p.id] || [];
-            const adjusted = playerScores.slice(0, currentHole + 1).map(s => s != null ? applyHandicap(s, p) : null);
-            const vp = calcVsPar(adjusted, pars.slice(0, currentHole + 1));
-            const holesPlayed = adjusted.filter(s => s != null).length;
-            if (holesPlayed === 0) return null;
-            return (
-              <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                  {formatName(p.name)}
-                  {p.isGuest && <span style={{ fontSize: 9, background: 'rgba(148,163,184,0.15)', color: '#94a3b8', padding: '1px 5px', borderRadius: 4, fontWeight: 700, marginLeft: 5 }}>GUEST</span>}
-                </span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: vsParColor(vp), fontFamily: 'Arial, sans-serif' }}>{vsParLabel(vp)}</span>
-              </div>
-            );
-          })}
         </div>
 
         {/* Live scorecard table */}
