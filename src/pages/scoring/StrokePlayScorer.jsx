@@ -67,7 +67,7 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
       opacity: isCurrentHole ? 1 : 0.85,
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
           {formatName(player.name)}
           {junior && (
             <span style={{ fontSize: 9, background: 'rgba(251,191,36,0.2)', color: '#fbbf24', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>J</span>
@@ -77,7 +77,7 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
           )}
         </div>
         {adjusted != null && (
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>
             {junior ? `${score} → ${adjusted} (handicap)` : `${score} strokes`}
           </div>
         )}
@@ -119,9 +119,9 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
         </button>
       </div>
 
-      <div style={{ width: 36, textAlign: 'right' }}>
+      <div style={{ width: 44, textAlign: 'right' }}>
         {diff != null && (
-          <span style={{ fontSize: 13, fontWeight: 700, color: vsParColor(diff) }}>
+          <span style={{ fontSize: 20, fontWeight: 700, color: vsParColor(diff), fontFamily: 'Arial, sans-serif' }}>
             {vsParLabel(diff)}
           </span>
         )}
