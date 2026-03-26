@@ -12,7 +12,7 @@ const pageStyle = {
 };
 
 const DISC_COLOURS = ['White', 'Yellow', 'Orange', 'Red', 'Pink', 'Purple', 'Blue', 'Green', 'Black', 'Grey', 'Swirly', 'Other'];
-const POPULAR_BRANDS = ['Innova', 'Discraft', 'Dynamic Discs', 'Latitude 64', 'Westside', 'MVP', 'Axiom', 'Prodigy', 'Kastaplast', 'Other'];
+const POPULAR_BRANDS = [ 'Axiom', 'Discraft', 'Dynamic Discs', 'Innova','Kastaplast', 'Latitude 64', 'MVP', 'Prodigy', 'RPM', 'Westside', 'Other'];
 
 const inputStyle = {
   width: '100%', padding: '11px 14px', borderRadius: 12,
