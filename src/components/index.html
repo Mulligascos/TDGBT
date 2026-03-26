@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>TDG Portal</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#071407" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TDG Portal" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Service Worker registration with update detection -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(reg => {
+
+            // Check for updates every 60 seconds
+            setInterval(() => reg.update(), 60000);
+
+            // New SW waiting — show update prompt
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  showUpdateBanner(newWorker);
+                }
+              });
+            });
+
+          }).catch(err => console.warn('[SW] Registration failed:', err));
+
+          // When SW activates (after skipWaiting), reload the page
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+              refreshing = true;
+              window.location.reload();
+            }
+          });
+        });
+      }
+
+      function showUpdateBanner(worker) {
+        // Remove any existing banner
+        const existing = document.getElementById('sw-update-banner');
+        if (existing) existing.remove();
+
+        const banner = document.createElement('div');
+        banner.id = 'sw-update-banner';
+        banner.style.cssText = `
+          position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+          z-index: 99999; display: flex; align-items: center; gap: 12px;
+          background: #1a2e1a; border: 1px solid rgba(74,222,128,0.4);
+          color: #ffffff; padding: 14px 18px; border-radius: 16px;
+          font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.5); white-space: nowrap;
+          max-width: calc(100vw - 40px);
+        `;
+        banner.innerHTML = `
+          <span>🆕 New version available</span>
+          <button onclick="
+            document.getElementById('sw-update-banner').remove();
+            this.closest('#sw-update-banner') && this.closest('#sw-update-banner').remove();
+          " style="
+            background: none; border: none; color: rgba(255,255,255,0.5);
+            cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1;
+          ">✕</button>
+          <button id="sw-update-btn" style="
+            background: linear-gradient(135deg, #006400, #228B22);
+            border: 1px solid rgba(74,222,128,0.3); color: #ffffff;
+            padding: 8px 16px; border-radius: 10px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+          ">Update now</button>
+        `;
+        document.body.appendChild(banner);
+
+        document.getElementById('sw-update-btn').addEventListener('click', () => {
+          banner.remove();
+          worker.postMessage('skipWaiting');
+        });
+
+        // Auto-dismiss after 30 seconds
+        setTimeout(() => banner.remove(), 30000);
+      }
+    </script>
+  </body>
+</html>
