@@ -1,76 +1,117 @@
-// TDG Portal — Service Worker
-// Strategy: cache-first for static assets, network-first for API calls
+// ─── CACHE VERSION — bump this string on every deploy to force cache clear ───
+const CACHE_VERSION = 'tdg-v11';
+const CACHE_NAME = `${CACHE_VERSION}-static`;
 
-const CACHE_NAME = 'tdg-portal-v1';
-
-// Static assets to pre-cache on install
+// Static assets to cache on install
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/manifest.json',
+  '/assets/TDG_LogoSmall.PNG',
   '/assets/icon-192.png',
   '/assets/icon-512.png',
-  '/assets/apple-touch-icon.png',
 ];
 
-// Install — pre-cache shell
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
-  );
+// Never cache these — always go to network
+const NETWORK_ONLY = [
+  'supabase.co',
+  'arcgisonline.com',
+  'unpkg.com',
+  'openstreetmap.org',
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+];
+
+// ─── INSTALL — cache static assets ───────────────────────────────────────────
+self.addEventListener('install', event => {
+  // Skip waiting immediately — don't wait for old SW to be released
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS)).catch(() => {})
+  );
 });
 
-// Activate — clean up old caches
-self.addEventListener('activate', (event) => {
+// ─── ACTIVATE — delete old caches ────────────────────────────────────────────
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
+    caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+          .filter(key => key !== CACHE_NAME)
+          .map(key => {
+            console.log('[SW] Deleting old cache:', key);
+            return caches.delete(key);
+          })
       )
-    )
+    ).then(() => {
+      // Take control of all open tabs immediately
+      return self.clients.claim();
+    })
   );
-  self.clients.claim();
 });
 
-// Fetch — network-first for Supabase API, cache-first for everything else
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+// ─── FETCH — network-first for API/CDN, cache-first for static assets ────────
+self.addEventListener('fetch', event => {
+  const url = event.request.url;
 
-  // Only handle http/https — ignore chrome-extension, data, blob etc.
-  if (!url.protocol.startsWith('http')) return;
+  // Skip non-HTTP requests (chrome-extension etc)
+  if (!url.startsWith('http')) return;
 
-  // Always go to network for Supabase, Esri tiles, Leaflet CDN
-  const networkOnly = [
-    'supabase.co',
-    'arcgisonline.com',
-    'unpkg.com',
-    'openstreetmap.org',
-  ];
-  if (networkOnly.some((domain) => url.hostname.includes(domain))) {
-    return; // fall through to normal network fetch
+  // Always network-only for API and CDN requests
+  if (NETWORK_ONLY.some(domain => url.includes(domain))) {
+    event.respondWith(fetch(event.request));
+    return;
   }
 
-  // Cache-first for static assets (JS, CSS, images, fonts)
+  // For JS/CSS chunks (hashed filenames) — network first, fall back to cache
+  if (url.includes('/assets/') && (url.endsWith('.js') || url.endsWith('.css'))) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // For navigation requests (HTML) — always network first so app updates are seen
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Everything else — cache first, network fallback
   event.respondWith(
-    caches.match(event.request).then((cached) => {
+    caches.match(event.request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        // Cache successful GET responses for static assets
-        if (
-          response.ok &&
-          event.request.method === 'GET' &&
-          (url.pathname.match(/\.(js|css|png|jpg|gif|svg|woff2?|ttf)$/) ||
-            url.pathname === '/' ||
-            url.pathname === '/index.html')
-        ) {
+      return fetch(event.request).then(response => {
+        if (response.ok) {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }
         return response;
       });
     })
   );
+});
+
+// ─── MESSAGE — allow app to trigger skipWaiting manually ─────────────────────
+self.addEventListener('message', event => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
