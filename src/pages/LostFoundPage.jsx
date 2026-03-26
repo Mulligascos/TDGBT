@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { BRAND, formatName, formatDate, haptic } from '../utils';
 import { EmptyState, LogoWatermark } from '../components/ui';
-import { ChevronLeft, Plus, Check, X, Search } from 'lucide-react';
+import { ChevronLeft, Plus, Check, X, Search, MapPin } from 'lucide-react';
 
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 const pageStyle = {
@@ -12,7 +12,7 @@ const pageStyle = {
 };
 
 const DISC_COLOURS = ['White', 'Yellow', 'Orange', 'Red', 'Pink', 'Purple', 'Blue', 'Green', 'Black', 'Grey', 'Swirly', 'Other'];
-const POPULAR_BRANDS = [ 'Axiom', 'Discraft', 'Dynamic Discs', 'Innova','Kastaplast', 'Latitude 64', 'MVP', 'Prodigy', 'RPM', 'Westside', 'Other'];
+const POPULAR_BRANDS = ['Innova', 'Discraft', 'Dynamic Discs', 'Latitude 64', 'Westside', 'MVP', 'Axiom', 'Prodigy', 'Kastaplast', 'Other'];
 
 const inputStyle = {
   width: '100%', padding: '11px 14px', borderRadius: 12,
@@ -36,7 +36,7 @@ const StatusBadge = ({ status }) => {
     found:   { label: 'Unclaimed', bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.3)',  color: '#fbbf24' },
     claimed: { label: 'Claimed',   bg: 'rgba(74,222,128,0.12)',  border: 'rgba(74,222,128,0.25)', color: '#4ade80' },
     lost:    { label: 'Lost',      bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.25)', color: '#f87171' },
-  }[status] || { label: status, bg: 'var(--text-muted)', border: 'var(--text-muted)', color: 'var(--text-secondary)' };
+  }[status] || { label: status, bg: 'var(--bg-input)', border: 'var(--border)', color: 'var(--text-secondary)' };
   return (
     <div style={{
       display: 'inline-flex', alignItems: 'center',
@@ -51,6 +51,12 @@ const StatusBadge = ({ status }) => {
 const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) => {
   const [expanded, setExpanded] = useState(false);
   const isOwn = disc.reported_by === currentUser.id;
+  const isLost = disc.type === 'lost';
+
+  // Accent colour based on type
+  const accentColor = isLost ? '#f87171' : '#fbbf24';
+  const accentBg = isLost ? 'rgba(248,113,113,0.1)' : 'rgba(251,191,36,0.1)';
+  const accentBorder = isLost ? 'rgba(248,113,113,0.25)' : 'rgba(251,191,36,0.25)';
 
   return (
     <div style={{
@@ -58,62 +64,71 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
       borderRadius: 16, marginBottom: 10, overflow: 'hidden',
       opacity: disc.status === 'claimed' ? 0.6 : 1,
     }}>
-      {/* Main row */}
-      <div onClick={() => setExpanded(e => !e)} style={{ padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-        {/* Colour dot */}
-        <div style={{
-          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-          background: 'var(--bg-card)', border: '1px solid var(--border-card)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
-        }}>
-          <span style={{ fontSize: 20 }}>🥏</span>
-          <span style={{
-            fontSize: 9, fontWeight: 700, color: 'var(--text-secondary)',
-            textTransform: 'uppercase', letterSpacing: 0.5,
-            maxWidth: 40, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>{disc.colour}</span>
-        </div>
+      {/* Collapsed tile */}
+      <div onClick={() => setExpanded(e => !e)} style={{ padding: '14px 16px', cursor: 'pointer' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
 
-        {/* Info */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>
-            {disc.brand} {disc.mould ? `· ${disc.mould}` : ''}
+          {/* Icon */}
+          <div style={{
+            width: 46, height: 46, borderRadius: 12, flexShrink: 0,
+            background: accentBg, border: `1px solid ${accentBorder}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22,
+          }}>
+            {isLost ? '🔍' : '🥏'}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-            {disc.type === 'lost'
-              ? `Lost near hole ${disc.hole} · ${formatDate(disc.found_date)}`
-              : `Hole ${disc.hole} · ${formatDate(disc.found_date)}`}
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-            {disc.type === 'lost'
-              ? `Reported missing by ${formatName(disc.finder_name || 'Unknown')}`
-              : `Found by ${formatName(disc.finder_name || 'Unknown')}`}
-          </div>
-        </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-          <StatusBadge status={disc.status} />
-          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{expanded ? '▲' : '▼'}</span>
+          {/* Primary info — course, hole, date */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* Course + hole — most important */}
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span>{disc.course_name || 'Unknown Course'}</span>
+              {disc.hole && (
+                <span style={{
+                  fontSize: 11, fontWeight: 700, color: accentColor,
+                  background: accentBg, border: `1px solid ${accentBorder}`,
+                  padding: '1px 7px', borderRadius: 6,
+                }}>Hole {disc.hole}</span>
+              )}
+            </div>
+
+            {/* Date */}
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
+              {formatDate(disc.found_date)} · {isLost ? `Reported by ${formatName(disc.finder_name || 'Unknown')}` : `Found by ${formatName(disc.finder_name || 'Unknown')}`}
+            </div>
+
+            {/* Disc description — secondary */}
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              {[disc.colour, disc.brand, disc.mould].filter(Boolean).join(' · ')}
+            </div>
+          </div>
+
+          {/* Status + chevron */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+            <StatusBadge status={disc.status} />
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{expanded ? '▲' : '▼'}</span>
+          </div>
         </div>
       </div>
 
-      {/* Expanded */}
+      {/* Expanded detail */}
       {expanded && (
-        <div style={{ borderTop: '1px solid var(--border)', padding: '12px 16px 14px' }}>
-          {disc.description && (
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>
-              {disc.description}
-            </div>
-          )}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+        <div style={{ borderTop: '1px solid var(--border)', padding: '14px 16px' }}>
+
+          {/* Detail chips */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: disc.description ? 12 : 14 }}>
             {[
-              { label: 'Colour', value: disc.colour },
-              { label: 'Hole', value: `Hole ${disc.hole}` },
               { label: 'Course', value: disc.course_name || 'Unknown' },
-            ].map(({ label, value }) => (
+              disc.hole && { label: 'Hole', value: `Hole ${disc.hole}` },
+              { label: 'Date', value: formatDate(disc.found_date) },
+              { label: 'Colour', value: disc.colour },
+              { label: 'Brand', value: disc.brand },
+              disc.mould && { label: 'Mould', value: disc.mould },
+              { label: isLost ? 'Reported by' : 'Found by', value: formatName(disc.finder_name || 'Unknown') },
+            ].filter(Boolean).map(({ label, value }) => (
               <div key={label} style={{
                 padding: '5px 10px', borderRadius: 8,
-                background: 'var(--bg-card)', border: '1px solid var(--border)',
+                background: 'var(--bg-input)', border: '1px solid var(--border)',
               }}>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginTop: 1 }}>{value}</div>
@@ -121,8 +136,19 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
             ))}
           </div>
 
+          {/* Description */}
+          {disc.description && (
+            <div style={{
+              fontSize: 13, color: 'var(--text-secondary)', marginBottom: 14,
+              lineHeight: 1.6, background: 'var(--bg-input)', borderRadius: 10,
+              padding: '10px 12px', border: '1px solid var(--border)',
+            }}>
+              💬 {disc.description}
+            </div>
+          )}
+
           {/* Actions */}
-          {disc.status !== 'claimed' && disc.type !== 'lost' && (
+          {disc.status !== 'claimed' && !isLost && (
             <div style={{ display: 'flex', gap: 8 }}>
               {!isOwn && (
                 <button onClick={() => onClaim(disc)} style={{
@@ -148,13 +174,13 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
             </div>
           )}
 
-          {disc.type === 'lost' && disc.status !== 'claimed' && (
+          {disc.status !== 'claimed' && isLost && (
             <div style={{ display: 'flex', gap: 8 }}>
               {!isOwn && (
                 <button onClick={() => onFoundIt(disc)} style={{
                   flex: 1, padding: '10px', borderRadius: 12,
                   background: 'linear-gradient(135deg, #92400e, #b45309)',
-                  border: '1px solid rgba(251,191,36,0.3)', color: 'var(--text-primary)',
+                  border: '1px solid rgba(251,191,36,0.3)', color: '#ffffff',
                   fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}>
@@ -176,11 +202,11 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
 
           {disc.status === 'claimed' && (
             <div style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>
-              {disc.type === 'lost' ? 'Disc was found and returned 🎉' : 'Reunited with its owner 🎉'}
+              {isLost ? 'Disc was found and returned 🎉' : 'Reunited with its owner 🎉'}
             </div>
           )}
 
-          {isAdmin && disc.status !== 'claimed' && disc.type !== 'lost' && (
+          {isAdmin && disc.status !== 'claimed' && !isLost && (
             <button onClick={() => onClaim(disc)} style={{
               marginTop: 8, width: '100%', padding: '8px', borderRadius: 10,
               background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)',
@@ -197,9 +223,7 @@ const DiscCard = ({ disc, currentUser, isAdmin, onClaim, onFoundIt, onDelete }) 
 
 // ─── REPORT FORM ─────────────────────────────────────────────────────────────
 const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
-  const [form, setForm] = useState({
-    brand: '', mould: '', colour: '', hole: '', course_id: '', description: '',
-  });
+  const [form, setForm] = useState({ brand: '', mould: '', colour: '', hole: '', course_id: '', description: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -216,19 +240,14 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
         colour: form.colour, hole: parseInt(form.hole),
         course_id: form.course_id, course_name: course?.name || '',
         description: form.description || null,
-        reported_by: currentUser.id,
-        finder_name: currentUser.name,
+        reported_by: currentUser.id, finder_name: currentUser.name,
         found_date: new Date().toISOString().split('T')[0],
-        status: 'found',
-        type: 'found',
+        status: 'found', type: 'found',
       });
       if (err) throw err;
       haptic('success');
       onSubmit();
-    } catch (e) {
-      setError(e.message);
-      setSaving(false);
-    }
+    } catch (e) { setError(e.message); setSaving(false); }
   };
 
   return (
@@ -239,7 +258,6 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={20} /></button>
         </div>
 
-        {/* Brand */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Brand *</div>
           <select value={form.brand} onChange={e => set('brand', e.target.value)} style={{ ...inputStyle, appearance: 'none' }}>
@@ -248,13 +266,11 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
           </select>
         </div>
 
-        {/* Mould */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Mould / Model</div>
           <input value={form.mould} onChange={e => set('mould', e.target.value)} placeholder="e.g. Destroyer, Buzzz, Judge..." style={inputStyle} />
         </div>
 
-        {/* Colour */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Colour *</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -270,7 +286,6 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
           </div>
         </div>
 
-        {/* Course + Hole */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px', gap: 10, marginBottom: 14 }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Course *</div>
@@ -285,7 +300,6 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
           </div>
         </div>
 
-        {/* Description */}
         <div style={{ marginBottom: 18 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Extra details</div>
           <textarea value={form.description} onChange={e => set('description', e.target.value)}
@@ -293,17 +307,13 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
             style={{ ...inputStyle, resize: 'none', lineHeight: 1.5 }} />
         </div>
 
-        {error && (
-          <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#f87171' }}>
-            ⚠️ {error}
-          </div>
-        )}
+        {error && <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#f87171' }}>⚠️ {error}</div>}
 
         <button onClick={handleSubmit} disabled={!valid || saving} style={{
           width: '100%', padding: '14px', borderRadius: 14,
-          background: valid ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--text-muted)',
+          background: valid ? `linear-gradient(135deg, ${BRAND.primary}, ${BRAND.accent})` : 'var(--bg-input)',
           border: valid ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--border)',
-          color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+          color: '#ffffff', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
           cursor: valid ? 'pointer' : 'not-allowed', opacity: saving ? 0.6 : 1,
         }}>
           {saving ? 'Reporting...' : '🥏 Report Found Disc'}
@@ -313,12 +323,9 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
   );
 };
 
-
 // ─── LOST FORM ────────────────────────────────────────────────────────────────
 const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
-  const [form, setForm] = useState({
-    brand: '', mould: '', colour: '', hole: '', course_id: '', description: '',
-  });
+  const [form, setForm] = useState({ brand: '', mould: '', colour: '', hole: '', course_id: '', description: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -335,19 +342,14 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
         colour: form.colour, hole: parseInt(form.hole) || null,
         course_id: form.course_id, course_name: course?.name || '',
         description: form.description || null,
-        reported_by: currentUser.id,
-        finder_name: currentUser.name,
+        reported_by: currentUser.id, finder_name: currentUser.name,
         found_date: new Date().toISOString().split('T')[0],
-        status: 'lost',
-        type: 'lost',
+        status: 'lost', type: 'lost',
       });
       if (err) throw err;
       haptic('success');
       onSubmit();
-    } catch (e) {
-      setError(e.message);
-      setSaving(false);
-    }
+    } catch (e) { setError(e.message); setSaving(false); }
   };
 
   return (
@@ -381,8 +383,8 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
             {DISC_COLOURS.map(col => (
               <button key={col} onClick={() => set('colour', col)} style={{
                 padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-                background: form.colour === col ? 'rgba(248,113,113,0.2)' : 'var(--text-muted)',
-                border: `1px solid ${form.colour === col ? 'rgba(248,113,113,0.4)' : 'var(--text-muted)'}`,
+                background: form.colour === col ? 'rgba(248,113,113,0.2)' : 'var(--bg-input)',
+                border: `1px solid ${form.colour === col ? 'rgba(248,113,113,0.4)' : 'var(--border)'}`,
                 color: form.colour === col ? '#f87171' : 'var(--text-secondary)', cursor: 'pointer',
                 fontFamily: "'DM Sans', sans-serif",
               }}>{col}</button>
@@ -411,17 +413,13 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
             style={{ ...inputStyle, resize: 'none', lineHeight: 1.5 }} />
         </div>
 
-        {error && (
-          <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#f87171' }}>
-            ⚠️ {error}
-          </div>
-        )}
+        {error && <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#f87171' }}>⚠️ {error}</div>}
 
         <button onClick={handleSubmit} disabled={!valid || saving} style={{
           width: '100%', padding: '14px', borderRadius: 14,
-          background: valid ? 'linear-gradient(135deg, #92400e, #b45309)' : 'var(--text-muted)',
+          background: valid ? 'linear-gradient(135deg, #92400e, #b45309)' : 'var(--bg-input)',
           border: valid ? '1px solid rgba(251,191,36,0.3)' : '1px solid var(--border)',
-          color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
+          color: '#ffffff', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700,
           cursor: valid ? 'pointer' : 'not-allowed', opacity: saving ? 0.6 : 1,
         }}>
           {saving ? 'Reporting...' : '🔍 Report Lost Disc'}
@@ -437,7 +435,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showLostForm, setShowLostForm] = useState(false);
-  const [filter, setFilter] = useState('active'); // 'active' | 'lost' | 'claimed' | 'all'
+  const [filter, setFilter] = useState('active');
   const [search, setSearch] = useState('');
 
   const loadDiscs = useCallback(async () => {
@@ -452,7 +450,6 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
 
   useEffect(() => { loadDiscs(); }, [loadDiscs]);
 
-  // For found discs — owner claims their disc back
   const handleClaim = async (disc) => {
     haptic('medium');
     const { error } = await supabase
@@ -462,17 +459,11 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
     if (!error) setDiscs(prev => prev.map(d => d.id === disc.id ? { ...d, status: 'claimed' } : d));
   };
 
-  // For lost discs — any member can mark it as found and provide their name
   const handleFoundIt = async (disc) => {
     haptic('success');
     const { error } = await supabase
       .from('lost_discs')
-      .update({
-        status: 'claimed',
-        claimed_by: currentUser.id,
-        claimed_at: new Date().toISOString(),
-        finder_name: currentUser.name,  // update finder to the person who found it
-      })
+      .update({ status: 'claimed', claimed_by: currentUser.id, claimed_at: new Date().toISOString(), finder_name: currentUser.name })
       .eq('id', disc.id);
     if (!error) setDiscs(prev => prev.map(d =>
       d.id === disc.id ? { ...d, status: 'claimed', finder_name: currentUser.name } : d
@@ -485,13 +476,9 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
   };
 
   const filtered = discs.filter(d => {
-    if (filter === 'active') {
-      if (d.status === 'claimed') return false;
-    } else if (filter === 'lost') {
-      if (d.type !== 'lost') return false;
-    } else if (filter !== 'all') {
-      if (d.status !== filter) return false;
-    }
+    if (filter === 'active') { if (d.status === 'claimed') return false; }
+    else if (filter === 'lost') { if (d.type !== 'lost') return false; }
+    else if (filter !== 'all') { if (d.status !== filter) return false; }
     if (search) {
       const s = search.toLowerCase();
       return (d.brand + d.mould + d.colour + d.course_name + d.description).toLowerCase().includes(s);
@@ -506,10 +493,8 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
     <div style={pageStyle}>
       {/* Header */}
       <div style={{
-        background: 'var(--bg-header)',
-        padding: '36px 20px 14px',
-        borderBottom: '1px solid var(--border)',
-        position: 'relative', overflow: 'hidden',
+        background: 'var(--bg-header)', padding: '36px 20px 14px',
+        borderBottom: '1px solid var(--border)', position: 'relative', overflow: 'hidden',
       }}>
         <LogoWatermark size={110} opacity={0.08} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', zIndex: 0 }} />
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
@@ -530,12 +515,11 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
         {/* Search */}
         <div style={{ position: 'relative', marginBottom: 10 }}>
           <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          <input
-            value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search brand, colour, course..."
-            style={{ ...inputStyle, paddingLeft: 34 }}
-          />
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search course, brand, colour..."
+            style={{ ...inputStyle, paddingLeft: 34 }} />
         </div>
+
         {/* Action buttons */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
           <button onClick={() => setShowForm(true)} style={{
@@ -583,39 +567,28 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
           <EmptyState
             icon="🥏"
             title={filter === 'found' ? 'No unclaimed discs' : 'Nothing here'}
-            subtitle={filter === 'active' ? "Use the buttons above to report a found or lost disc" : 'Try a different filter'}
+            subtitle={filter === 'active' ? 'Use the buttons above to report a found or lost disc' : 'Try a different filter'}
           />
         ) : (
           filtered.map(disc => (
             <DiscCard
-              key={disc.id}
-              disc={disc}
-              currentUser={currentUser}
-              isAdmin={isAdmin}
-              onClaim={handleClaim}
-              onFoundIt={handleFoundIt}
-              onDelete={handleDelete}
+              key={disc.id} disc={disc}
+              currentUser={currentUser} isAdmin={isAdmin}
+              onClaim={handleClaim} onFoundIt={handleFoundIt} onDelete={handleDelete}
             />
           ))
         )}
       </div>
 
       {showForm && (
-        <FoundForm
-          currentUser={currentUser}
-          courses={courses}
+        <FoundForm currentUser={currentUser} courses={courses}
           onSubmit={() => { setShowForm(false); loadDiscs(); }}
-          onClose={() => setShowForm(false)}
-        />
+          onClose={() => setShowForm(false)} />
       )}
-
       {showLostForm && (
-        <LostForm
-          currentUser={currentUser}
-          courses={courses}
+        <LostForm currentUser={currentUser} courses={courses}
           onSubmit={() => { setShowLostForm(false); loadDiscs(); }}
-          onClose={() => setShowLostForm(false)}
-        />
+          onClose={() => setShowLostForm(false)} />
       )}
 
       <GlobalStyles />
