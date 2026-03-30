@@ -767,6 +767,9 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   const [ctpSubmitting, setCtpSubmitting] = useState(false);
   const [ctpToast, setCtpToast] = useState('');
 
+  // ─── Lost disc state ─────────────────────────────────────────────────────────
+  const [lostDiscs, setLostDiscs] = useState([]);
+
   const showCtpToast = (msg) => { setCtpToast(msg); setTimeout(() => setCtpToast(''), 3500); };
 
   React.useEffect(() => {
@@ -776,12 +779,19 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
       .eq('status', 'active')
       .eq('course_id', round.course_id)
       .then(({ data }) => setCtpChallenges(data || []));
+    // Load active lost/found discs for this course
+    supabase.from('lost_discs')
+      .select('id, brand, mould, colour, hole, type, status')
+      .eq('course_id', round.course_id)
+      .neq('status', 'claimed')
+      .then(({ data }) => setLostDiscs(data || []));
   }, [round.course_id]);
 
   const courseHoles = Object.keys(typeof course.pars === 'string' ? JSON.parse(course.pars) : (course.pars || {})).length || 9;
   const currentBasket = physicalBasket(currentHole, round.starting_hole || 1, courseHoles);
   const is9HoleTwice = round.total_holes === 18 && courseHoles === 9;
   const ctpForHole = ctpChallenges.find(c => c.hole === currentBasket);
+  const lostForHole = lostDiscs.filter(d => d.hole === currentBasket);
 
   const captureCtpGps = () => {
     setCtpGpsLoading(true); setCtpGpsError('');
@@ -1065,6 +1075,23 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
               🎯 Virtual CTP active — tap to record your shot
             </span>
           </button>
+        )}
+
+        {lostForHole.length > 0 && (
+          <div style={{
+            width: '100%', marginTop: 8, padding: '9px 14px',
+            background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.22)',
+            borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8,
+            fontFamily: "'DM Sans', sans-serif",
+          }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>🥏</span>
+            <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#f87171' }}>
+              {lostForHole.length === 1
+                ? `Lost disc on this hole — ${[lostForHole[0].colour, lostForHole[0].brand, lostForHole[0].mould].filter(Boolean).join(' ')}`
+                : `${lostForHole.length} discs reported on this hole — keep an eye out!`
+              }
+            </span>
+          </div>
         )}
       </div>
 
