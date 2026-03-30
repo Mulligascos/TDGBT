@@ -54,79 +54,107 @@ export const listDrafts = () => {
 };
 
 // ─── PLAYER SCORE ROW ─────────────────────────────────────────────────────────
-const PlayerRow = ({ player, score, par, onChange, isCurrentHole, runningVsPar }) => {
+const PlayerRow = ({ player, score, par, onChange, isCurrentHole, runningVsPar, canRemove, onRemove }) => {
   const adjusted = score != null ? applyHandicap(score, player) : null;
   const diff = adjusted != null ? adjusted - par : null;
   const junior = isJunior(player);
+  const [removing, setRemoving] = useState(false);
+  const longPressTimer = useRef(null);
+
+  const startLongPress = () => {
+    if (!canRemove) return;
+    longPressTimer.current = setTimeout(() => {
+      haptic('medium');
+      setRemoving(true);
+    }, 600);
+  };
+  const cancelLongPress = () => clearTimeout(longPressTimer.current);
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      padding: '10px 0',
-      borderBottom: '1px solid var(--border)',
-      opacity: isCurrentHole ? 1 : 0.85,
-    }}>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
-          {formatName(player.name)}
-          {junior && (
-            <span style={{ fontSize: 9, background: 'rgba(251,191,36,0.2)', color: '#fbbf24', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>J</span>
-          )}
-          {player.isGuest && (
-            <span style={{ fontSize: 9, background: 'rgba(148,163,184,0.2)', color: '#94a3b8', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>GUEST</span>
-          )}
-        </div>
-        {adjusted != null && (
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>
-            {junior ? `${score} → ${adjusted} (handicap)` : `${score} strokes`}
+    <div style={{ borderBottom: '1px solid var(--border)', opacity: isCurrentHole ? 1 : 0.85 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0' }}>
+
+        {/* Name — long press to remove */}
+        <div
+          style={{ flex: 1, minWidth: 0, userSelect: 'none', WebkitUserSelect: 'none' }}
+          onMouseDown={startLongPress} onMouseUp={cancelLongPress} onMouseLeave={cancelLongPress}
+          onTouchStart={startLongPress} onTouchEnd={cancelLongPress} onTouchCancel={cancelLongPress}
+        >
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            {formatName(player.name)}
+            {junior && <span style={{ fontSize: 9, background: 'rgba(251,191,36,0.2)', color: '#fbbf24', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>J</span>}
+            {player.isGuest && <span style={{ fontSize: 9, background: 'rgba(148,163,184,0.2)', color: '#94a3b8', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>GUEST</span>}
           </div>
-        )}
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <button onClick={() => { haptic('light'); onChange(Math.max(1, (score || par) - 1)); }} style={{
-          width: 44, height: 44, borderRadius: '50%',
-          background: 'var(--bg-input)', border: '1px solid var(--border-card)',
-          color: 'var(--text-primary)', fontSize: 20, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Minus size={20} />
-        </button>
-
-        <div style={{
-          width: 60, height: 60, borderRadius: 14,
-          background: diff == null ? 'var(--bg-card)' :
-            diff < 0 ? 'rgba(74,222,128,0.15)' :
-            diff === 0 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
-          border: `1px solid ${diff == null ? 'var(--border)' :
-            diff < 0 ? 'rgba(74,222,128,0.3)' :
-            diff === 0 ? 'rgba(251,191,36,0.3)' : 'rgba(248,113,113,0.3)'}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'Arial, sans-serif', fontSize: 26, fontWeight: 800,
-          color: diff == null ? 'var(--text-muted)' :
-            diff < 0 ? '#4ade80' : diff === 0 ? '#fbbf24' : '#f87171',
-        }}>
-          {score ?? '—'}
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+            {adjusted != null
+              ? (junior ? `${score} → ${adjusted} (handicap)` : `${score} strokes`)
+              : canRemove ? 'hold to remove' : ''}
+          </div>
         </div>
 
-        <button onClick={() => { haptic('light'); onChange((score || par) + 1); }} style={{
-          width: 44, height: 44, borderRadius: '50%',
-          background: 'var(--bg-input)', border: '1px solid var(--border-card)',
-          color: 'var(--text-primary)', fontSize: 20, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Plus size={20} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button onClick={() => { haptic('light'); onChange(Math.max(1, (score || par) - 1)); }} style={{
+            width: 44, height: 44, borderRadius: '50%',
+            background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+            color: 'var(--text-primary)', fontSize: 20, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Minus size={20} />
+          </button>
+
+          <div style={{
+            width: 60, height: 60, borderRadius: 14,
+            background: diff == null ? 'var(--bg-card)' :
+              diff < 0 ? 'rgba(74,222,128,0.15)' :
+              diff === 0 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
+            border: `1px solid ${diff == null ? 'var(--border)' :
+              diff < 0 ? 'rgba(74,222,128,0.3)' :
+              diff === 0 ? 'rgba(251,191,36,0.3)' : 'rgba(248,113,113,0.3)'}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'Arial, sans-serif', fontSize: 26, fontWeight: 800,
+            color: diff == null ? 'var(--text-muted)' :
+              diff < 0 ? '#4ade80' : diff === 0 ? '#fbbf24' : '#f87171',
+          }}>
+            {score ?? '—'}
+          </div>
+
+          <button onClick={() => { haptic('light'); onChange((score || par) + 1); }} style={{
+            width: 44, height: 44, borderRadius: '50%',
+            background: 'var(--bg-input)', border: '1px solid var(--border-card)',
+            color: 'var(--text-primary)', fontSize: 20, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Plus size={20} />
+          </button>
+        </div>
+
+        <div style={{ width: 44, textAlign: 'right' }}>
+          {runningVsPar != null && (
+            <span style={{ fontSize: 20, fontWeight: 700, color: vsParColor(runningVsPar), fontFamily: 'Arial, sans-serif' }}>
+              {vsParLabel(runningVsPar)}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Running vs-par total (not just this hole) */}
-      <div style={{ width: 44, textAlign: 'right' }}>
-        {runningVsPar != null && (
-          <span style={{ fontSize: 20, fontWeight: 700, color: vsParColor(runningVsPar), fontFamily: 'Arial, sans-serif' }}>
-            {vsParLabel(runningVsPar)}
+      {/* Remove confirm — slides in on long press */}
+      {removing && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 10 }}>
+          <span style={{ flex: 1, fontSize: 13, color: '#f87171' }}>
+            Remove {formatName(player.name)}?
           </span>
-        )}
-      </div>
+          <button onClick={() => setRemoving(false)} style={{
+            padding: '6px 12px', borderRadius: 8,
+            border: '1px solid var(--border)', background: 'var(--bg-input)',
+            color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 12, cursor: 'pointer',
+          }}>Cancel</button>
+          <button onClick={() => { setRemoving(false); onRemove(player.id); }} style={{
+            padding: '6px 14px', borderRadius: 8,
+            border: '1px solid rgba(248,113,113,0.35)', background: 'rgba(248,113,113,0.12)',
+            color: '#f87171', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, cursor: 'pointer',
+          }}>Remove</button>
+        </div>
+      )}
     </div>
   );
 };
@@ -1112,31 +1140,22 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
               onChange={val => setScore(player.id, currentHole, val)}
               isCurrentHole={true}
               runningVsPar={hasAnyScore ? runningVsPar : null}
+              canRemove={cardPlayers.length > 1 && player.id !== currentUser.id}
+              onRemove={removePlayer}
             />
           );
         })}
 
-        {/* Add / remove players */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 12, marginBottom: 16 }}>
+        {/* Add player */}
+        <div style={{ marginTop: 12, marginBottom: 16 }}>
           <button onClick={() => setShowAddPlayer(true)} style={{
-            flex: 1, padding: '10px', borderRadius: 10,
+            width: '100%', padding: '10px', borderRadius: 10,
             background: 'var(--bg-card)', border: '1px solid var(--border)',
             color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: 13,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
             <UserPlus size={14} /> Add Player
           </button>
-          {cardPlayers.length > 1 && (
-            <button onClick={() => removePlayer(cardPlayers[cardPlayers.length - 1].id)} style={{
-              padding: '10px 14px', borderRadius: 10,
-              background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)',
-              color: '#f87171', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6, fontSize: 13,
-              fontFamily: "'DM Sans', sans-serif",
-            }}>
-              <UserMinus size={14} />
-            </button>
-          )}
         </div>
 
         {/* Live scorecard table */}
