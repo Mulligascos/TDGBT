@@ -54,7 +54,7 @@ export const listDrafts = () => {
 };
 
 // ─── PLAYER SCORE ROW ─────────────────────────────────────────────────────────
-const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
+const PlayerRow = ({ player, score, par, onChange, isCurrentHole, runningVsPar }) => {
   const adjusted = score != null ? applyHandicap(score, player) : null;
   const diff = adjusted != null ? adjusted - par : null;
   const junior = isJunior(player);
@@ -119,10 +119,11 @@ const PlayerRow = ({ player, score, par, onChange, isCurrentHole }) => {
         </button>
       </div>
 
+      {/* Running vs-par total (not just this hole) */}
       <div style={{ width: 44, textAlign: 'right' }}>
-        {diff != null && (
-          <span style={{ fontSize: 20, fontWeight: 700, color: vsParColor(diff), fontFamily: 'Arial, sans-serif' }}>
-            {vsParLabel(diff)}
+        {runningVsPar != null && (
+          <span style={{ fontSize: 20, fontWeight: 700, color: vsParColor(runningVsPar), fontFamily: 'Arial, sans-serif' }}>
+            {vsParLabel(runningVsPar)}
           </span>
         )}
       </div>
@@ -1097,16 +1098,23 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 
       {/* Scores */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '16px 20px 0' }}>
-        {cardPlayers.map(player => (
-          <PlayerRow
-            key={player.id}
-            player={player}
-            score={(scores[player.id] || [])[currentHole]}
-            par={par}
-            onChange={val => setScore(player.id, currentHole, val)}
-            isCurrentHole={true}
-          />
-        ))}
+        {cardPlayers.map(player => {
+          const playerScores = scores[player.id] || [];
+          const adjustedAll = playerScores.slice(0, currentHole + 1).map(s => s != null ? applyHandicap(s, player) : null);
+          const runningVsPar = calcVsPar(adjustedAll, pars.slice(0, currentHole + 1));
+          const hasAnyScore = adjustedAll.some(s => s != null);
+          return (
+            <PlayerRow
+              key={player.id}
+              player={player}
+              score={(scores[player.id] || [])[currentHole]}
+              par={par}
+              onChange={val => setScore(player.id, currentHole, val)}
+              isCurrentHole={true}
+              runningVsPar={hasAnyScore ? runningVsPar : null}
+            />
+          );
+        })}
 
         {/* Add / remove players */}
         <div style={{ display: 'flex', gap: 8, marginTop: 12, marginBottom: 16 }}>
