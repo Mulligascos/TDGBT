@@ -408,7 +408,7 @@ const PreRoundSetup = ({ round, course, currentUser, allPlayers, initialPlayers,
 };
 
 // ─── MINI SCORECARD TABLE ─────────────────────────────────────────────────────
-const MiniScorecard = ({ players, scores, pars, currentHole }) => {
+const MiniScorecard = ({ players, scores, pars, currentHole, committedHoles }) => {
   const rows = players.map(p => {
     const playerScores = scores[p.id] || [];
     const adjusted = playerScores.map(s => s != null ? applyHandicap(s, p) : null);
@@ -445,27 +445,22 @@ const MiniScorecard = ({ players, scores, pars, currentHole }) => {
           </tr>
         </thead>
         <tbody>
-        {rows.map(row => {
-            // Use raw (unadjusted) scores to detect if player actually entered a value
-            const rawScores = scores[row.player.id] || [];
-            const filledScores = row.adjusted.map((s, i) => {
-              // Only count holes where a real score was entered (rawScore !== null)
-              // and up to currentHole
-              if (i > currentHole) return null;
-              return rawScores[i] != null ? s : null;
-            });
-            const total = filledScores.filter(s => s != null).reduce((a, b) => a + b, 0);
-            const holesWithScores = filledScores.filter(s => s != null).length;
-            const vp = holesWithScores > 0 ? calcVsPar(filledScores, pars.slice(0, currentHole + 1)) : null;
+          {rows.map(row => {
+            // Only show scores for holes the player has committed (navigated away from)
+            const committedScores = row.adjusted.map((s, i) =>
+              committedHoles.has(i) ? s : null
+            );
+            const total = committedScores.filter(s => s != null).reduce((a, b) => a + b, 0);
+            const holesCommitted = committedScores.filter(s => s != null).length;
+            const vp = holesCommitted > 0 ? calcVsPar(committedScores, pars) : null;
             return (
               <tr key={row.player.id}>
                 <td style={{ padding: '4px 6px', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap', fontSize: 11 }}>
                   {formatName(row.player.name).split(' ')[0]}
                 </td>
                 {row.adjusted.map((s, i) => {
-                  if (i > currentHole) return <td key={i} />;
-                  const hasScore = rawScores[i] != null;
-                  const diff = hasScore && s != null ? s - pars[i] : null;
+                  const isCommitted = committedHoles.has(i);
+                  const diff = isCommitted && s != null ? s - pars[i] : null;
                   return (
                     <td key={i} style={{
                       padding: '4px 2px', textAlign: 'center',
@@ -473,11 +468,11 @@ const MiniScorecard = ({ players, scores, pars, currentHole }) => {
                         diff < 0 ? '#4ade80' : diff === 0 ? 'var(--text-primary)' : '#f87171',
                       fontWeight: diff != null && diff < 0 ? 700 : 400,
                       background: i === currentHole ? 'rgba(74,222,128,0.06)' : 'transparent',
-                    }}>{hasScore ? (s ?? '—') : ''}</td>
+                    }}>{isCommitted ? (s ?? '—') : ''}</td>
                   );
                 })}
-                <td style={{ padding: '4px 6px', textAlign: 'right', fontWeight: 700, color: vsParColor(vp), fontSize: 12 }}>
-                  {holesWithScores > 0 ? vsParLabel(vp) : '—'}
+                <td style={{ padding: '4px 6px', textAlign: 'right', fontWeight: 700, color: vp != null ? vsParColor(vp) : 'var(--text-muted)', fontSize: 12 }}>
+                  {holesCommitted > 0 ? vsParLabel(vp) : '—'}
                 </td>
               </tr>
             );
@@ -785,7 +780,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   });
   const [scores, setScores] = useState(() => {
     if (existingDraft?.scores) return existingDraft.scores;
-    return { [currentUser.id]: Array(pars.length).fill(null) };
+    return { [currentUser.id]: pars.map(p => p) };
   });
   const [currentHole, setCurrentHole] = useState(existingDraft?.currentHole ?? 0);
   const [view, setView] = useState(existingDraft ? 'scoring' : 'setup'); // setup | scoring | summary | challenge
@@ -892,7 +887,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
 
   const addPlayer = (player) => {
     setCardPlayers(prev => [...prev, player]);
-    setScores(prev => ({ ...prev, [player.id]: Array(pars.length).fill(null) }));
+    setScores(prev => ({ ...prev, [player.id]: pars.map(p => p) }));
   };
 
   const removePlayer = (playerId) => {
@@ -911,7 +906,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
   const handleStartRound = (players) => {
     // Initialise scores for all players selected in setup
     const newScores = {};
-    players.forEach(p => { newScores[p.id] = Array(pars.length).fill(null); });
+    players.forEach(p => { newScores[p.id] = pars.map(p => p); });
     setCardPlayers(players);
     setScores(newScores);
     setView('scoring');
@@ -1173,6 +1168,7 @@ export const StrokePlayScorer = ({ round, course, allPlayers, currentUser, onCom
           scores={scores}
           pars={pars}
           currentHole={currentHole}
+          committedHoles={new Set([...visitedHoles].filter(h => h !== currentHole))}
         />
 
       </div>
