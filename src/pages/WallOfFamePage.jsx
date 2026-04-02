@@ -19,39 +19,38 @@ const SECTIONS = [
 const TrophyCard = ({ icon, emoji, title, holder, stat, sub, accent = BRAND.light, loading }) => (
   <div style={{
     background: 'var(--bg-card)', border: '1px solid var(--border-card)',
-    borderRadius: 16, padding: '16px', position: 'relative', overflow: 'hidden',
+    borderRadius: 16, padding: '14px 16px', position: 'relative', overflow: 'hidden',
+    display: 'flex', alignItems: 'center', gap: 14,  // horizontal layout
   }}>
-    {/* Accent bar */}
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${BRAND.primary}, ${accent})` }} />
 
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-      {/* Icon */}
-      <div style={{
-        width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-        background: `linear-gradient(135deg, ${BRAND.primary}30, ${accent}30)`,
-        border: `1px solid ${accent}40`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: emoji ? 22 : 0,
-      }}>
-        {emoji || (icon && React.createElement(icon, { size: 20, color: accent }))}
-      </div>
+    {/* Icon */}
+    <div style={{
+      width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+      background: `linear-gradient(135deg, ${BRAND.primary}30, ${accent}30)`,
+      border: `1px solid ${accent}40`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: emoji ? 24 : 0,
+    }}>
+      {emoji || (icon && React.createElement(icon, { size: 22, color: accent }))}
+    </div>
 
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 3 }}>{title}</div>
-        {loading ? (
-          <div style={{ height: 18, width: '60%', borderRadius: 6, background: 'var(--bg-input)', marginBottom: 4 }} />
-        ) : holder ? (
-          <>
-            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {holder}
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: accent, marginTop: 1 }}>{stat}</div>
-            {sub && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>}
-          </>
-        ) : (
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic' }}>No data yet</div>
-        )}
-      </div>
+    {/* Text — now has full remaining width */}
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 3 }}>{title}</div>
+      {loading ? (
+        <div style={{ height: 18, width: '60%', borderRadius: 6, background: 'var(--bg-input)', marginBottom: 4 }} />
+      ) : holder ? (
+        <>
+          <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", wordBreak: 'break-word' }}>
+            {holder}
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: accent, marginTop: 2 }}>{stat}</div>
+          {sub && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>}
+        </>
+      ) : (
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic' }}>No data yet</div>
+      )}
     </div>
   </div>
 );
@@ -401,7 +400,7 @@ export const WallOfFamePage = ({ currentUser, courses = [], players = [] }) => {
 
         {/* ── TROPHY CARDS GRID ──────────────────────────────────────────── */}
         <SectionTitle emoji="🏅">Top Honours</SectionTitle>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginBottom: 20 }}>
           {trophyCards
             .filter(c => filter === 'all' || filter === c.section || (filter === 'streaks' && c.section === 'streaks'))
             .map((card, i) => (
