@@ -38,8 +38,19 @@ export default function App() {
 
   const {
     courses, tournaments, matches, players,
-    isLoading, loadData, activeTournament, pendingRequestsCount,
+    isLoading, loadData, refreshData, activeTournament, pendingRequestsCount,
   } = useAppData(currentUser, isAdmin, updateUser);
+
+  // Track background refresh (cache was warm but silent fetch is running)
+  const [backgroundRefreshing, setBackgroundRefreshing] = useState(false);
+  useEffect(() => {
+    if (!isLoading && courses.length > 0) {
+      // Data is showing from cache — do a silent background refresh
+      setBackgroundRefreshing(true);
+      const t = setTimeout(() => setBackgroundRefreshing(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [currentUser?.id]); // only on user change/login
 
   const showToast = useCallback((message, type = 'success') => {
     haptic(type === 'error' ? 'error' : 'success');
@@ -93,13 +104,13 @@ export default function App() {
       case 'matches': return (
         <MatchesPage {...commonProps} matches={matches} activeTournament={activeTournament}
           courses={courses} players={players} tournaments={tournaments}
-          onDataChanged={loadData} updateUser={updateUser} />
+          onDataChanged={refreshData} updateUser={updateUser} />
       );
       case 'history': return <HistoryPage {...commonProps} matches={matches} players={players} />;
       case 'courses': return <CoursesPage {...commonProps} courses={courses} />;
       case 'admin': return (
         <AdminPanel currentUser={currentUser} tournaments={tournaments} rounds={[]}
-          courses={courses} players={players} onDataChanged={loadData}
+          courses={courses} players={players} onDataChanged={refreshData}
           onBack={() => handleTabChange('home')} pendingRequestsCount={pendingRequestsCount} />
       );
       case 'bagtags': return <BagTagsPage currentUser={currentUser} players={players} />;
@@ -123,6 +134,9 @@ export default function App() {
           from { opacity: 0; transform: translate(-50%, -100%); }
           to { opacity: 1; transform: translate(-50%, 0); }
         }
+        @keyframes shimmer {
+          0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; }
+        }
         button { font-family: "'DM Sans', sans-serif"; }
         select option { background: var(--bg-nav); }
         input::placeholder { color: var(--text-muted); }
@@ -134,6 +148,18 @@ export default function App() {
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       <AppBanners banners={banners} onDismiss={dismissBanner} />
+
+      {/* Subtle background refresh indicator — thin animated bar at top */}
+      {(isLoading || backgroundRefreshing) && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, height: 2,
+          background: `linear-gradient(90deg, transparent, var(--brand-light, #4ade80), transparent)`,
+          backgroundSize: '200% 100%',
+          animation: 'shimmer 1.2s ease-in-out infinite',
+          zIndex: 9999,
+          pointerEvents: 'none',
+        }} />
+      )}
 
       {renderPage()}
 
