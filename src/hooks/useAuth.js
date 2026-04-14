@@ -48,13 +48,53 @@ export const useAuth = () => {
 
   // Keep Supabase Auth session in sync
   useEffect(() => {
-    // Restore session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session && currentUser) {
-        // Auth session expired but we have a cached user — re-authenticate silently
-        // This handles page refreshes where the session cookie expired
+    const restoreSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        // Valid session exists — we're good
+        return;
       }
-    });
+
+      // No active session but we have a cached user — silently re-authenticate
+      const cached = localStorage.getItem('tdg-user');
+      if (!cached) return;
+
+      try {
+        const user = JSON.parse(cached);
+        if (!user?.id || !user?.pin) return;
+
+        // Fetch player to get their auth email
+        const { data: playerRow } = await supabase
+          .from('players')
+          .select('player_id, player_name, pin, email, auth_user_id')
+          .eq('player_id', user.id)
+          .single();
+
+        if (!playerRow) return;
+
+        const email = playerRow.email?.trim()
+          ? playerRow.email.trim()
+          : `${playerRow.player_id}@tdg.local`;
+
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password: String(playerRow.pin),
+        });
+
+        if (error) {
+          console.warn('[Auth] Silent re-auth failed:', error.message);
+          // Don't log out — let the user stay logged in at app level
+          // They may still be able to use cached data
+        } else {
+          console.log('[Auth] Session restored silently');
+        }
+      } catch (e) {
+        console.warn('[Auth] Session restore error:', e);
+      }
+    };
+
+    restoreSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

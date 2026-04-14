@@ -117,14 +117,42 @@ export const useAppData = (currentUser, isAdmin = false, onCurrentUserUpdated = 
   useEffect(() => {
     if (!currentUser) return;
 
-    if (cacheIsWarm) {
-      // Cache is fresh — load silently in background, no spinner
-      loadData({ showSpinner: false });
-    } else {
-      // No cache or stale — show spinner so user knows something is happening
-      setIsLoading(true);
-      loadData({ showSpinner: true });
-    }
+    // Wait for a valid Supabase Auth session before loading data
+    // This prevents RLS from blocking queries on app startup
+    const loadWhenReady = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        // Session not ready yet — wait for auth state change
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          (event, newSession) => {
+            if (newSession) {
+              subscription.unsubscribe();
+              if (cacheIsWarm) {
+                loadData({ showSpinner: false });
+              } else {
+                loadData({ showSpinner: true });
+              }
+            }
+          }
+        );
+        // Also set a timeout fallback — if session never arrives, load anyway
+        // (handles the case where auth is broken but cache exists)
+        setTimeout(() => {
+          subscription.unsubscribe();
+          loadData({ showSpinner: !cacheIsWarm });
+        }, 3000);
+      } else {
+        // Session already valid — load immediately
+        if (cacheIsWarm) {
+          loadData({ showSpinner: false });
+        } else {
+          loadData({ showSpinner: true });
+        }
+      }
+    };
+
+    loadWhenReady();
   }, [loadData, currentUser?.id]); // re-run if user changes
 
   // Invalidate cache on explicit refresh (e.g. after admin actions)
