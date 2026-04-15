@@ -357,7 +357,7 @@ const MPBagTagScreen = ({ p1, p2, winnerPlayer, onComplete, updateUser, currentU
   const handleConfirm = async () => {
     setSaving(true);
     try {
-      await persistBagTagChallenge({ roundId, courseId, swaps, winner: result.winner, scoredPlayers, createdBy: currentUser.id });
+      await persistBagTagChallenge({ roundId, courseId, swaps, winner: result.winner, scoredPlayers, createdBy: currentUser.id, currentUser });
       if (updateUser) {
         const { data: fresh } = await supabase.from('players').select('*').eq('player_id', currentUser.id).single();
         if (fresh) updateUser({ ...currentUser, bagTag: fresh.bag_tag });
