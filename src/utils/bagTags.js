@@ -25,14 +25,11 @@ export const resolveBagTagChallenge = (scoredPlayers) => {
   const winner = winners[0];
 
   // ── Multi-player redistribution ──────────────────────────────────────────
-  // Sort players by score (best first). In case of equal scores among non-winners,
-  // preserve relative tag order (lower current tag = better position).
   const ranked = [...eligible].sort((a, b) => {
     if (a.vs_par !== b.vs_par) return a.vs_par - b.vs_par;
-    return Number(a.bagTag) - Number(b.bagTag); // tiebreak: keep lower tag
+    return Number(a.bagTag) - Number(b.bagTag);
   });
 
-  // Assign tags: 1st place gets lowest tag, 2nd gets next, etc.
   const swaps = ranked.map((player, i) => ({
     player,
     tagBefore: Number(player.bagTag),
@@ -42,14 +39,55 @@ export const resolveBagTagChallenge = (scoredPlayers) => {
   return { eligible, winner, tied: [], lowestTag, swaps, isTie: false };
 };
 
+// ── Ensure we have a valid auth session before writing ──────────────────────
+const ensureSession = async (currentUser) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) return true;
+
+  // No session — try to re-authenticate using stored PIN
+  if (!currentUser?.id || !currentUser?.pin) return false;
+
+  try {
+    const { data: playerRow } = await supabase
+      .from('players')
+      .select('player_id, pin, email')
+      .eq('player_id', currentUser.id)
+      .single();
+
+    if (!playerRow) return false;
+
+    const email = playerRow.email?.trim()
+      ? playerRow.email.trim()
+      : `${playerRow.player_id}@tdg.local`;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: String(playerRow.pin),
+    });
+
+    if (error) {
+      console.warn('[bagTags] Re-auth failed:', error.message);
+      return false;
+    }
+
+    console.log('[bagTags] Re-authenticated before persist');
+    return true;
+  } catch (e) {
+    console.warn('[bagTags] ensureSession error:', e);
+    return false;
+  }
+};
+
 export const persistBagTagChallenge = async ({
-  roundId, courseId, challengeDate, swaps, winner, scoredPlayers, createdBy,
+  roundId, courseId, challengeDate, swaps, winner, scoredPlayers, createdBy, currentUser,
 }) => {
+  // Ensure auth session is active before any writes
+  await ensureSession(currentUser);
+
   const tagChanges = swaps.filter(s => s.tagBefore !== s.tagAfter);
 
   // ── Swap tags safely around the unique index ────────────────
   // Step 1: Move all changing players to temporary high numbers
-  // so we never have two players with the same real number at once.
   const TEMP_BASE = 900000;
   for (let i = 0; i < tagChanges.length; i++) {
     const { player } = tagChanges[i];
