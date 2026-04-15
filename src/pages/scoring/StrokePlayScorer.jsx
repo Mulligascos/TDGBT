@@ -663,6 +663,7 @@ const BagTagChallengeScreen = ({ result, course, currentUser, roundId, courseId,
         winner: effectiveWinner,
         scoredPlayers,
         createdBy: currentUser.id,
+        currentUser,
       });
       if (updateUser) {
         const { data: fresh } = await supabase.from('players').select('*').eq('player_id', currentUser.id).single();
