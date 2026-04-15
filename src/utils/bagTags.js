@@ -40,36 +40,23 @@ export const resolveBagTagChallenge = (scoredPlayers) => {
 };
 
 // ── Ensure we have a valid auth session before writing ──────────────────────
-const ensureSession = async (currentUser) => {
+const ensureSession = async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) return true;
 
-  // No session — try to re-authenticate using stored PIN
-  if (!currentUser?.id || !currentUser?.pin) return false;
-
+  // No session — re-auth using stored credentials (set at login, no DB needed)
   try {
-    const { data: playerRow } = await supabase
-      .from('players')
-      .select('player_id, pin, email')
-      .eq('player_id', currentUser.id)
-      .single();
+    const authRaw = localStorage.getItem('tdg-auth');
+    if (!authRaw) return false;
 
-    if (!playerRow) return false;
+    const { email, pin } = JSON.parse(authRaw);
+    if (!email || !pin) return false;
 
-    const email = playerRow.email?.trim()
-      ? playerRow.email.trim()
-      : `${playerRow.player_id}@tdg.local`;
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: String(playerRow.pin),
-    });
-
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pin });
     if (error) {
       console.warn('[bagTags] Re-auth failed:', error.message);
       return false;
     }
-
     console.log('[bagTags] Re-authenticated before persist');
     return true;
   } catch (e) {
@@ -82,7 +69,7 @@ export const persistBagTagChallenge = async ({
   roundId, courseId, challengeDate, swaps, winner, scoredPlayers, createdBy, currentUser,
 }) => {
   // Ensure auth session is active before any writes
-  await ensureSession(currentUser);
+  await ensureSession();
 
   const tagChanges = swaps.filter(s => s.tagBefore !== s.tagAfter);
 
