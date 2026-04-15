@@ -56,36 +56,17 @@ export const useAuth = () => {
         return;
       }
 
-      // No active session but we have a cached user — silently re-authenticate
-      const cached = localStorage.getItem('tdg-user');
-      if (!cached) return;
+      // No active session — silently re-authenticate using stored credentials
+      const authRaw = localStorage.getItem('tdg-auth');
+      if (!authRaw) return;
 
       try {
-        const user = JSON.parse(cached);
-        if (!user?.id || !user?.pin) return;
+        const { email, pin } = JSON.parse(authRaw);
+        if (!email || !pin) return;
 
-        // Fetch player to get their auth email
-        const { data: playerRow } = await supabase
-          .from('players')
-          .select('player_id, player_name, pin, email, auth_user_id')
-          .eq('player_id', user.id)
-          .single();
-
-        if (!playerRow) return;
-
-        const email = playerRow.email?.trim()
-          ? playerRow.email.trim()
-          : `${playerRow.player_id}@tdg.local`;
-
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password: String(playerRow.pin),
-        });
-
+        const { error } = await supabase.auth.signInWithPassword({ email, password: pin });
         if (error) {
           console.warn('[Auth] Silent re-auth failed:', error.message);
-          // Don't log out — let the user stay logged in at app level
-          // They may still be able to use cached data
         } else {
           console.log('[Auth] Session restored silently');
         }
@@ -152,8 +133,13 @@ export const useAuth = () => {
     }
 
     // Step 4: Store user in state + localStorage
+    // Include auth credentials so we can silently re-auth without a DB query
     const user = normalisePlayer(playerRow);
+    const authEmail = playerRow.email?.trim()
+      ? playerRow.email.trim()
+      : `${playerRow.player_id}@tdg.local`;
     localStorage.setItem('tdg-user', JSON.stringify(user));
+    localStorage.setItem('tdg-auth', JSON.stringify({ email: authEmail, pin: String(pin) }));
     setCurrentUser(user);
 
     // Step 5: Fire-and-forget last_seen update
@@ -167,6 +153,7 @@ export const useAuth = () => {
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('tdg-user');
+    localStorage.removeItem('tdg-auth');
     setCurrentUser(null);
   }, []);
 
