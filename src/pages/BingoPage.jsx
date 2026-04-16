@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import { BRAND, formatName, formatDate } from '../utils';
 import { LogoWatermark } from '../components/ui';
 import { Plus, Trophy, Grid, ChevronLeft, Trash2, Check } from 'lucide-react';
+import { ensureSession } from '../utils/ensureSession';
 
 // ─── AUTO-CHECK ENGINE ────────────────────────────────────────────────────────
 // Returns a Set of auto_keys that the player has achieved this season
