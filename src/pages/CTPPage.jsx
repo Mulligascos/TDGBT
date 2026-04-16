@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import { BRAND, formatName, formatDate } from '../utils';
 import { LogoWatermark } from '../components/ui';
 import { MapPin, Plus, Check, X, Target, ChevronLeft, Trash2, Lock } from 'lucide-react';
+import { ensureSession } from '../utils/ensureSession';
 
 const pageStyle = {
   minHeight: '100vh',
@@ -504,6 +505,7 @@ const CreateChallenge = ({ currentUser, courses, onCreated, onBack }) => {
     if (!name.trim()) { setError('Name is required'); return; }
     if (!pinPos) { setError('You must capture the pin position'); return; }
     setSaving(true); setError('');
+    try { await ensureSession(); } catch (e) { setError(e.message); setSaving(false); return; }
     const { data, error: err } = await supabase.from('ctp_challenges').insert({
       name: name.trim(),
       description: description.trim() || null,
@@ -634,6 +636,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
   useEffect(() => { loadEntries(); }, [loadEntries]);
 
   const handleSubmit = async () => {
+    try { await ensureSession(); } catch (e) { showToast(e.message); setSubmitting(false); return; }
     if (!capture) return;
     setSubmitting(true);
     let distance;
@@ -652,6 +655,7 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
       row.disc_lng = capture.lng;
     }
     row.distance_m = distance;
+    
     const { error } = await supabase.from('ctp_entries').upsert(row, { onConflict: 'challenge_id,player_id' });
     setSubmitting(false);
     if (!error) {
