@@ -319,6 +319,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
   const createSeason = async () => {
     if (!form.name || !form.starts_at || !form.ends_at) { showToast('Fill in all fields', 'error'); return; }
     setSaving(true);
+    try { await ensureSession(); } catch (e) { showToast(e.message, 'error'); setSaving(false); return; }
     const { data: season, error } = await supabase.from('bingo_seasons').insert({
       name: form.name, starts_at: form.starts_at, ends_at: form.ends_at,
       created_by: currentUser.id, status: 'active',
@@ -336,6 +337,7 @@ export const BingoAdminSection = ({ currentUser, showToast }) => {
   };
 
   const closeSeason = async (id) => {
+    try { await ensureSession(); } catch (e) { showToast(e.message, 'error'); return; }
     await supabase.from('bingo_seasons').update({ status: 'closed' }).eq('id', id);
     showToast('Season closed');
     loadSeasons();
