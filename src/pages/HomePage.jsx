@@ -280,7 +280,7 @@ export const HomePage = ({ currentUser, tournaments, activeTournament, players, 
             <div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>{greeting}</div>
               <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: -0.5, marginBottom: 10 }}>
-                {formatName(currentUser.name)} 👋
+                {formatName(currentUser.name)} 
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <Badge
