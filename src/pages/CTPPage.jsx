@@ -636,9 +636,9 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
   useEffect(() => { loadEntries(); }, [loadEntries]);
 
   const handleSubmit = async () => {
-    try { await ensureSession(); } catch (e) { showToast(e.message); setSubmitting(false); return; }
     if (!capture) return;
     setSubmitting(true);
+    try { await ensureSession(); } catch (e) { showToast(e.message); setSubmitting(false); return; }
     let distance;
     const row = {
       challenge_id: challenge.id,
@@ -655,7 +655,6 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
       row.disc_lng = capture.lng;
     }
     row.distance_m = distance;
-    
     const { error } = await supabase.from('ctp_entries').upsert(row, { onConflict: 'challenge_id,player_id' });
     setSubmitting(false);
     if (!error) {
@@ -666,11 +665,13 @@ const ChallengeDetail = ({ challenge, currentUser, isAdmin, onBack, onDeleted })
   };
 
   const handleDelete = async () => {
+    try { await ensureSession(); } catch (e) { showToast(e.message); return; }
     await supabase.from('ctp_challenges').delete().eq('id', challenge.id);
     onDeleted();
   };
 
   const handleClose = async () => {
+    try { await ensureSession(); } catch (e) { showToast(e.message); return; }
     await supabase.from('ctp_challenges').update({ status: 'closed' }).eq('id', challenge.id);
     showToast('Challenge closed');
     onBack();

@@ -234,8 +234,8 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
   const handleSubmit = async () => {
     if (!valid) return;
     setSaving(true); setError('');
-    await ensureSession();
     try {
+      await ensureSession();
       const course = courses.find(c => c.id === form.course_id);
       const { error: err } = await supabase.from('lost_discs').insert({
         brand: form.brand, mould: form.mould || null,
@@ -337,8 +337,8 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
   const handleSubmit = async () => {
     if (!valid) return;
     setSaving(true); setError('');
-    await ensureSession();
     try {
+      await ensureSession();
       const course = courses.find(c => c.id === form.course_id);
       const { error: err } = await supabase.from('lost_discs').insert({
         brand: form.brand, mould: form.mould || null,
@@ -455,6 +455,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
 
   const handleClaim = async (disc) => {
     haptic('medium');
+    try { await ensureSession(); } catch (e) { return; }
     const { error } = await supabase
       .from('lost_discs')
       .update({ status: 'claimed', claimed_by: currentUser.id, claimed_at: new Date().toISOString() })
@@ -464,6 +465,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
 
   const handleFoundIt = async (disc) => {
     haptic('success');
+    try { await ensureSession(); } catch (e) { return; }
     const { error } = await supabase
       .from('lost_discs')
       .update({ status: 'claimed', claimed_by: currentUser.id, claimed_at: new Date().toISOString(), finder_name: currentUser.name })
@@ -474,6 +476,7 @@ export const LostFoundPage = ({ currentUser, isAdmin, courses }) => {
   };
 
   const handleDelete = async (id) => {
+    try { await ensureSession(); } catch (e) { return; }
     const { error } = await supabase.from('lost_discs').delete().eq('id', id);
     if (!error) setDiscs(prev => prev.filter(d => d.id !== id));
   };
