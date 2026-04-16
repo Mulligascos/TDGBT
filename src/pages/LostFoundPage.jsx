@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import { BRAND, formatName, formatDate, haptic } from '../utils';
 import { EmptyState, LogoWatermark } from '../components/ui';
 import { ChevronLeft, Plus, Check, X, Search, MapPin } from 'lucide-react';
+import { ensureSession } from '../utils/ensureSession';
 
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 const pageStyle = {
@@ -233,6 +234,7 @@ const FoundForm = ({ currentUser, courses, onSubmit, onClose }) => {
   const handleSubmit = async () => {
     if (!valid) return;
     setSaving(true); setError('');
+    await ensureSession();
     try {
       const course = courses.find(c => c.id === form.course_id);
       const { error: err } = await supabase.from('lost_discs').insert({
@@ -335,6 +337,7 @@ const LostForm = ({ currentUser, courses, onSubmit, onClose }) => {
   const handleSubmit = async () => {
     if (!valid) return;
     setSaving(true); setError('');
+    await ensureSession();
     try {
       const course = courses.find(c => c.id === form.course_id);
       const { error: err } = await supabase.from('lost_discs').insert({
