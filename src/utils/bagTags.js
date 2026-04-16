@@ -1,5 +1,6 @@
 // ─── BAG TAG UTILITIES ────────────────────────────────────────────────────────
 import { supabase } from '../supabaseClient';
+import { ensureSession } from './ensureSession';
 
 export const resolveBagTagChallenge = (scoredPlayers) => {
   // bagTag may come through as bag_tag in some paths — normalise defensively
@@ -37,32 +38,6 @@ export const resolveBagTagChallenge = (scoredPlayers) => {
   }));
 
   return { eligible, winner, tied: [], lowestTag, swaps, isTie: false };
-};
-
-// ── Ensure we have a valid auth session before writing ──────────────────────
-const ensureSession = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) return true;
-
-  // No session — re-auth using stored credentials (set at login, no DB needed)
-  try {
-    const authRaw = localStorage.getItem('tdg-auth');
-    if (!authRaw) return false;
-
-    const { email, pin } = JSON.parse(authRaw);
-    if (!email || !pin) return false;
-
-    const { error } = await supabase.auth.signInWithPassword({ email, password: pin });
-    if (error) {
-      console.warn('[bagTags] Re-auth failed:', error.message);
-      return false;
-    }
-    console.log('[bagTags] Re-authenticated before persist');
-    return true;
-  } catch (e) {
-    console.warn('[bagTags] ensureSession error:', e);
-    return false;
-  }
 };
 
 export const persistBagTagChallenge = async ({
