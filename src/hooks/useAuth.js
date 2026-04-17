@@ -25,6 +25,11 @@ const authEmail = (playerRow) =>
 const authEmailFromNormalised = (player) =>
   player.email?.trim() ? player.email.trim() : `${player.id}@tdg.local`;
 
+// Supabase Auth requires passwords >= 8 characters.
+// PINs are 4 digits, so we pad them to a consistent 12-char password.
+// This must be applied everywhere a password is set or used.
+const pinToPassword = (pin) => `tdg-${String(pin)}-pin`;
+
 export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -63,9 +68,9 @@ export const useAuth = () => {
       if (!authRaw) return;
 
       try {
-        const { email, pin } = JSON.parse(authRaw);
-        if (!email || !pin) return;
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pin });
+        const { email, password } = JSON.parse(authRaw);
+        if (!email || !password) return;
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
           console.warn('[Auth] Silent re-auth failed:', error.message);
         } else {
@@ -89,60 +94,11 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Create a Supabase Auth account for a player who doesn't have one yet.
-  // playerRow is the raw DB row (uses player_id).
-  const createAuthAccount = async (playerRow, pin) => {
-    try {
-      const email = authEmail(playerRow);
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password: String(pin),
-        options: {
-          data: {
-            player_id: playerRow.player_id,
-            player_name: playerRow.player_name,
-          },
-        },
-      });
-
-      if (error) {
-        console.warn('[Auth] signUp error:', error.message);
-        return false;
-      }
-
-      // Link auth_user_id back to player record
-      if (data?.user?.id) {
-        await supabase
-          .from('players')
-          .update({ auth_user_id: data.user.id })
-          .eq('player_id', playerRow.player_id);
-      }
-
-      // Sign in with the newly created account
-      const { error: signInErr } = await supabase.auth.signInWithPassword({
-        email,
-        password: String(pin),
-      });
-
-      if (signInErr) {
-        console.warn('[Auth] signIn after signUp error:', signInErr.message);
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      console.warn('[Auth] createAuthAccount error:', e);
-      return false;
-    }
-  };
-
   const login = useCallback(async (playerName, pin) => {
     setLoginError('');
 
     // ── Step 1: Find the player in the already-loaded dropdown list. ──────────
-    // This avoids any DB query before a session exists (RLS would block it).
-    // The dropdown list was fetched with only the columns needed for login
-    // (player_id, player_name, player_status, email) using a permissive anon policy.
+    // Avoids any DB query before a session exists (RLS would block it).
     const cachedPlayer = players.find(p => p.name === playerName);
 
     if (!cachedPlayer) {
@@ -151,13 +107,10 @@ export const useAuth = () => {
     }
 
     const email = authEmailFromNormalised(cachedPlayer);
+    const password = pinToPassword(pin); // pad PIN to meet Supabase 8-char minimum
 
     // ── Step 2: Sign in with Supabase Auth first. ─────────────────────────────
-    // Once this succeeds we have a session and all RLS-protected queries work.
-    const { error: authErr } = await supabase.auth.signInWithPassword({
-      email,
-      password: String(pin),
-    });
+    const { error: authErr } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authErr) {
       if (
@@ -165,11 +118,9 @@ export const useAuth = () => {
         authErr.status === 400
       ) {
         // Auth account doesn't exist yet — create it on the fly.
-        // signUp with the supplied PIN; if the PIN is wrong we'll catch that
-        // in Step 4 after we load the full player row.
-        const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+        const { error: signUpErr } = await supabase.auth.signUp({
           email,
-          password: String(pin),
+          password,
           options: {
             data: {
               player_id: cachedPlayer.id,
@@ -179,17 +130,13 @@ export const useAuth = () => {
         });
 
         if (signUpErr) {
-          // Email already exists means a race or duplicate — wrong PIN
+          console.warn('[Auth] signUp error:', signUpErr.message);
           setLoginError('Invalid name or PIN. Please try again.');
           return false;
         }
 
         // Sign in with the newly created account
-        const { error: signInErr } = await supabase.auth.signInWithPassword({
-          email,
-          password: String(pin),
-        });
-
+        const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
         if (signInErr) {
           setLoginError('Invalid name or PIN. Please try again.');
           return false;
@@ -215,8 +162,6 @@ export const useAuth = () => {
     }
 
     // ── Step 4: Verify PIN against the DB value. ──────────────────────────────
-    // This is the authoritative check. If wrong, the auth account was just
-    // created with a bad password — sign out and reject.
     if (String(playerRow.pin) !== String(pin)) {
       await supabase.auth.signOut();
       setLoginError('Invalid name or PIN. Please try again.');
@@ -237,7 +182,8 @@ export const useAuth = () => {
       ? playerRow.email.trim()
       : `${playerRow.player_id}@tdg.local`;
     localStorage.setItem('tdg-user', JSON.stringify(user));
-    localStorage.setItem('tdg-auth', JSON.stringify({ email: storedEmail, pin: String(pin) }));
+    // Store the padded password (not the raw PIN) for silent re-auth
+    localStorage.setItem('tdg-auth', JSON.stringify({ email: storedEmail, password }));
     setCurrentUser(user);
 
     // ── Step 6: Fire-and-forget last_seen update. ────────────────────────────
@@ -268,11 +214,23 @@ export const useAuth = () => {
       .eq('player_id', playerId);
     if (dbErr) throw dbErr;
 
+    // Update Auth password using the same padding
     const { error: authErr } = await supabase.auth.updateUser({
-      password: String(newPin),
+      password: pinToPassword(newPin),
     });
     if (authErr) console.warn('[Auth] Auth password update failed:', authErr.message);
-    // Don't throw — PIN is updated in DB, auth will sync on next login
+
+    // Update stored credentials so silent re-auth keeps working
+    const authRaw = localStorage.getItem('tdg-auth');
+    if (authRaw) {
+      try {
+        const stored = JSON.parse(authRaw);
+        localStorage.setItem('tdg-auth', JSON.stringify({
+          ...stored,
+          password: pinToPassword(newPin),
+        }));
+      } catch {}
+    }
   }, []);
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'committee';
